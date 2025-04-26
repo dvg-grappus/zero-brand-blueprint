@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { PositioningContext } from "@/pages/StepPage";
 import { Button } from "@/components/ui/button";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 const mockValues = [
   {

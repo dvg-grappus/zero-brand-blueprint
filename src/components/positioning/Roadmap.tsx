@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import StickyNote from "./StickyNote";
-import { PositioningContext } from "@/pages/StepPage";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 // Mock data for development - in production this would come from GPT API
 const mockMilestones = [

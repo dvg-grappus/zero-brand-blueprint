@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { toast } from "sonner";
-import { PositioningContext } from "@/pages/StepPage";
 import { Button } from "@/components/ui/button";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 // Mock data for development - in production this would come from GPT API
 const mockDifferentiators = [

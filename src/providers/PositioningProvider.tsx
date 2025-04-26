@@ -81,6 +81,8 @@ export const PositioningProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setActiveStep,
       completeStep,
       completedSteps,
+      openSteps,
+      setOpenSteps
     }}>
       {children}
     </PositioningContext.Provider>

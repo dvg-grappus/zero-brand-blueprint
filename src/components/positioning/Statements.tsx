@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StepNavBar from "./StepNavBar";
-import { PositioningContext } from "@/pages/StepPage";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 const mockStatements = [
   {

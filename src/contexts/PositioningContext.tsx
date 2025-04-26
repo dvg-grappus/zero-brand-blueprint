@@ -34,6 +34,8 @@ interface PositioningContextType {
   setActiveStep: React.Dispatch<React.SetStateAction<string>>;
   completeStep: (step: string) => void;
   completedSteps: string[];
+  openSteps: string[];
+  setOpenSteps: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export const PositioningContext = React.createContext<PositioningContextType>({
@@ -61,6 +63,8 @@ export const PositioningContext = React.createContext<PositioningContextType>({
   setActiveStep: () => {},
   completeStep: () => {},
   completedSteps: [],
+  openSteps: [],
+  setOpenSteps: () => {}
 });
 
 export const usePositioning = () => {

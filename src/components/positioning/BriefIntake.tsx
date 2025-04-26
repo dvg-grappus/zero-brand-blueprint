@@ -2,8 +2,8 @@
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
-import { PositioningContext } from "@/pages/StepPage";
 import { Button } from "@/components/ui/button";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 interface BriefIntakeProps {
   onComplete?: () => void;

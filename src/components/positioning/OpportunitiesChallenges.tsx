@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import StickyNote from "./StickyNote";
 import { Button } from "@/components/ui/button";
-import { PositioningContext } from "@/pages/StepPage";
+import { PositioningContext } from "@/contexts/PositioningContext";
 
 const mockOpportunities = [
   "Growing market for AI tools in design",
