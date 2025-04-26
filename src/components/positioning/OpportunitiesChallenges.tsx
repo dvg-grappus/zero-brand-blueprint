@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { toast } from "sonner";
 import StickyNote from "./StickyNote";
 import StepNavBar from "./StepNavBar";
@@ -33,6 +32,7 @@ interface DraggableNoteProps {
   isDiscarded: boolean;
   onSelect: () => void;
   onDiscard: () => void;
+  onMove: () => void;
   section: 'opportunities' | 'challenges';
 }
 
@@ -43,6 +43,7 @@ const DraggableNote: React.FC<DraggableNoteProps> = ({
   isDiscarded,
   onSelect,
   onDiscard,
+  onMove,
   section
 }) => {
   return (
@@ -60,6 +61,12 @@ const DraggableNote: React.FC<DraggableNoteProps> = ({
         onClick={onSelect}
         onDiscard={onDiscard}
       />
+      <button 
+        onClick={onMove}
+        className="mt-2 w-full text-xs py-1 px-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700 flex items-center justify-center"
+      >
+        Move to {section === 'opportunities' ? 'Challenges' : 'Opportunities'} ↔
+      </button>
     </motion.div>
   );
 };
@@ -73,8 +80,6 @@ const OpportunitiesChallenges: React.FC = () => {
   
   const [discardedOpportunities, setDiscardedOpportunities] = useState<string[]>([]);
   const [discardedChallenges, setDiscardedChallenges] = useState<string[]>([]);
-  
-  const [activeDragId, setActiveDragId] = useState<string | null>(null);
   
   useEffect(() => {
     // Simulate GPT API call
@@ -120,40 +125,24 @@ const OpportunitiesChallenges: React.FC = () => {
     );
   };
   
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  // Move item from opportunities to challenges
+  const moveToChallenge = (opportunity: string) => {
+    setOpportunities(prev => prev.filter(item => item !== opportunity));
+    setChallenges(prev => [...prev, opportunity]);
     
-    if (over) {
-      const draggedId = active.id as string;
-      const targetSection = over.id as 'opportunities' | 'challenges';
-      
-      // Extract the item content and current section from the ID
-      const [currentSection, index] = draggedId.split('-');
-      const itemContent = currentSection === 'opportunities' 
-        ? opportunities[parseInt(index)]
-        : challenges[parseInt(index)];
-      
-      // Move item from one column to the other
-      if (currentSection !== targetSection) {
-        if (currentSection === 'opportunities' && targetSection === 'challenges') {
-          setOpportunities(prev => prev.filter(item => item !== itemContent));
-          setChallenges(prev => [...prev, itemContent]);
-          
-          // Update selection states
-          setSelectedOpportunities(prev => prev.filter(item => item !== itemContent));
-          setDiscardedOpportunities(prev => prev.filter(item => item !== itemContent));
-        } else {
-          setChallenges(prev => prev.filter(item => item !== itemContent));
-          setOpportunities(prev => [...prev, itemContent]);
-          
-          // Update selection states
-          setSelectedChallenges(prev => prev.filter(item => item !== itemContent));
-          setDiscardedChallenges(prev => prev.filter(item => item !== itemContent));
-        }
-      }
-    }
+    // Update selection states
+    setSelectedOpportunities(prev => prev.filter(item => item !== opportunity));
+    setDiscardedOpportunities(prev => prev.filter(item => item !== opportunity));
+  };
+  
+  // Move item from challenges to opportunities
+  const moveToOpportunity = (challenge: string) => {
+    setChallenges(prev => prev.filter(item => item !== challenge));
+    setOpportunities(prev => [...prev, challenge]);
     
-    setActiveDragId(null);
+    // Update selection states
+    setSelectedChallenges(prev => prev.filter(item => item !== challenge));
+    setDiscardedChallenges(prev => prev.filter(item => item !== challenge));
   };
   
   const validateSelection = () => {
@@ -191,81 +180,81 @@ const OpportunitiesChallenges: React.FC = () => {
           Opportunities & Challenges
         </motion.h1>
         
-        <DndContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-8">
-            {/* Opportunities Column */}
-            <div className="flex-1">
-              <motion.h2
-                className="text-[20px] font-bold mb-6"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                Opportunities
-              </motion.h2>
-              
-              <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="opportunities">
-                {isLoading ? (
-                  <div className="flex flex-col items-center mt-8">
-                    <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-                    <p className="text-gray-500">Still shaping ideas... one second.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {opportunities.map((opportunity, index) => (
-                      <DraggableNote
-                        key={`opportunities-${index}`}
-                        id={`opportunities-${index}`}
-                        content={opportunity}
-                        isSelected={selectedOpportunities.includes(opportunity)}
-                        isDiscarded={discardedOpportunities.includes(opportunity)}
-                        onSelect={() => handleSelectOpportunity(opportunity)}
-                        onDiscard={() => handleDiscardOpportunity(opportunity)}
-                        section="opportunities"
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+        <div className="flex gap-8">
+          {/* Opportunities Column */}
+          <div className="flex-1">
+            <motion.h2
+              className="text-[20px] font-bold mb-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Opportunities
+            </motion.h2>
             
-            {/* Challenges Column */}
-            <div className="flex-1">
-              <motion.h2
-                className="text-[20px] font-bold mb-6"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                Challenges
-              </motion.h2>
-              
-              <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="challenges">
-                {isLoading ? (
-                  <div className="flex flex-col items-center mt-8">
-                    <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-                    <p className="text-gray-500">Still shaping ideas... one second.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {challenges.map((challenge, index) => (
-                      <DraggableNote
-                        key={`challenges-${index}`}
-                        id={`challenges-${index}`}
-                        content={challenge}
-                        isSelected={selectedChallenges.includes(challenge)}
-                        isDiscarded={discardedChallenges.includes(challenge)}
-                        onSelect={() => handleSelectChallenge(challenge)}
-                        onDiscard={() => handleDiscardChallenge(challenge)}
-                        section="challenges"
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+            <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="opportunities">
+              {isLoading ? (
+                <div className="flex flex-col items-center mt-8">
+                  <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
+                  <p className="text-gray-500">Still shaping ideas... one second.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {opportunities.map((opportunity, index) => (
+                    <DraggableNote
+                      key={`opportunities-${index}`}
+                      id={`opportunities-${index}`}
+                      content={opportunity}
+                      isSelected={selectedOpportunities.includes(opportunity)}
+                      isDiscarded={discardedOpportunities.includes(opportunity)}
+                      onSelect={() => handleSelectOpportunity(opportunity)}
+                      onDiscard={() => handleDiscardOpportunity(opportunity)}
+                      onMove={() => moveToChallenge(opportunity)}
+                      section="opportunities"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </DndContext>
+          
+          {/* Challenges Column */}
+          <div className="flex-1">
+            <motion.h2
+              className="text-[20px] font-bold mb-6"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Challenges
+            </motion.h2>
+            
+            <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="challenges">
+              {isLoading ? (
+                <div className="flex flex-col items-center mt-8">
+                  <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
+                  <p className="text-gray-500">Still shaping ideas... one second.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {challenges.map((challenge, index) => (
+                    <DraggableNote
+                      key={`challenges-${index}`}
+                      id={`challenges-${index}`}
+                      content={challenge}
+                      isSelected={selectedChallenges.includes(challenge)}
+                      isDiscarded={discardedChallenges.includes(challenge)}
+                      onSelect={() => handleSelectChallenge(challenge)}
+                      onDiscard={() => handleDiscardChallenge(challenge)}
+                      onMove={() => moveToOpportunity(challenge)}
+                      section="challenges"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
       
       <StepNavBar 
