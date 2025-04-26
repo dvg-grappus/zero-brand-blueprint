@@ -4,10 +4,12 @@ import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
+import { useNavigate } from "react-router-dom";
 
 const BriefIntake: React.FC = () => {
   const { briefContext, setBriefContext } = useContext(PositioningContext);
   const [wordCount, setWordCount] = useState(0);
+  const navigate = useNavigate();
   
   const countWords = (text: string) => {
     return text.trim().split(/\s+/).filter(Boolean).length;
@@ -20,6 +22,10 @@ const BriefIntake: React.FC = () => {
   };
   
   const isButtonDisabled = wordCount < 20 || wordCount > 80;
+  
+  const handleNext = () => {
+    navigate("/step/1/golden-circle");
+  };
   
   return (
     <>
@@ -70,6 +76,7 @@ const BriefIntake: React.FC = () => {
         nextStep="/step/1/golden-circle"
         nextButtonLabel="Position it →"
         isButtonDisabled={isButtonDisabled}
+        onNext={handleNext}
       />
     </>
   );
