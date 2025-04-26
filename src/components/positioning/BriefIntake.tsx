@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const BriefIntake: React.FC = () => {
   const { briefContext, setBriefContext } = useContext(PositioningContext);
@@ -25,6 +26,7 @@ const BriefIntake: React.FC = () => {
   
   const handleNext = () => {
     console.log("Navigation to golden circle");
+    toast.success("Moving to the next step");
     navigate("/step/1/golden-circle");
   };
   
