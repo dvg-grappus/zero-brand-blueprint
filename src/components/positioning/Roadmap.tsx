@@ -1,11 +1,24 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Plus, ArrowLeft, ArrowRight } from "lucide-react";
 import StickyNote from "./StickyNote";
 import { PositioningContext } from "@/contexts/PositioningContext";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 // Mock data for development - in production this would come from GPT API
 const mockMilestones = [
@@ -25,20 +38,53 @@ const Roadmap: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [milestones, setMilestones] = useState<string[]>([]);
   const [discardedMilestones, setDiscardedMilestones] = useState<string[]>([]);
-  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [customMilestone, setCustomMilestone] = useState("");
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [dragOverTimepoint, setDragOverTimepoint] = useState<string | null>(null);
+  
+  // Set up DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
   
   useEffect(() => {
     // Simulate GPT API call
     const timer = setTimeout(() => {
-      // Here you would make the actual API call
       setMilestones(mockMilestones);
       setIsLoading(false);
     }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
+  
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string);
+  };
+  
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDragId(null);
+    setDragOverTimepoint(null);
+    
+    const { active, over } = event;
+    if (!over) return;
+    
+    const milestoneId = active.id as string;
+    const timepoint = over.id as string;
+    
+    if (timelinePoints.includes(timepoint)) {
+      handleAssignMilestone(milestoneId, timepoint);
+    }
+  };
+  
+  const handleDragOver = (timepoint: string) => {
+    setDragOverTimepoint(timepoint);
+  };
   
   const handleAssignMilestone = (milestone: string, timePoint: string) => {
     // Remove from any existing timepoint
@@ -85,6 +131,15 @@ const Roadmap: React.FC = () => {
     );
   };
   
+  const getMilestoneTimepoint = (milestone: string) => {
+    for (const point of timelinePoints) {
+      if (roadmapMilestones[point].includes(milestone)) {
+        return point;
+      }
+    }
+    return null;
+  };
+  
   const validateRoadmap = () => {
     // Check if each timepoint has at least one milestone
     const isValid = timelinePoints.every(point => roadmapMilestones[point].length > 0);
@@ -98,18 +153,19 @@ const Roadmap: React.FC = () => {
   };
   
   const handleComplete = () => {
-    if (validateRoadmap() && completeStep) {
+    if (validateRoadmap()) {
       completeStep("roadmap");
     }
   };
   
-  const getMilestoneTimepoint = (milestone: string) => {
-    for (const point of timelinePoints) {
-      if (roadmapMilestones[point].includes(milestone)) {
-        return point;
-      }
-    }
-    return null;
+  // Get available milestones (not assigned or discarded)
+  const getAvailableMilestones = () => {
+    return milestones.filter(milestone => {
+      return !discardedMilestones.includes(milestone) && 
+             !Object.values(roadmapMilestones).some(pointMilestones => 
+               pointMilestones.includes(milestone)
+             );
+    });
   };
   
   return (
@@ -133,108 +189,140 @@ const Roadmap: React.FC = () => {
           Roadmap
         </motion.h1>
         
-        <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground flex items-center gap-2"
+          >
+            <Plus size={16} />
+            Add Custom Milestone
+          </Button>
+        </div>
+        
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
         >
-          {/* Timeline */}
-          <div className="relative mb-12">
-            <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-gray-300"></div>
-            
-            <div className="flex justify-between relative">
-              {timelinePoints.map((point, index) => (
-                <div key={point} className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-black mb-2 z-10"></div>
-                  <span className="text-sm font-medium">{point}</span>
+          <motion.div
+            className="bg-secondary/30 p-6 rounded-lg shadow-sm mb-8 border border-border/30"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Timeline Column */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Timeline</h3>
+                <div className="relative">
+                  {/* Vertical Line */}
+                  <div className="absolute left-[15px] top-6 bottom-6 w-0.5 bg-gray-600/30"></div>
                   
-                  {/* Milestone dropzone */}
-                  <div className="mt-4 min-h-[250px] w-[180px] flex flex-col items-center gap-4">
-                    {roadmapMilestones[point].map((milestone, idx) => (
-                      <motion.div
-                        key={`${point}-${idx}`}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 * idx }}
-                      >
-                        <StickyNote
-                          id={`${point}-${idx}`}
-                          content={milestone}
-                          isSelected={true}
-                          isDiscarded={false}
-                          onClick={() => {/* Already assigned */}}
-                          onDiscard={() => handleDiscardMilestone(milestone)}
-                          color="#E5FBFF" // Light cyan for milestone cards
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Milestones pool */}
-          <div className="mt-8">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Available Milestones</h3>
-              <Button
-                onClick={() => setDialogOpen(true)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800"
-              >
-                Add Custom Milestone
-              </Button>
-            </div>
-            
-            {isLoading ? (
-              <div className="flex flex-col items-center mt-8">
-                <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-                <p className="text-gray-500">Still shaping ideas... one second.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-6">
-                {milestones.map((milestone, index) => {
-                  // Skip if discarded or already assigned to a timepoint
-                  if (discardedMilestones.includes(milestone)) {
-                    return null;
-                  }
-                  
-                  const assignedTimepoint = getMilestoneTimepoint(milestone);
-                  if (assignedTimepoint) {
-                    return null;
-                  }
-                  
-                  return (
-                    <div key={`milestone-${index}`} className="relative">
-                      <StickyNote
-                        id={`milestone-${index}`}
-                        content={milestone}
-                        isSelected={isMilestoneAssigned(milestone)}
-                        isDiscarded={discardedMilestones.includes(milestone)}
-                        onClick={() => {/* No action on click */}}
-                        onDiscard={() => handleDiscardMilestone(milestone)}
-                        color="#E5FBFF" // Light cyan for milestone cards
-                      />
-                      
-                      <div className="mt-2 flex justify-center gap-2">
-                        {timelinePoints.map(point => (
-                          <button
-                            key={point}
-                            onClick={() => handleAssignMilestone(milestone, point)}
-                            className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
-                          >
-                            {point}
-                          </button>
-                        ))}
+                  {/* Timeline Points */}
+                  {timelinePoints.map((point, index) => (
+                    <div
+                      key={point}
+                      id={point} // For DnD
+                      className={`relative mb-12 ${
+                        dragOverTimepoint === point 
+                          ? "bg-muted/30 rounded-lg" 
+                          : ""
+                      }`}
+                      onMouseEnter={() => activeDragId && handleDragOver(point)}
+                      onMouseLeave={() => setDragOverTimepoint(null)}
+                    >
+                      <div className="flex items-start">
+                        <div 
+                          className="w-8 h-8 rounded-full bg-muted-foreground/20 border-2 border-muted-foreground flex items-center justify-center z-10 mr-4"
+                        >
+                          <span className="text-xs font-medium">{index + 1}</span>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-base font-semibold mb-2">{point}</h4>
+                          
+                          {/* Milestones for this timepoint */}
+                          <div className="pl-2 space-y-3 min-h-[100px]">
+                            {roadmapMilestones[point].map((milestone, idx) => (
+                              <motion.div
+                                key={`${point}-${idx}`}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.1 * idx }}
+                              >
+                                <StickyNote
+                                  id={milestone}
+                                  content={milestone}
+                                  isSelected={true}
+                                  isDiscarded={false}
+                                  onClick={() => {/* Already assigned */}}
+                                  onDiscard={() => handleDiscardMilestone(milestone)}
+                                  color="#252A33" // Dark color for milestone cards
+                                  className="border border-border/40"
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
-        </motion.div>
+              
+              {/* Milestone Pool Column */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">Available Milestones</h3>
+                
+                {isLoading ? (
+                  <div className="flex flex-col items-center mt-8">
+                    <div className="w-full h-[220px] bg-muted/20 animate-pulse rounded-lg mb-4"></div>
+                    <p className="text-muted-foreground">Still shaping ideas... one second.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 mt-2">
+                    {getAvailableMilestones().map((milestone, index) => (
+                      <div 
+                        key={`milestone-${index}`}
+                        className="relative"
+                      >
+                        <div
+                          className="cursor-grab active:cursor-grabbing"
+                          id={milestone} // For DnD
+                        >
+                          <StickyNote
+                            id={milestone}
+                            content={milestone}
+                            isSelected={false}
+                            isDiscarded={discardedMilestones.includes(milestone)}
+                            onClick={() => {/* No action on click */}}
+                            onDiscard={() => handleDiscardMilestone(milestone)}
+                            color="#252A33" // Dark color for milestone cards
+                            className="border border-border/40"
+                          />
+                        </div>
+                        
+                        <div className="mt-2 flex justify-start gap-2">
+                          {timelinePoints.map(point => (
+                            <button
+                              key={point}
+                              onClick={() => handleAssignMilestone(milestone, point)}
+                              className="px-2 py-1 text-xs bg-muted/30 hover:bg-muted/50 rounded text-muted-foreground"
+                            >
+                              {point}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </DndContext>
       </div>
       
       {/* Add Custom Milestone Dialog */}
