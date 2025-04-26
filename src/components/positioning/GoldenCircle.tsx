@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -49,7 +50,28 @@ const GoldenCircle: React.FC = () => {
     return ideas.slice(0, 4);
   };
 
-  
+  // Calculate positions for the sticky notes in a circle arrangement
+  const getPositionForIndex = (index: number, total: number) => {
+    // Place cards at specific positions for better layout
+    const angleOffset = Math.PI / 2; // Start from top (90 degrees)
+    const angle = angleOffset + (index / total) * (2 * Math.PI);
+    
+    // Distance from center depends on the active segment
+    let distance = 180;
+    
+    if (activeSegment === 'what') {
+      distance = 220;
+    } else if (activeSegment === 'how') {
+      distance = 140;
+    } else {
+      distance = 100;
+    }
+    
+    return {
+      left: 300 + Math.cos(angle) * distance,
+      top: 300 + Math.sin(angle) * distance
+    };
+  };
 
   return (
     <div className="text-center">
@@ -71,7 +93,7 @@ const GoldenCircle: React.FC = () => {
         Start with purpose, not outputs.
       </motion.p>
       
-      <div className="relative flex justify-center items-center min-h-[500px]">
+      <div className="relative flex justify-center items-center">
         {isLoading ? (
           <div className="flex flex-col items-center">
             <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
@@ -79,62 +101,72 @@ const GoldenCircle: React.FC = () => {
           </div>
         ) : (
           <div className="relative w-full h-full">
-            {/* Interactive Circle SVG */}
-            <svg width="600" height="600" viewBox="0 0 600 600" className="absolute">
-              <CircleSegment
-                label="WHAT"
-                radius={300}
-                isActive={activeSegment === 'what'}
-                onClick={() => handleSegmentClick('what')}
-              />
-              <CircleSegment
-                label="HOW"
-                radius={220}
-                isActive={activeSegment === 'how'}
-                onClick={() => handleSegmentClick('how')}
-              />
-              <CircleSegment
-                label="WHY"
-                radius={140}
-                isActive={activeSegment === 'why'}
-                onClick={() => handleSegmentClick('why')}
-              />
-            </svg>
-            
-            {/* Display cards for active segment */}
-            <div className="relative">
-              {getVisibleIdeas(activeSegment).map((idea, index) => (
-                <motion.div
-                  key={`${activeSegment}-${index}`}
-                  className="absolute"
-                  style={{
-                    left: `${300 + Math.cos(index * Math.PI/2) * 120 - 60}px`,
-                    top: `${300 + Math.sin(index * Math.PI/2) * 120 - 80}px`,
-                  }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <StickyNote
-                    id={`${activeSegment}-${index}`}
-                    content={idea}
-                    isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
-                    isDiscarded={false}
-                    onClick={() => handleSelect(activeSegment, idea)}
-                    onDiscard={() => {}}
+            <div className="flex justify-center">
+              {/* SVG Container with fixed dimensions */}
+              <div className="relative w-[600px] h-[600px]">
+                {/* Interactive Circle SVG */}
+                <svg width="600" height="600" viewBox="0 0 600 600" className="absolute">
+                  <CircleSegment
+                    label="WHAT"
+                    radius={220}
+                    isActive={activeSegment === 'what'}
+                    onClick={() => handleSegmentClick('what')}
                   />
-                </motion.div>
-              ))}
+                  <CircleSegment
+                    label="HOW"
+                    radius={140}
+                    isActive={activeSegment === 'how'}
+                    onClick={() => handleSegmentClick('how')}
+                  />
+                  <CircleSegment
+                    label="WHY"
+                    radius={80}
+                    isActive={activeSegment === 'why'}
+                    onClick={() => handleSegmentClick('why')}
+                  />
+                </svg>
+                
+                {/* Display cards for active segment */}
+                <div className="absolute top-0 left-0 w-full h-full">
+                  {getVisibleIdeas(activeSegment).map((idea, index) => {
+                    const totalIdeas = getVisibleIdeas(activeSegment).length;
+                    const position = getPositionForIndex(index, totalIdeas);
+                    
+                    return (
+                      <motion.div
+                        key={`${activeSegment}-${index}`}
+                        className="absolute"
+                        style={{
+                          left: `${position.left - 70}px`,  // Center the card (half of card width)
+                          top: `${position.top - 80}px`,    // Center the card (half of card height)
+                        }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <StickyNote
+                          id={`${activeSegment}-${index}`}
+                          content={idea}
+                          isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
+                          isDiscarded={false}
+                          onClick={() => handleSelect(activeSegment, idea)}
+                          onDiscard={() => {}}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
       </div>
       
-      <div className="mt-6 text-right">
+      <div className="mt-6">
         <Button
           onClick={() => completeStep && completeStep("golden-circle")}
-          className="bg-white hover:bg-cyan text-black border border-border/40 shadow-sm transition-colors"
+          className="bg-white text-black border border-border/40 hover:bg-cyan hover:text-black shadow-sm transition-colors"
         >
           Complete & Continue
         </Button>
