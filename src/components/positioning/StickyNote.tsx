@@ -1,3 +1,4 @@
+
 import React from "react";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
@@ -26,14 +27,14 @@ const StickyNote: React.FC<StickyNoteProps> = ({
   return (
     <motion.div
       id={`sticky-note-${id}`}
-      className={`relative w-[140px] h-[160px] rounded-lg p-3 font-medium text-[13px] ${className}`}
+      className={`relative rounded-lg p-3 font-medium text-[13px] ${className}`}
       style={{ backgroundColor: color }}
       whileHover={{ y: -4 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="h-full overflow-hidden text-black">
+      <div className="h-full overflow-hidden text-black mb-6">
         {content}
       </div>
       

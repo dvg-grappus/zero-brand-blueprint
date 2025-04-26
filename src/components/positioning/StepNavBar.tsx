@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +14,7 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
   title,
   nextStep,
   nextButtonLabel = "Next",
+  isButtonDisabled = false,
   onNext
 }) => {
   return (

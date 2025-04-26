@@ -18,30 +18,30 @@ const CircleSegment: React.FC<CircleSegmentProps> = ({ label, radius, isActive, 
     >
       {/* Clickable background circle */}
       <circle
-        cx="150"
-        cy="150"
+        cx="140"
+        cy="140"
         r={radius}
-        fill={isActive ? "rgba(200, 200, 200, 0.2)" : "transparent"}
+        fill={isActive ? "rgba(255, 255, 255, 0.1)" : "transparent"}
         className="transition-colors duration-300"
       />
       
       {/* Visible circle outline */}
       <circle
-        cx="150"
-        cy="150"
+        cx="140"
+        cy="140"
         r={radius}
         fill="transparent"
-        stroke={isActive ? "hsl(var(--cyan))" : "#E0E0E0"}
+        stroke={isActive ? "#888888" : "#E0E0E0"}
         strokeWidth="2"
         className="transition-colors duration-300"
       />
       
       <text
-        x="150"
-        y={150 - radius - 15}
+        x="140"
+        y={140 - radius + 20}
         textAnchor="middle"
         dominantBaseline="middle"
-        fill={isActive ? "hsl(var(--cyan))" : "#999999"}
+        fill={isActive ? "#888888" : "#999999"}
         className="font-semibold text-lg transition-colors duration-300 pointer-events-none"
       >
         {label}
