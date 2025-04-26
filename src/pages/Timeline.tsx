@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TimelineTopBar from "@/components/TimelineTopBar";
@@ -43,7 +44,10 @@ const Timeline: React.FC = () => {
       
       if (e.metaKey && !isNaN(Number(e.key)) && Number(e.key) >= 1 && Number(e.key) <= 14) {
         const stepNumber = Number(e.key);
-        document.getElementById(`step-card-${stepNumber}`)?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById(`step-card-${stepNumber}`)?.scrollIntoView({ 
+          behavior: "smooth",
+          block: "center"
+        });
       }
     };
     
@@ -81,7 +85,7 @@ const Timeline: React.FC = () => {
           transition={{ duration: 0.4 }}
         >
           <h1 className="inter-font font-bold text-[32px] text-foreground mb-2">Your route beyond zero.</h1>
-          <p className="inter-font text-[18px] text-muted-foreground mb-8">
+          <p className="inter-font text-[18px] text-muted-foreground mb-10">
             Fourteen concise modules. Move in order or jump to what matters.
           </p>
         </motion.div>
@@ -106,7 +110,7 @@ const Timeline: React.FC = () => {
       </div>
       
       <motion.button
-        className="fixed right-6 bottom-6 w-12 h-12 bg-secondary text-secondary-foreground rounded-full shadow-md flex items-center justify-center text-xl font-semibold z-50 hover:bg-secondary/90 focus:outline-none focus:ring focus:ring-ring"
+        className="fixed right-6 bottom-6 w-12 h-12 bg-secondary/80 text-secondary-foreground rounded-full shadow-md flex items-center justify-center text-xl font-semibold z-50 border border-border/40 backdrop-blur-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring"
         onClick={() => setShowHelpDrawer(prev => !prev)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}

@@ -77,10 +77,10 @@ const StepCard: React.FC<StepCardProps> = ({
 
   const getMarkerIcon = () => {
     if (status === "done") {
-      return <Check className="w-4 h-4 text-black" />;
+      return <Check className="w-4 h-4" />;
     }
     if (status === "current") {
-      return <ArrowRight className="w-4 h-4 text-white" />;
+      return <ArrowRight className="w-4 h-4 text-background" />;
     }
     return null;
   };
@@ -104,21 +104,22 @@ const StepCard: React.FC<StepCardProps> = ({
         }}
         whileHover={{ y: -6 }}
       >
-        {/* Card Spine */}
-        <div className="absolute left-[32px] top-0 bottom-0 w-0.5 bg-spineLine group-hover:bg-black transition-colors duration-300"></div>
+        {/* Card Spine/Line */}
+        <div className="absolute left-[32px] top-0 bottom-0 w-0.5 bg-muted/70"></div>
         
         {/* Card Container */}
-        <div className="ml-16 w-[560px] bg-white rounded-lg p-4 shadow-card hover:shadow-card-hover transition-shadow duration-300">
-          <div className="flex justify-between items-start mb-2">
+        <div className="ml-16 w-[560px] bg-card rounded-lg p-5 shadow-card hover:shadow-card-hover transition-shadow duration-300 border border-border/50">
+          <div className="flex justify-between items-start mb-3">
+            {/* Title Section */}
             <div className="flex items-start gap-4">
               {/* Marker Circle */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="absolute left-[24px] -translate-x-1/2 top-6 w-6 h-6 rounded-full flex items-center justify-center border border-spineLine transition-colors duration-300">
+                  <div className="absolute left-[32px] -translate-x-1/2 top-6 w-6 h-6 rounded-full flex items-center justify-center border border-muted/50 bg-background z-10">
                     <div 
                       className={cn(
-                        "w-6 h-6 rounded-full flex items-center justify-center",
-                        status === "current" && "bg-black",
+                        "w-5 h-5 rounded-full flex items-center justify-center",
+                        status === "current" && "bg-foreground",
                         status === "done" && "bg-cyan"
                       )}
                     >
@@ -126,18 +127,20 @@ const StepCard: React.FC<StepCardProps> = ({
                     </div>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>{keyboardShortcut}</TooltipContent>
+                <TooltipContent side="top">
+                  <span className="text-xs font-medium">{keyboardShortcut}</span>
+                </TooltipContent>
               </Tooltip>
               
               {/* Title and Description */}
               <div className="flex-1">
-                <h3 className="inter-font font-semibold text-[20px] mb-1">{title}</h3>
-                <p className="inter-font text-[15px] text-gray-700 line-clamp-2">{description}</p>
+                <h3 className="inter-font font-semibold text-[22px] mb-2 text-foreground">{title}</h3>
+                <p className="inter-font text-[16px] text-muted-foreground line-clamp-2">{description}</p>
               </div>
             </div>
             
             {/* Duration Pill */}
-            <div className="bg-lightGrey text-[13px] px-3 py-1 rounded-lg">
+            <div className="bg-secondary text-secondary-foreground text-[13px] px-3 py-1 rounded-full font-medium">
               {duration}
             </div>
           </div>
@@ -145,14 +148,14 @@ const StepCard: React.FC<StepCardProps> = ({
           {/* Preview Content */}
           {showPreview && (
             <motion.div 
-              className="mt-4 h-[280px] bg-gray-100 rounded-md flex items-center justify-center"
+              className="mt-4 h-[280px] bg-muted/20 rounded-md flex items-center justify-center border border-border/30"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 280, opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
               <div className="flex gap-4">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="w-[150px] h-[240px] bg-gray-200 rounded-md flex items-center justify-center">
+                  <div key={i} className="w-[150px] h-[240px] bg-muted/30 rounded-md flex items-center justify-center text-muted-foreground">
                     Preview slide {i}
                   </div>
                 ))}
@@ -163,11 +166,11 @@ const StepCard: React.FC<StepCardProps> = ({
           {/* Card Footer with Button */}
           <div className="mt-4 flex justify-end">
             <button 
-              className="bg-white text-black hover:bg-cyan rounded-full py-2 px-8 font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan/40"
-              style={{ width: 104, height: 40 }}
+              className="bg-card text-foreground hover:bg-cyan hover:text-background border border-border/70 rounded-full py-2 px-8 font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan/40"
+              style={{ minWidth: 104, height: 40 }}
               onClick={handleButtonClick}
             >
-              {isFirstCard ? "Begin" : (showPreview ? "Close preview" : "Preview")}
+              {isFirstCard ? "Begin" : (showPreview ? "Close" : "Preview")}
             </button>
           </div>
         </div>

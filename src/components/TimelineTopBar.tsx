@@ -12,7 +12,7 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
   
   return (
     <motion.div 
-      className="fixed top-0 left-0 right-0 h-[88px] bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between px-[120px] z-30"
+      className="fixed top-0 left-0 right-0 h-[88px] bg-background/95 backdrop-blur-md border-b border-border/40 flex items-center justify-between px-[120px] z-30"
       initial={{ y: -88 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
@@ -29,14 +29,14 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
           const isCompleted = completedSteps.includes(stepNumber);
           const isCurrent = currentStep === stepNumber;
           
-          let bgColor = "bg-transparent border-border";
-          if (isCompleted) bgColor = "bg-cyan border-cyan";
-          else if (isCurrent) bgColor = "bg-foreground border-foreground";
+          let classes = "border border-border/70 bg-transparent";
+          if (isCompleted) classes = "border-cyan bg-cyan";
+          else if (isCurrent) classes = "border-foreground bg-foreground";
           
           return (
             <div
               key={i}
-              className={`w-5 h-5 border ${bgColor} transition-colors duration-300`}
+              className={`w-5 h-5 ${classes} transition-colors duration-300`}
             />
           );
         })}
@@ -45,7 +45,9 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
       {/* Draft Info and Avatar */}
       <div className="flex items-center gap-4">
         <span className="text-muted-foreground">Draft #041</span>
-        <div className="w-8 h-8 rounded-full bg-muted"></div>
+        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground/70">
+          <span>A</span>
+        </div>
       </div>
     </motion.div>
   );
