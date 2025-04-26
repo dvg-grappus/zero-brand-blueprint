@@ -244,7 +244,7 @@ const Roadmap: React.FC = () => {
                                   isDiscarded={false}
                                   onClick={() => {/* Already assigned */}}
                                   onDiscard={() => handleDiscardMilestone(milestone)}
-                                  color="#252A33"
+                                  color="#FFEB3B"
                                   className="border border-border/40"
                                 />
                               </motion.div>
@@ -283,7 +283,7 @@ const Roadmap: React.FC = () => {
                             isDiscarded={discardedMilestones.includes(milestone)}
                             onClick={() => {/* No action on click */}}
                             onDiscard={() => handleDiscardMilestone(milestone)}
-                            color="#252A33"
+                            color="#FFEB3B"
                             className="border border-border/40"
                           />
                         </div>
