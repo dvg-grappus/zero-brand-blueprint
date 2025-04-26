@@ -124,7 +124,9 @@ const StepPage: React.FC = () => {
       if (currentIndex < STEP_CONFIG.length - 1) {
         const nextStep = STEP_CONFIG[currentIndex + 1].id;
         setActiveStep(nextStep);
-        setOpenSteps([...openSteps, nextStep]);
+        
+        const nextOpenSteps = [nextStep];
+        setOpenSteps(nextOpenSteps);
       } else {
         setPositioningComplete(true);
         toast.success("Positioning module completed!");
