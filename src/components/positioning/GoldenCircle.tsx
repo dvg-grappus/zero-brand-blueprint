@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -6,34 +5,28 @@ import StickyNote from "./StickyNote";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/pages/StepPage";
 
-// Mock data for development - in production this would come from GPT API
+// Reduced mock data
 const mockIdeas = {
   why: [
-    "Because everyone deserves clear visual identity",
     "To democratize professional design tools",
     "To empower non-designers with agency",
     "To make branding accessible to all"
   ],
   how: [
-    "By automating routine design decisions",
     "Through AI-powered creative assistance",
     "With step-by-step guided pathways",
     "Using pre-validated design patterns"
   ],
   what: [
     "A brand identity system generator",
-    "A design toolkit for non-designers",
     "An AI branding platform",
     "A visual identity automation suite"
   ]
 };
 
-interface GoldenCircleProps {
-  onComplete?: () => void;
-  isValid?: boolean;
-}
+interface GoldenCircleProps {}
 
-const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false }) => {
+const GoldenCircle: React.FC = () => {
   const { briefContext, selectedGoldenCircle, setSelectedGoldenCircle, completeStep } = useContext(PositioningContext);
   const [isLoading, setIsLoading] = useState(true);
   const [ideas, setIdeas] = useState(mockIdeas);
@@ -102,9 +95,7 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
   const handleComplete = () => {
     if (!validateSelection()) return;
     
-    if (onComplete) {
-      onComplete();
-    } else if (completeStep) {
+    if (completeStep) {
       completeStep("golden-circle");
     }
   };
@@ -129,25 +120,25 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
         Start with purpose, not outputs.
       </motion.p>
       
-      <div className="relative flex justify-center items-center min-h-[550px]">
+      <div className="relative flex justify-center items-center min-h-[500px] max-w-[800px] mx-auto">
         {/* Circle SVG */}
-        <svg width="660" height="660" viewBox="0 0 660 660" className="absolute">
-          <circle cx="330" cy="330" r="330" fill="none" stroke="#E0E0E0" strokeWidth="1" />
-          <circle cx="330" cy="330" r="240" fill="none" stroke="#E0E0E0" strokeWidth="1" />
-          <circle cx="330" cy="330" r="150" fill="none" stroke="#E0E0E0" strokeWidth="1" />
+        <svg width="600" height="600" viewBox="0 0 600 600" className="absolute">
+          <circle cx="300" cy="300" r="300" fill="none" stroke="#E0E0E0" strokeWidth="1" />
+          <circle cx="300" cy="300" r="220" fill="none" stroke="#E0E0E0" strokeWidth="1" />
+          <circle cx="300" cy="300" r="140" fill="none" stroke="#E0E0E0" strokeWidth="1" />
           
-          <text x="330" y="330" textAnchor="middle" dominantBaseline="middle" 
-            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="18" fontWeight="600">
+          <text x="300" y="300" textAnchor="middle" dominantBaseline="middle" 
+            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="16" fontWeight="600">
             WHY
           </text>
           
-          <text x="330" y="150" textAnchor="middle" dominantBaseline="middle" 
-            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="18" fontWeight="600">
+          <text x="300" y="140" textAnchor="middle" dominantBaseline="middle" 
+            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="16" fontWeight="600">
             HOW
           </text>
           
-          <text x="330" y="570" textAnchor="middle" dominantBaseline="middle" 
-            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="18" fontWeight="600">
+          <text x="300" y="520" textAnchor="middle" dominantBaseline="middle" 
+            fill="#999999" fontFamily="'Satoshi', sans-serif" fontSize="16" fontWeight="600">
             WHAT
           </text>
         </svg>
@@ -165,13 +156,13 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
                 key={`why-${index}`}
                 className="absolute"
                 style={{
-                  left: `${330 + Math.cos(index * Math.PI/2) * 100 - 80}px`,
-                  top: `${330 + Math.sin(index * Math.PI/2) * 100 - 100}px`,
+                  left: `${300 + Math.cos(index * Math.PI/1.5) * 80 - 60}px`,
+                  top: `${300 + Math.sin(index * Math.PI/1.5) * 80 - 80}px`,
                 }}
-                initial={{ x: 330 - 80, y: 330 - 100 }}
+                initial={{ x: 300 - 60, y: 300 - 80 }}
                 animate={{ 
-                  x: selectedGoldenCircle.why.includes(idea) ? -12 : 0,
-                  y: selectedGoldenCircle.why.includes(idea) ? -12 : 0,
+                  x: selectedGoldenCircle.why.includes(idea) ? -8 : 0,
+                  y: selectedGoldenCircle.why.includes(idea) ? -8 : 0,
                   boxShadow: selectedGoldenCircle.why.includes(idea) ? "0 0 15px rgba(125, 249, 255, 0.5)" : "none"
                 }}
                 transition={{ duration: 0.6, type: "spring" }}
@@ -193,13 +184,13 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
                 key={`how-${index}`}
                 className="absolute"
                 style={{
-                  left: `${330 + Math.cos(index * Math.PI/2 + Math.PI/4) * 195 - 80}px`,
-                  top: `${330 + Math.sin(index * Math.PI/2 + Math.PI/4) * 195 - 100}px`,
+                  left: `${300 + Math.cos(index * Math.PI/1.5 + Math.PI/4) * 160 - 60}px`,
+                  top: `${300 + Math.sin(index * Math.PI/1.5 + Math.PI/4) * 160 - 80}px`,
                 }}
-                initial={{ x: 330 - 80, y: 330 - 100 }}
+                initial={{ x: 300 - 60, y: 300 - 80 }}
                 animate={{ 
-                  x: selectedGoldenCircle.how.includes(idea) ? -12 : 0,
-                  y: selectedGoldenCircle.how.includes(idea) ? -12 : 0,
+                  x: selectedGoldenCircle.how.includes(idea) ? -8 : 0,
+                  y: selectedGoldenCircle.how.includes(idea) ? -8 : 0,
                   boxShadow: selectedGoldenCircle.how.includes(idea) ? "0 0 15px rgba(125, 249, 255, 0.5)" : "none"
                 }}
                 transition={{ duration: 0.8, type: "spring" }}
@@ -210,7 +201,7 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
                   isSelected={selectedGoldenCircle.how.includes(idea)}
                   isDiscarded={discardedIdeas.how.includes(idea)}
                   onClick={() => handleSelect('how', idea)}
-                  onDiscard={() => handleDiscard('how', idea)}
+                  onDiscard={() => handleDiscard('why', idea)}
                 />
               </motion.div>
             ))}
@@ -221,13 +212,13 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
                 key={`what-${index}`}
                 className="absolute"
                 style={{
-                  left: `${330 + Math.cos(index * Math.PI/2 + Math.PI/8) * 285 - 80}px`,
-                  top: `${330 + Math.sin(index * Math.PI/2 + Math.PI/8) * 285 - 100}px`,
+                  left: `${300 + Math.cos(index * Math.PI/1.5 + Math.PI/8) * 240 - 60}px`,
+                  top: `${300 + Math.sin(index * Math.PI/1.5 + Math.PI/8) * 240 - 80}px`,
                 }}
-                initial={{ x: 330 - 80, y: 330 - 100 }}
+                initial={{ x: 300 - 60, y: 300 - 80 }}
                 animate={{ 
-                  x: selectedGoldenCircle.what.includes(idea) ? -12 : 0,
-                  y: selectedGoldenCircle.what.includes(idea) ? -12 : 0,
+                  x: selectedGoldenCircle.what.includes(idea) ? -8 : 0,
+                  y: selectedGoldenCircle.what.includes(idea) ? -8 : 0,
                   boxShadow: selectedGoldenCircle.what.includes(idea) ? "0 0 15px rgba(125, 249, 255, 0.5)" : "none"
                 }}
                 transition={{ duration: 1, type: "spring" }}
@@ -238,7 +229,7 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
                   isSelected={selectedGoldenCircle.what.includes(idea)}
                   isDiscarded={discardedIdeas.what.includes(idea)}
                   onClick={() => handleSelect('what', idea)}
-                  onDiscard={() => handleDiscard('what', idea)}
+                  onDiscard={() => handleDiscard('how', idea)}
                 />
               </motion.div>
             ))}
@@ -249,7 +240,6 @@ const GoldenCircle: React.FC<GoldenCircleProps> = ({ onComplete, isValid = false
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isLoading || !selectedGoldenCircle.why.length || !selectedGoldenCircle.how.length || !selectedGoldenCircle.what.length}
           className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
         >
           Complete & Continue
