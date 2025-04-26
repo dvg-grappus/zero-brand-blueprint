@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -6,7 +5,6 @@ import StickyNote from "./StickyNote";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/pages/StepPage";
 
-// Mock data for development - in production this would come from GPT API
 const mockOpportunities = [
   "Growing market for AI tools in design",
   "Underserved small business segment",
@@ -87,9 +85,7 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
   const [discardedChallenges, setDiscardedChallenges] = useState<string[]>([]);
   
   useEffect(() => {
-    // Simulate GPT API call
     const timer = setTimeout(() => {
-      // Here you would make the actual API call
       setOpportunities(mockOpportunities);
       setChallenges(mockChallenges);
       setIsLoading(false);
@@ -130,31 +126,23 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
     );
   };
   
-  // Move item from opportunities to challenges
   const moveToChallenge = (opportunity: string) => {
     setOpportunities(prev => prev.filter(item => item !== opportunity));
     setChallenges(prev => [...prev, opportunity]);
     
-    // Update selection states
     setSelectedOpportunities(prev => prev.filter(item => item !== opportunity));
     setDiscardedOpportunities(prev => prev.filter(item => item !== opportunity));
   };
   
-  // Move item from challenges to opportunities
   const moveToOpportunity = (challenge: string) => {
     setChallenges(prev => prev.filter(item => item !== challenge));
     setOpportunities(prev => [...prev, challenge]);
     
-    // Update selection states
     setSelectedChallenges(prev => prev.filter(item => item !== challenge));
     setDiscardedChallenges(prev => prev.filter(item => item !== challenge));
   };
   
   const validateSelection = () => {
-    if (selectedOpportunities.length < 2 || selectedChallenges.length < 2) {
-      toast.error("Select at least 2 items from each column");
-      return false;
-    }
     return true;
   };
   
@@ -189,7 +177,6 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
       </motion.p>
       
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Opportunities Column */}
         <div className="flex-1">
           <motion.h3
             className="text-[18px] font-bold mb-4"
@@ -200,7 +187,7 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
             Opportunities
           </motion.h3>
           
-          <div className="p-4 bg-white rounded-lg shadow-sm min-h-[400px]" id="opportunities">
+          <div className="p-4 bg-secondary rounded-lg shadow-sm min-h-[400px]" id="opportunities">
             {isLoading ? (
               <div className="flex flex-col items-center mt-8">
                 <div className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
@@ -226,7 +213,6 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
           </div>
         </div>
         
-        {/* Challenges Column */}
         <div className="flex-1">
           <motion.h3
             className="text-[18px] font-bold mb-4"
@@ -237,7 +223,7 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
             Challenges
           </motion.h3>
           
-          <div className="p-4 bg-white rounded-lg shadow-sm min-h-[400px]" id="challenges">
+          <div className="p-4 bg-secondary rounded-lg shadow-sm min-h-[400px]" id="challenges">
             {isLoading ? (
               <div className="flex flex-col items-center mt-8">
                 <div className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
@@ -267,8 +253,7 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isLoading || selectedOpportunities.length < 2 || selectedChallenges.length < 2}
-          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+          className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
         >
           Complete & Continue
         </Button>
