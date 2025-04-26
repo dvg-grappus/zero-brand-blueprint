@@ -24,6 +24,7 @@ const BriefIntake: React.FC = () => {
   const isButtonDisabled = wordCount < 20 || wordCount > 80;
   
   const handleNext = () => {
+    console.log("Navigation to golden circle");
     navigate("/step/1/golden-circle");
   };
   
