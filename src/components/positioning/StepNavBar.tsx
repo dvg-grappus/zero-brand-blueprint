@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -47,7 +48,8 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     if (onNext) {
       onNext();
     } else {
-      navigate(nextStep, { replace: true });
+      // Use direct window location change for more reliable navigation
+      window.location.href = nextStep;
     }
   };
 

@@ -27,10 +27,9 @@ const BriefIntake: React.FC = () => {
   const handleNext = () => {
     console.log("Navigation to golden circle");
     toast.success("Moving to the next step");
-    // Force navigation with a slight delay to ensure the toast is visible
-    setTimeout(() => {
-      navigate("/step/1/golden-circle", { replace: true });
-    }, 300);
+    
+    // Force immediate navigation without delay
+    window.location.href = "/step/1/golden-circle";
   };
   
   return (
