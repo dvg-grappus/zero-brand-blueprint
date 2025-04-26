@@ -16,24 +16,33 @@ const CircleSegment: React.FC<CircleSegmentProps> = ({ label, radius, isActive, 
       whileHover={{ scale: 1.02 }}
       className="cursor-pointer"
     >
-      {/* Visible circle fill for better tap target */}
+      {/* Clickable background circle */}
       <circle
-        cx="100"
+        cx="150"
         cy="150"
         r={radius}
         fill={isActive ? "rgba(200, 200, 200, 0.2)" : "transparent"}
+        className="transition-colors duration-300"
+      />
+      
+      {/* Visible circle outline */}
+      <circle
+        cx="150"
+        cy="150"
+        r={radius}
+        fill="transparent"
         stroke={isActive ? "hsl(var(--cyan))" : "#E0E0E0"}
         strokeWidth="2"
         className="transition-colors duration-300"
       />
       
       <text
-        x="100"
-        y={150 - radius - 10}
+        x="150"
+        y={150 - radius - 15}
         textAnchor="middle"
         dominantBaseline="middle"
         fill={isActive ? "hsl(var(--cyan))" : "#999999"}
-        className="font-semibold text-base transition-colors duration-300 pointer-events-none"
+        className="font-semibold text-lg transition-colors duration-300 pointer-events-none"
       >
         {label}
       </text>
