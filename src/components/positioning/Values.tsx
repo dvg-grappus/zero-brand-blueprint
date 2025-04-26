@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
+import { Button } from "@/components/ui/button";
 
-// Mock data for development - in production this would come from GPT API
 const mockValues = [
   {
     value: "Integrity",
@@ -82,15 +81,13 @@ const ValueCard: React.FC<ValueCardProps> = ({ value, description, isSelected, o
 };
 
 const Values: React.FC = () => {
-  const { selectedValues, setSelectedValues } = useContext(PositioningContext);
+  const { selectedValues, setSelectedValues, completeStep } = useContext(PositioningContext);
   
   const [isLoading, setIsLoading] = useState(true);
   const [values, setValues] = useState<typeof mockValues>([]);
   
   useEffect(() => {
-    // Simulate GPT API call
     const timer = setTimeout(() => {
-      // Here you would make the actual API call
       setValues(mockValues);
       setIsLoading(false);
     }, 1500);
@@ -100,18 +97,15 @@ const Values: React.FC = () => {
   
   const handleValueSelect = (value: string) => {
     setSelectedValues(prev => {
-      // If already selected, remove it
       if (prev.includes(value)) {
         return prev.filter(v => v !== value);
       }
       
-      // If trying to select more than 7, show error
       if (prev.length >= 7) {
         toast.error("You can select a maximum of 7 values");
         return prev;
       }
       
-      // Otherwise add it
       return [...prev, value];
     });
   };
@@ -130,13 +124,14 @@ const Values: React.FC = () => {
     return true;
   };
   
-  const handleNext = () => {
+  const handleComplete = () => {
     if (validateSelection()) {
-      window.location.href = "/step/1/differentiators";
+      if (completeStep) {
+        completeStep("values");
+      }
     }
   };
   
-  // Animation variants for grid cards
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -222,13 +217,15 @@ const Values: React.FC = () => {
         )}
       </div>
       
-      <StepNavBar 
-        title="Values"
-        nextStep="/step/1/differentiators"
-        nextButtonLabel="Commit to values →"
-        isButtonDisabled={isLoading || selectedValues.length < 3 || selectedValues.length > 7}
-        onNext={handleNext}
-      />
+      <div className="mt-6 text-right">
+        <Button
+          onClick={handleComplete}
+          disabled={isLoading || selectedValues.length < 3 || selectedValues.length > 7}
+          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+        >
+          Commit to values
+        </Button>
+      </div>
     </>
   );
 };

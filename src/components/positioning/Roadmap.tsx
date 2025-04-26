@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -6,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import StickyNote from "./StickyNote";
-import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
 
 // Mock data for development - in production this would come from GPT API
@@ -22,7 +20,7 @@ const mockMilestones = [
 const timelinePoints = ["Now", "1 yr", "3 yr", "5 yr", "10 yr"];
 
 const Roadmap: React.FC = () => {
-  const { roadmapMilestones, setRoadmapMilestones } = useContext(PositioningContext);
+  const { roadmapMilestones, setRoadmapMilestones, completeStep } = useContext(PositioningContext);
   
   const [isLoading, setIsLoading] = useState(true);
   const [milestones, setMilestones] = useState<string[]>([]);
@@ -99,9 +97,9 @@ const Roadmap: React.FC = () => {
     return true;
   };
   
-  const handleNext = () => {
-    if (validateRoadmap()) {
-      window.location.href = "/step/1/values";
+  const handleComplete = () => {
+    if (validateRoadmap() && completeStep) {
+      completeStep("roadmap");
     }
   };
   
@@ -260,13 +258,15 @@ const Roadmap: React.FC = () => {
         </DialogContent>
       </Dialog>
       
-      <StepNavBar 
-        title="Roadmap"
-        nextStep="/step/1/values"
-        nextButtonLabel="Save timeline →"
-        isButtonDisabled={isLoading || !validateRoadmap()}
-        onNext={handleNext}
-      />
+      <div className="mt-6 text-right">
+        <Button
+          onClick={handleComplete}
+          disabled={isLoading || !validateRoadmap()}
+          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+        >
+          Save timeline
+        </Button>
+      </div>
     </>
   );
 };

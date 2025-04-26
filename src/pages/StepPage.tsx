@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -15,7 +14,6 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
-// Create context for sharing state between steps
 export const PositioningContext = React.createContext<{
   briefContext: string;
   setBriefContext: React.Dispatch<React.SetStateAction<string>>;
@@ -76,7 +74,6 @@ export const PositioningContext = React.createContext<{
   completedSteps: [],
 });
 
-// Step configuration
 const STEP_CONFIG = [
   { id: "brief", name: "Brief Intake", component: BriefIntake, isValid: (ctx: any) => ctx.briefContext.split(/\s+/).filter(Boolean).length >= 20 },
   { id: "golden-circle", name: "Golden Circle", component: GoldenCircle, isValid: (ctx: any) => ctx.selectedGoldenCircle.why.length > 0 && ctx.selectedGoldenCircle.how.length > 0 && ctx.selectedGoldenCircle.what.length > 0 },
@@ -88,7 +85,6 @@ const STEP_CONFIG = [
 ];
 
 const StepPage: React.FC = () => {
-  // Context state for the entire positioning workflow
   const [briefContext, setBriefContext] = useState<string>("");
   const [selectedGoldenCircle, setSelectedGoldenCircle] = useState<{
     why: string[];
@@ -114,7 +110,6 @@ const StepPage: React.FC = () => {
   const [selectedExternalStatement, setSelectedExternalStatement] = useState<string>("");
   const [positioningComplete, setPositioningComplete] = useState<boolean>(false);
   
-  // Step navigation state
   const [activeStep, setActiveStep] = useState<string>("brief");
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [openSteps, setOpenSteps] = useState<string[]>(["brief"]);
@@ -125,14 +120,12 @@ const StepPage: React.FC = () => {
     if (!completedSteps.includes(step)) {
       setCompletedSteps([...completedSteps, step]);
       
-      // Find the next step in the sequence
       const currentIndex = STEP_CONFIG.findIndex(s => s.id === step);
       if (currentIndex < STEP_CONFIG.length - 1) {
         const nextStep = STEP_CONFIG[currentIndex + 1].id;
         setActiveStep(nextStep);
         setOpenSteps([...openSteps, nextStep]);
       } else {
-        // We've completed all steps
         setPositioningComplete(true);
         toast.success("Positioning module completed!");
         navigate("/timeline");
@@ -140,7 +133,6 @@ const StepPage: React.FC = () => {
     }
   };
   
-  // Check if a step is valid based on its validation function
   const isStepValid = (stepId: string) => {
     const config = STEP_CONFIG.find(step => step.id === stepId);
     if (!config) return false;
@@ -160,7 +152,6 @@ const StepPage: React.FC = () => {
     return config.isValid(contextData);
   };
   
-  // Toggle step visibility
   const toggleStep = (stepId: string) => {
     if (openSteps.includes(stepId)) {
       setOpenSteps(openSteps.filter(id => id !== stepId));
@@ -169,10 +160,9 @@ const StepPage: React.FC = () => {
     }
   };
   
-  // Check if a step can be opened (either it's active, completed, or the previous step is completed)
   const canOpenStep = (stepId: string) => {
     const stepIndex = STEP_CONFIG.findIndex(s => s.id === stepId);
-    if (stepIndex === 0) return true; // First step is always openable
+    if (stepIndex === 0) return true;
     
     const prevStepId = STEP_CONFIG[stepIndex - 1].id;
     return completedSteps.includes(prevStepId) || activeStep === stepId;
@@ -214,10 +204,8 @@ const StepPage: React.FC = () => {
       <div className="min-h-screen w-full bg-[#FAFAFA] pb-12">
         <OfflineToast />
         
-        {/* Step Progress Indicator */}
         <StepProgress currentStep="all" />
         
-        {/* Header Section */}
         <div className="text-center pt-[48px] mb-8">
           <motion.h1
             className="text-[32px] font-bold"
@@ -237,9 +225,7 @@ const StepPage: React.FC = () => {
           </motion.p>
         </div>
         
-        {/* Main content area with all steps */}
         <div className="grid-12-columns max-w-[950px] mx-auto">
-          {/* Map through all steps to create collapsible sections */}
           {STEP_CONFIG.map((stepConfig, index) => {
             const Component = stepConfig.component;
             const isStepCompleted = completedSteps.includes(stepConfig.id);
@@ -290,7 +276,6 @@ const StepPage: React.FC = () => {
             );
           })}
           
-          {/* Final Submit Button */}
           <div className="col-span-12 mt-8 flex justify-center">
             <button
               onClick={handleModuleComplete}

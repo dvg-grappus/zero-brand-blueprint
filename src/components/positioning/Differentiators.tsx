@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { toast } from "sonner";
-import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
+import { Button } from "@/components/ui/button";
 
 // Mock data for development - in production this would come from GPT API
 const mockDifferentiators = [
@@ -79,7 +79,7 @@ const DifferentiatorCard: React.FC<DifferentiatorCardProps> = ({
 };
 
 const Differentiators: React.FC = () => {
-  const { pinnedDifferentiators, setPinnedDifferentiators } = useContext(PositioningContext);
+  const { pinnedDifferentiators, setPinnedDifferentiators, completeStep } = useContext(PositioningContext);
   
   const [isLoading, setIsLoading] = useState(true);
   const [differentiators, setDifferentiators] = useState<string[]>([]);
@@ -123,6 +123,12 @@ const Differentiators: React.FC = () => {
     if (!aIsPinned && bIsPinned) return 1;
     return 0;
   });
+  
+  const handleComplete = () => {
+    if (pinnedDifferentiators.length === 3 && completeStep) {
+      completeStep("differentiators");
+    }
+  };
   
   return (
     <>
@@ -192,12 +198,15 @@ const Differentiators: React.FC = () => {
         </motion.div>
       </div>
       
-      <StepNavBar 
-        title="Key Differentiators"
-        nextStep="/step/1/statements"
-        nextButtonLabel="Craft statements →"
-        isButtonDisabled={isLoading || pinnedDifferentiators.length !== 3}
-      />
+      <div className="mt-6 text-right">
+        <Button
+          onClick={handleComplete}
+          disabled={isLoading || pinnedDifferentiators.length !== 3}
+          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+        >
+          Craft statements
+        </Button>
+      </div>
     </>
   );
 };
