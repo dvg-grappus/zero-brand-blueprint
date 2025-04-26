@@ -14,18 +14,20 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route path="/" element={<Navigate to="/welcome" replace />} />
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/timeline" element={<Timeline />} />
-          <Route path="/step/:stepId" element={<StepPage />} />
-          <Route path="/step/:stepId/:substep" element={<StepPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
+      <div className="dark">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Navigate to="/welcome" replace />} />
+            <Route path="/welcome" element={<Welcome />} />
+            <Route path="/timeline" element={<Timeline />} />
+            <Route path="/step/:stepId" element={<StepPage />} />
+            <Route path="/step/:stepId/:substep" element={<StepPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </div>
     </BrowserRouter>
   </QueryClientProvider>
 );

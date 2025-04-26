@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -10,10 +9,8 @@ const Welcome = () => {
   const [showKeyboardHint, setShowKeyboardHint] = useState(false);
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Handle keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Cmd/Ctrl + Enter
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         navigateToTimeline();
       }
@@ -21,7 +18,6 @@ const Welcome = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     
-    // Show keyboard hint after 4 seconds
     const hintTimer = setTimeout(() => {
       setShowKeyboardHint(true);
     }, 4000);
@@ -36,7 +32,6 @@ const Welcome = () => {
     navigate("/timeline");
   };
 
-  // Handle button click with ripple effect
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!prefersReducedMotion) {
       const button = e.currentTarget;
@@ -57,44 +52,36 @@ const Welcome = () => {
       }, 600);
     }
     
-    // Use motion.div exit animation through parent component
     setTimeout(navigateToTimeline, 50);
   };
 
   return (
     <motion.div
-      className="min-h-screen w-full bg-charcoal relative overflow-hidden"
+      className="min-h-screen w-full bg-background relative overflow-hidden"
       exit={{ y: -40, opacity: 0 }}
       transition={{ duration: 0.35 }}
     >
-      {/* Radial vignette */}
-      <div className="radial-vignette absolute inset-0"></div>
+      <div className="radial-vignette absolute inset-0 opacity-20"></div>
       
-      {/* Logo */}
       <motion.div 
         className="absolute top-10 left-10 z-10"
         whileHover={{ y: -2 }}
         transition={{ duration: 0.25 }}
       >
-        <h1 className="satoshi-font text-[20px] font-bold tracking-[0.5em] text-[#FFFFFFCC]">
+        <h1 className="satoshi-font text-[20px] font-bold tracking-[0.5em] text-foreground/80">
           North of Zero
         </h1>
       </motion.div>
       
-      {/* Animated gradient blob */}
       {!prefersReducedMotion && (
         <motion.div 
-          className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient"
+          className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient opacity-20"
           animate={{ 
             rotate: 360,
             scale: [1, 1.12, 1]
           }}
           transition={{ 
-            rotate: { 
-              duration: 24, 
-              ease: "linear", 
-              repeat: Infinity 
-            },
+            rotate: { duration: 24, ease: "linear", repeat: Infinity },
             scale: {
               duration: 24,
               times: [0, 0.5, 1],
@@ -105,15 +92,13 @@ const Welcome = () => {
         />
       )}
       
-      {/* Static blob for reduced motion preference */}
       {prefersReducedMotion && (
-        <div className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient" />
+        <div className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient opacity-20" />
       )}
       
-      {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
         <motion.h2 
-          className="inter-font font-medium text-[42px] leading-[52px] text-[#FFFFFFE6] text-center max-w-3xl"
+          className="inter-font font-medium text-[42px] leading-[52px] text-foreground text-center max-w-3xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
@@ -122,7 +107,7 @@ const Welcome = () => {
         </motion.h2>
         
         <motion.p 
-          className="inter-font text-[18px] text-[#FFFFFFA6] mt-4 text-center max-w-2xl"
+          className="inter-font text-[18px] text-foreground/70 mt-4 text-center max-w-2xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.55 }}
@@ -131,22 +116,18 @@ const Welcome = () => {
         </motion.p>
         
         <motion.button
-          className="mt-12 bg-white text-black hover:bg-cyan font-semibold py-3 px-6 rounded-full focus:outline-none focus:ring focus:ring-cyan/40 relative overflow-hidden transition-colors duration-200 ease-in-out"
+          className="mt-12 bg-foreground text-background hover:bg-foreground/90 font-semibold py-3 px-6 rounded-full focus:outline-none focus:ring focus:ring-foreground/20 relative overflow-hidden transition-colors duration-200 ease-in-out"
           style={{ width: 200, height: 52 }}
           onClick={handleButtonClick}
           whileTap={{ scale: 0.98 }}
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ 
-            delay: 0.7, 
-            duration: 0.5 
-          }}
+          transition={{ delay: 0.7, duration: 0.5 }}
         >
           <span className="inter-font font-semibold text-[16px]">Map the journey →</span>
         </motion.button>
       </div>
       
-      {/* Keyboard hint */}
       {showKeyboardHint && (
         <motion.div 
           className="fixed bottom-8 left-1/2 transform -translate-x-1/2"
@@ -154,7 +135,7 @@ const Welcome = () => {
           animate={{ opacity: 0.4 }}
           transition={{ duration: 0.5 }}
         >
-          <p className="inter-font text-[14px] text-white">⌘ + ↵ Skip intro</p>
+          <p className="inter-font text-[14px] text-foreground/60">⌘ + ↵ Skip intro</p>
         </motion.div>
       )}
     </motion.div>
