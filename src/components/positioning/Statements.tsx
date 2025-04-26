@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/pages/StepPage";
 
-// Mock data for development - in production this would come from GPT API
 const mockStatements = [
   {
     title: "Design democratized",
@@ -110,7 +109,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [externalStatements, setExternalStatements] = useState<typeof mockStatements>([]);
   
-  // Token options for the onliness formula
   const [tokenOptions, setTokenOptions] = useState<Record<string, string[]>>({
     WHAT: [],
     HOW: [],
@@ -121,7 +119,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   });
   
   useEffect(() => {
-    // Load token options from previous selections
     setTokenOptions(prev => ({
       ...prev,
       WHAT: selectedGoldenCircle.what,
@@ -129,9 +126,7 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       WHY: selectedGoldenCircle.why
     }));
     
-    // Simulate GPT API call for external statements
     const timer = setTimeout(() => {
-      // Here you would make the actual API call
       setExternalStatements(mockStatements);
       setIsLoading(false);
     }, 1500);
@@ -140,7 +135,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   }, [selectedGoldenCircle]);
   
   const handleTokenSelect = (type: string, token: string) => {
-    // If already selected, deselect it
     if (internalStatement[type] === token) {
       setInternalStatement(prev => {
         const updated = { ...prev };
@@ -150,7 +144,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       return;
     }
     
-    // Otherwise select it
     setInternalStatement(prev => ({
       ...prev,
       [type]: token
@@ -166,7 +159,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   };
   
   const shuffleInternalStatement = () => {
-    // Randomly select one token from each category
     const newStatement: Record<string, string> = {};
     
     Object.entries(tokenOptions).forEach(([type, tokens]) => {
@@ -188,7 +180,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   };
   
   const validateSelections = () => {
-    // Check that all internal statement slots are filled
     const requiredSlots = ["WHAT", "HOW", "WHO", "WHERE", "WHY", "WHEN"];
     const allSlotsFilled = requiredSlots.every(slot => Boolean(internalStatement[slot]));
     
@@ -197,7 +188,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       return false;
     }
     
-    // Check external statement selection
     if (!selectedExternalStatement) {
       toast.error("Select an external positioning statement");
       return false;
@@ -208,7 +198,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   
   const handleComplete = () => {
     if (validateSelections()) {
-      // Set positioning complete and compile data for positioningDoc
       setPositioningComplete(true);
       onComplete();
     }
@@ -235,7 +224,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           Positioning Statements
         </motion.h1>
         
-        {/* Internal Positioning (Onliness) */}
         <motion.section
           className="bg-white p-6 rounded-lg shadow-sm mb-12"
           initial={{ opacity: 0, y: 20 }}
@@ -254,13 +242,11 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             </Button>
           </div>
           
-          {/* Formula Banner */}
           <div className="bg-gray-100 p-4 rounded-md mb-6">
             <p className="text-sm text-gray-500 mb-1">Onliness Formula</p>
             <p className="font-medium">The only <span className="font-bold">WHAT</span> that <span className="font-bold">HOW</span> for <span className="font-bold">WHO</span>, mostly in <span className="font-bold">WHERE</span>, because <span className="font-bold">WHY</span>, in an era of <span className="font-bold">WHEN</span>.</p>
           </div>
           
-          {/* Token Selection */}
           <div className="space-y-4 mb-6">
             {Object.entries(tokenOptions).map(([type, tokens]) => (
               <div key={type} className="mb-4">
@@ -285,14 +271,12 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             ))}
           </div>
           
-          {/* Preview */}
           <div className="bg-gray-50 p-4 rounded-md">
             <p className="text-sm font-medium mb-1">Preview:</p>
             <p className="text-lg">{getFormattedInternalStatement()}</p>
           </div>
         </motion.section>
         
-        {/* External Positioning (Tagline) */}
         <motion.section
           className="bg-white p-6 rounded-lg shadow-sm"
           initial={{ opacity: 0, y: 20 }}

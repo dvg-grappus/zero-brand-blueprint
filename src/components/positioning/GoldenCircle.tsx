@@ -50,29 +50,6 @@ const GoldenCircle: React.FC = () => {
     return ideas.slice(0, 4);
   };
 
-  // Calculate positions for the sticky notes in a circle arrangement
-  const getPositionForIndex = (index: number, total: number) => {
-    // Place cards at specific positions for better layout
-    const angleOffset = Math.PI / 2; // Start from top (90 degrees)
-    const angle = angleOffset + (index / total) * (2 * Math.PI);
-    
-    // Distance from center depends on the active segment
-    let distance = 180;
-    
-    if (activeSegment === 'what') {
-      distance = 220;
-    } else if (activeSegment === 'how') {
-      distance = 140;
-    } else {
-      distance = 100;
-    }
-    
-    return {
-      left: 300 + Math.cos(angle) * distance,
-      top: 300 + Math.sin(angle) * distance
-    };
-  };
-
   return (
     <div className="text-center">
       <motion.h2
@@ -100,63 +77,55 @@ const GoldenCircle: React.FC = () => {
             <p className="text-gray-500">Still shaping ideas... one second.</p>
           </div>
         ) : (
-          <div className="relative w-full h-full">
-            <div className="flex justify-center">
-              {/* SVG Container with fixed dimensions */}
-              <div className="relative w-[600px] h-[600px]">
-                {/* Interactive Circle SVG */}
-                <svg width="600" height="600" viewBox="0 0 600 600" className="absolute">
-                  <CircleSegment
-                    label="WHAT"
-                    radius={220}
-                    isActive={activeSegment === 'what'}
-                    onClick={() => handleSegmentClick('what')}
-                  />
-                  <CircleSegment
-                    label="HOW"
-                    radius={140}
-                    isActive={activeSegment === 'how'}
-                    onClick={() => handleSegmentClick('how')}
-                  />
-                  <CircleSegment
-                    label="WHY"
-                    radius={80}
-                    isActive={activeSegment === 'why'}
-                    onClick={() => handleSegmentClick('why')}
-                  />
-                </svg>
-                
-                {/* Display cards for active segment */}
-                <div className="absolute top-0 left-0 w-full h-full">
-                  {getVisibleIdeas(activeSegment).map((idea, index) => {
-                    const totalIdeas = getVisibleIdeas(activeSegment).length;
-                    const position = getPositionForIndex(index, totalIdeas);
-                    
-                    return (
-                      <motion.div
-                        key={`${activeSegment}-${index}`}
-                        className="absolute"
-                        style={{
-                          left: `${position.left - 70}px`,  // Center the card (half of card width)
-                          top: `${position.top - 80}px`,    // Center the card (half of card height)
-                        }}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <StickyNote
-                          id={`${activeSegment}-${index}`}
-                          content={idea}
-                          isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
-                          isDiscarded={false}
-                          onClick={() => handleSelect(activeSegment, idea)}
-                          onDiscard={() => {}}
-                        />
-                      </motion.div>
-                    );
-                  })}
-                </div>
+          <div className="flex flex-col md:flex-row gap-10 w-full justify-center">
+            {/* Circles on the left */}
+            <div className="w-full md:w-1/3 flex justify-center">
+              <svg width="200" height="300" viewBox="0 0 200 300" className="relative">
+                <CircleSegment
+                  label="WHY"
+                  radius={60}
+                  isActive={activeSegment === 'why'}
+                  onClick={() => handleSegmentClick('why')}
+                />
+                <CircleSegment
+                  label="HOW"
+                  radius={45}
+                  isActive={activeSegment === 'how'}
+                  onClick={() => handleSegmentClick('how')}
+                />
+                <CircleSegment
+                  label="WHAT"
+                  radius={30}
+                  isActive={activeSegment === 'what'}
+                  onClick={() => handleSegmentClick('what')}
+                />
+              </svg>
+            </div>
+            
+            {/* Cards on the right */}
+            <div className="w-full md:w-2/3">
+              <h3 className="text-lg font-medium mb-4 text-left">
+                {activeSegment.toUpperCase()} Statements
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {getVisibleIdeas(activeSegment).map((idea, index) => (
+                  <motion.div
+                    key={`${activeSegment}-${index}`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <StickyNote
+                      id={`${activeSegment}-${index}`}
+                      content={idea}
+                      isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
+                      isDiscarded={false}
+                      onClick={() => handleSelect(activeSegment, idea)}
+                      onDiscard={() => {}}
+                    />
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
@@ -166,7 +135,7 @@ const GoldenCircle: React.FC = () => {
       <div className="mt-6">
         <Button
           onClick={() => completeStep && completeStep("golden-circle")}
-          className="bg-white text-black border border-border/40 hover:bg-cyan hover:text-black shadow-sm transition-colors"
+          className="bg-white text-black border border-gray-300 hover:bg-cyan hover:text-black shadow-sm transition-colors"
         >
           Complete & Continue
         </Button>
