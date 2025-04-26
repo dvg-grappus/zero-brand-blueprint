@@ -68,7 +68,7 @@ const ValueCard: React.FC<ValueCardProps> = ({ value, description, isSelected, o
       className={`p-4 rounded-lg cursor-pointer transition-all ${
         isSelected 
           ? "bg-cyan text-black shadow-lg ring-2 ring-cyan" 
-          : "bg-[#FFE87A] hover:bg-[#ffeb96] hover:-translate-y-1"
+          : "bg-[#FFE87A] text-black hover:bg-[#ffeb96] hover:-translate-y-1"
       }`}
       onClick={onClick}
       whileHover={{ y: -4 }}
@@ -220,8 +220,7 @@ const Values: React.FC = () => {
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isLoading || selectedValues.length < 3 || selectedValues.length > 7}
-          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+          className="bg-white text-black hover:bg-gray-100 transition-colors"
         >
           Commit to values
         </Button>
