@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import StickyNote from "./StickyNote";
@@ -81,22 +80,21 @@ const GoldenCircle: React.FC = () => {
         Start with purpose, not outputs.
       </motion.p>
       
-      <div className="flex flex-col md:flex-row justify-center items-start gap-8">
-        {/* Left side - Circles */}
-        <div className="w-full md:w-1/3 flex justify-center">
+      <div className="flex flex-col md:flex-row justify-center items-start gap-12">
+        <div className="w-full md:w-1/3 flex flex-col items-center">
           <svg width="300" height="300" viewBox="0 0 300 300">
             <g onClick={() => handleSegmentClick('why')}>
               <circle
                 cx="150"
                 cy="150"
-                r="120"
-                fill={activeSegment === 'why' ? "rgba(200, 200, 200, 0.2)" : "transparent"}
-                className="transition-colors duration-300 cursor-pointer"
+                r="140"
+                fill={activeSegment === 'why' ? "hsl(var(--cyan))" : "transparent"}
+                className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
                 cx="150"
                 cy="150"
-                r="120"
+                r="140"
                 fill="transparent"
                 stroke={activeSegment === 'why' ? "hsl(var(--cyan))" : "#E0E0E0"}
                 strokeWidth="2"
@@ -104,7 +102,7 @@ const GoldenCircle: React.FC = () => {
               />
               <text
                 x="150"
-                y="60"
+                y="40"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={activeSegment === 'why' ? "hsl(var(--cyan))" : "#999999"}
@@ -118,14 +116,14 @@ const GoldenCircle: React.FC = () => {
               <circle
                 cx="150"
                 cy="150"
-                r="85"
-                fill={activeSegment === 'how' ? "rgba(200, 200, 200, 0.2)" : "transparent"}
-                className="transition-colors duration-300 cursor-pointer"
+                r="95"
+                fill={activeSegment === 'how' ? "hsl(var(--cyan))" : "transparent"}
+                className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
                 cx="150"
                 cy="150"
-                r="85"
+                r="95"
                 fill="transparent"
                 stroke={activeSegment === 'how' ? "hsl(var(--cyan))" : "#E0E0E0"}
                 strokeWidth="2"
@@ -133,7 +131,7 @@ const GoldenCircle: React.FC = () => {
               />
               <text
                 x="150"
-                y="95"
+                y="85"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={activeSegment === 'how' ? "hsl(var(--cyan))" : "#999999"}
@@ -148,8 +146,8 @@ const GoldenCircle: React.FC = () => {
                 cx="150"
                 cy="150"
                 r="50"
-                fill={activeSegment === 'what' ? "rgba(200, 200, 200, 0.2)" : "transparent"}
-                className="transition-colors duration-300 cursor-pointer"
+                fill={activeSegment === 'what' ? "hsl(var(--cyan))" : "transparent"}
+                className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
                 cx="150"
@@ -172,9 +170,9 @@ const GoldenCircle: React.FC = () => {
               </text>
             </g>
           </svg>
+          <p className="text-sm text-muted-foreground mt-4">Tap on a circle to view its statements</p>
         </div>
         
-        {/* Right side - Sticky notes */}
         <div className="w-full md:w-2/3">
           <h3 className="text-lg font-medium mb-4 text-left">
             {activeSegment.toUpperCase()} Statements

@@ -47,7 +47,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
           className={`flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold transition-colors ${
             isSelected 
               ? "bg-black text-white" 
-              : "bg-black text-white hover:bg-black/90"
+              : "bg-white text-black hover:bg-black/5"
           }`}
           onClick={onClick}
         >
@@ -58,8 +58,8 @@ const StickyNote: React.FC<StickyNoteProps> = ({
         <button
           className={`flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold transition-colors ${
             isDiscarded 
-              ? "bg-black/10 text-black" 
-              : "bg-white text-black hover:bg-gray-100"
+              ? "bg-black text-white" 
+              : "bg-white text-black hover:bg-black/5"
           }`}
           onClick={onDiscard}
         >

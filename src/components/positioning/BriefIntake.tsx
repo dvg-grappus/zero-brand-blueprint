@@ -82,7 +82,7 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
         <Button
           onClick={handleComplete}
           disabled={isButtonDisabled}
-          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+          className="bg-white text-black border border-gray-300 hover:bg-gray-50 transition-colors"
         >
           Complete & Continue
         </Button>
