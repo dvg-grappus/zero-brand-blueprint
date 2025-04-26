@@ -1,0 +1,337 @@
+import React, { useState, useEffect, useContext } from "react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import StepNavBar from "./StepNavBar";
+import { PositioningContext } from "@/pages/StepPage";
+
+// Mock data for development - in production this would come from GPT API
+const mockStatements = [
+  {
+    title: "Design democratized",
+    description: "Professional branding without the professional price tag."
+  },
+  {
+    title: "Beyond templates, beyond generic",
+    description: "Your brand story deserves more than a cookie-cutter solution."
+  },
+  {
+    title: "Empowering the non-designer",
+    description: "Achieve pro-level branding without the design degree."
+  },
+  {
+    title: "From strategy to system",
+    description: "The only platform that builds your brand from the inside out."
+  },
+  {
+    title: "Brand beautifully, brand simply",
+    description: "Complex branding made refreshingly straightforward."
+  }
+];
+
+interface TokenChipProps {
+  text: string;
+  isSelected: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
+const TokenChip: React.FC<TokenChipProps> = ({ 
+  text, 
+  isSelected, 
+  onClick,
+  disabled = false
+}) => {
+  return (
+    <motion.button
+      className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
+        isSelected 
+          ? "bg-black text-white" 
+          : disabled 
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+            : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+      }`}
+      onClick={onClick}
+      whileTap={!disabled ? { scale: 0.95 } : undefined}
+      disabled={disabled}
+    >
+      {text}
+    </motion.button>
+  );
+};
+
+interface StatementCardProps {
+  title: string;
+  description: string;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+const StatementCard: React.FC<StatementCardProps> = ({
+  title,
+  description,
+  isSelected,
+  onClick
+}) => {
+  return (
+    <Card 
+      className={`w-full cursor-pointer transition-all ${
+        isSelected ? "ring-2 ring-cyan shadow-lg" : "hover:shadow-md"
+      }`}
+      onClick={onClick}
+    >
+      <CardContent className="p-6">
+        <h3 className="text-[28px] font-bold mb-2 leading-tight">{title}</h3>
+        <p className="text-[14px] text-gray-600">{description}</p>
+        
+        {isSelected && (
+          <div className="absolute top-3 right-3 bg-cyan text-black text-xs px-2 py-1 rounded-full">
+            Selected
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+  const { 
+    selectedGoldenCircle,
+    selectedValues,
+    pinnedDifferentiators,
+    internalStatement,
+    setInternalStatement,
+    selectedExternalStatement,
+    setSelectedExternalStatement,
+    setPositioningComplete
+  } = useContext(PositioningContext);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [externalStatements, setExternalStatements] = useState<typeof mockStatements>([]);
+  
+  // Token options for the onliness formula
+  const [tokenOptions, setTokenOptions] = useState<Record<string, string[]>>({
+    WHAT: [],
+    HOW: [],
+    WHO: ["startups", "small businesses", "solopreneurs", "creatives"],
+    WHERE: ["digital platforms", "emerging markets", "competitive industries"],
+    WHY: [],
+    WHEN: ["rapid digital transformation", "growing design awareness", "brand saturation"]
+  });
+  
+  useEffect(() => {
+    // Load token options from previous selections
+    setTokenOptions(prev => ({
+      ...prev,
+      WHAT: selectedGoldenCircle.what,
+      HOW: selectedGoldenCircle.how,
+      WHY: selectedGoldenCircle.why
+    }));
+    
+    // Simulate GPT API call for external statements
+    const timer = setTimeout(() => {
+      // Here you would make the actual API call
+      setExternalStatements(mockStatements);
+      setIsLoading(false);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [selectedGoldenCircle]);
+  
+  const handleTokenSelect = (type: string, token: string) => {
+    // If already selected, deselect it
+    if (internalStatement[type] === token) {
+      setInternalStatement(prev => {
+        const updated = { ...prev };
+        delete updated[type];
+        return updated;
+      });
+      return;
+    }
+    
+    // Otherwise select it
+    setInternalStatement(prev => ({
+      ...prev,
+      [type]: token
+    }));
+  };
+  
+  const handleExternalStatementSelect = (statement: { title: string, description: string }) => {
+    setSelectedExternalStatement(
+      selectedExternalStatement === JSON.stringify(statement) 
+        ? "" 
+        : JSON.stringify(statement)
+    );
+  };
+  
+  const shuffleInternalStatement = () => {
+    // Randomly select one token from each category
+    const newStatement: Record<string, string> = {};
+    
+    Object.entries(tokenOptions).forEach(([type, tokens]) => {
+      if (tokens.length > 0) {
+        const randomIndex = Math.floor(Math.random() * tokens.length);
+        newStatement[type] = tokens[randomIndex];
+      }
+    });
+    
+    setInternalStatement(newStatement);
+  };
+  
+  const getFormattedInternalStatement = () => {
+    const template = "The only WHAT that HOW for WHO, mostly in WHERE, because WHY, in an era of WHEN.";
+    
+    return template.replace(/WHAT|HOW|WHO|WHERE|WHY|WHEN/g, match => {
+      return internalStatement[match] || `[${match}]`;
+    });
+  };
+  
+  const validateSelections = () => {
+    // Check that all internal statement slots are filled
+    const requiredSlots = ["WHAT", "HOW", "WHO", "WHERE", "WHY", "WHEN"];
+    const allSlotsFilled = requiredSlots.every(slot => Boolean(internalStatement[slot]));
+    
+    if (!allSlotsFilled) {
+      toast.error("Complete the internal positioning statement");
+      return false;
+    }
+    
+    // Check external statement selection
+    if (!selectedExternalStatement) {
+      toast.error("Select an external positioning statement");
+      return false;
+    }
+    
+    return true;
+  };
+  
+  const handleComplete = () => {
+    if (validateSelections()) {
+      // Set positioning complete and compile data for positioningDoc
+      setPositioningComplete(true);
+      onComplete();
+    }
+  };
+  
+  return (
+    <>
+      <div className="col-span-12">
+        <motion.p
+          className="text-gray-500 text-sm mb-1 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          Lock words that rally your team and convince the world.
+        </motion.p>
+        
+        <motion.h1
+          className="text-[32px] font-bold mb-8 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          Positioning Statements
+        </motion.h1>
+        
+        {/* Internal Positioning (Onliness) */}
+        <motion.section
+          className="bg-white p-6 rounded-lg shadow-sm mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Internal Positioning</h2>
+            <Button 
+              onClick={shuffleInternalStatement} 
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <span>Shuffle</span>
+              <span className="text-lg">🔄</span>
+            </Button>
+          </div>
+          
+          {/* Formula Banner */}
+          <div className="bg-gray-100 p-4 rounded-md mb-6">
+            <p className="text-sm text-gray-500 mb-1">Onliness Formula</p>
+            <p className="font-medium">The only <span className="font-bold">WHAT</span> that <span className="font-bold">HOW</span> for <span className="font-bold">WHO</span>, mostly in <span className="font-bold">WHERE</span>, because <span className="font-bold">WHY</span>, in an era of <span className="font-bold">WHEN</span>.</p>
+          </div>
+          
+          {/* Token Selection */}
+          <div className="space-y-4 mb-6">
+            {Object.entries(tokenOptions).map(([type, tokens]) => (
+              <div key={type} className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-sm text-gray-600">{type}</h3>
+                  <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                    {internalStatement[type] ? '✓' : '…'}
+                  </span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {tokens.map((token, idx) => (
+                    <TokenChip 
+                      key={idx} 
+                      text={token} 
+                      isSelected={internalStatement[type] === token}
+                      onClick={() => handleTokenSelect(type, token)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Preview */}
+          <div className="bg-gray-50 p-4 rounded-md">
+            <p className="text-sm font-medium mb-1">Preview:</p>
+            <p className="text-lg">{getFormattedInternalStatement()}</p>
+          </div>
+        </motion.section>
+        
+        {/* External Positioning (Tagline) */}
+        <motion.section
+          className="bg-white p-6 rounded-lg shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <h2 className="text-xl font-semibold mb-6">External Positioning</h2>
+          
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {externalStatements.map((statement, idx) => (
+                <StatementCard
+                  key={idx}
+                  title={statement.title}
+                  description={statement.description}
+                  isSelected={selectedExternalStatement === JSON.stringify(statement)}
+                  onClick={() => handleExternalStatementSelect(statement)}
+                />
+              ))}
+            </div>
+          )}
+        </motion.section>
+      </div>
+      
+      <StepNavBar 
+        title="Positioning Statements"
+        nextStep="/timeline"
+        nextButtonLabel="Publish Positioning →"
+        isButtonDisabled={isLoading || !validateSelections()}
+        onNext={handleComplete}
+      />
+    </>
+  );
+};
+
+export default Statements;
