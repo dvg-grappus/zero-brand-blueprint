@@ -12,6 +12,8 @@ import Values from "@/components/positioning/Values";
 import Differentiators from "@/components/positioning/Differentiators";
 import Statements from "@/components/positioning/Statements";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 // Create context for sharing state between steps
 export const PositioningContext = React.createContext<{
@@ -43,6 +45,10 @@ export const PositioningContext = React.createContext<{
   setSelectedExternalStatement: React.Dispatch<React.SetStateAction<string>>;
   positioningComplete: boolean;
   setPositioningComplete: React.Dispatch<React.SetStateAction<boolean>>;
+  activeStep: string;
+  setActiveStep: React.Dispatch<React.SetStateAction<string>>;
+  completeStep: (step: string) => void;
+  completedSteps: string[];
 }>({
   briefContext: "",
   setBriefContext: () => {},
@@ -64,12 +70,24 @@ export const PositioningContext = React.createContext<{
   setSelectedExternalStatement: () => {},
   positioningComplete: false,
   setPositioningComplete: () => {},
+  activeStep: "brief",
+  setActiveStep: () => {},
+  completeStep: () => {},
+  completedSteps: [],
 });
 
+// Step configuration
+const STEP_CONFIG = [
+  { id: "brief", name: "Brief Intake", component: BriefIntake, isValid: (ctx: any) => ctx.briefContext.split(/\s+/).filter(Boolean).length >= 20 },
+  { id: "golden-circle", name: "Golden Circle", component: GoldenCircle, isValid: (ctx: any) => ctx.selectedGoldenCircle.why.length > 0 && ctx.selectedGoldenCircle.how.length > 0 && ctx.selectedGoldenCircle.what.length > 0 },
+  { id: "opportunities-challenges", name: "Opportunities & Challenges", component: OpportunitiesChallenges, isValid: (ctx: any) => ctx.selectedOpportunities.length >= 2 && ctx.selectedChallenges.length >= 2 },
+  { id: "roadmap", name: "Roadmap", component: Roadmap, isValid: () => true },
+  { id: "values", name: "Values", component: Values, isValid: (ctx: any) => ctx.selectedValues.length >= 3 && ctx.selectedValues.length <= 7 },
+  { id: "differentiators", name: "Differentiators", component: Differentiators, isValid: (ctx: any) => ctx.pinnedDifferentiators.length === 3 },
+  { id: "statements", name: "Statements", component: Statements, isValid: () => true },
+];
+
 const StepPage: React.FC = () => {
-  const { stepId } = useParams<{ stepId: string }>();
-  const navigate = useNavigate();
-  
   // Context state for the entire positioning workflow
   const [briefContext, setBriefContext] = useState<string>("");
   const [selectedGoldenCircle, setSelectedGoldenCircle] = useState<{
@@ -95,60 +113,77 @@ const StepPage: React.FC = () => {
   const [internalStatement, setInternalStatement] = useState<Record<string, string>>({});
   const [selectedExternalStatement, setSelectedExternalStatement] = useState<string>("");
   const [positioningComplete, setPositioningComplete] = useState<boolean>(false);
-
-  // Determine current sub-step based on URL
-  const [currentSubStep, setCurrentSubStep] = useState<string>("brief");
-
-  useEffect(() => {
-    // Handle navigation with unsaved changes
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!positioningComplete) {
-        e.preventDefault();
-        e.returnValue = "You'll lose current selections — continue?";
-        return e.returnValue;
+  
+  // Step navigation state
+  const [activeStep, setActiveStep] = useState<string>("brief");
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [openSteps, setOpenSteps] = useState<string[]>(["brief"]);
+  
+  const navigate = useNavigate();
+  
+  const completeStep = (step: string) => {
+    if (!completedSteps.includes(step)) {
+      setCompletedSteps([...completedSteps, step]);
+      
+      // Find the next step in the sequence
+      const currentIndex = STEP_CONFIG.findIndex(s => s.id === step);
+      if (currentIndex < STEP_CONFIG.length - 1) {
+        const nextStep = STEP_CONFIG[currentIndex + 1].id;
+        setActiveStep(nextStep);
+        setOpenSteps([...openSteps, nextStep]);
+      } else {
+        // We've completed all steps
+        setPositioningComplete(true);
+        toast.success("Positioning module completed!");
+        navigate("/timeline");
       }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [positioningComplete]);
-
-  useEffect(() => {
-    if (stepId === "1") {
-      navigate("/step/1/brief");
-    } else {
-      const subStep = window.location.pathname.split("/").pop() || "brief";
-      setCurrentSubStep(subStep);
     }
-  }, [stepId, navigate]);
-
+  };
+  
+  // Check if a step is valid based on its validation function
+  const isStepValid = (stepId: string) => {
+    const config = STEP_CONFIG.find(step => step.id === stepId);
+    if (!config) return false;
+    
+    const contextData = {
+      briefContext,
+      selectedGoldenCircle,
+      selectedOpportunities,
+      selectedChallenges,
+      roadmapMilestones,
+      selectedValues,
+      pinnedDifferentiators,
+      internalStatement,
+      selectedExternalStatement
+    };
+    
+    return config.isValid(contextData);
+  };
+  
+  // Toggle step visibility
+  const toggleStep = (stepId: string) => {
+    if (openSteps.includes(stepId)) {
+      setOpenSteps(openSteps.filter(id => id !== stepId));
+    } else {
+      setOpenSteps([...openSteps, stepId]);
+    }
+  };
+  
+  // Check if a step can be opened (either it's active, completed, or the previous step is completed)
+  const canOpenStep = (stepId: string) => {
+    const stepIndex = STEP_CONFIG.findIndex(s => s.id === stepId);
+    if (stepIndex === 0) return true; // First step is always openable
+    
+    const prevStepId = STEP_CONFIG[stepIndex - 1].id;
+    return completedSteps.includes(prevStepId) || activeStep === stepId;
+  };
+  
   const handleModuleComplete = () => {
     setPositioningComplete(true);
     toast.success("Positioning module completed!");
     navigate("/timeline");
   };
-
-  const renderSubStep = () => {
-    switch (currentSubStep) {
-      case "brief":
-        return <BriefIntake />;
-      case "golden-circle":
-        return <GoldenCircle />;
-      case "opportunities-challenges":
-        return <OpportunitiesChallenges />;
-      case "roadmap":
-        return <Roadmap />;
-      case "values":
-        return <Values />;
-      case "differentiators":
-        return <Differentiators />;
-      case "statements":
-        return <Statements onComplete={handleModuleComplete} />;
-      default:
-        return <BriefIntake />;
-    }
-  };
-
+  
   return (
     <PositioningContext.Provider value={{
       briefContext,
@@ -171,22 +206,105 @@ const StepPage: React.FC = () => {
       setSelectedExternalStatement,
       positioningComplete,
       setPositioningComplete,
+      activeStep,
+      setActiveStep,
+      completeStep,
+      completedSteps,
     }}>
-      <div className="min-h-screen w-full bg-[#FAFAFA]">
+      <div className="min-h-screen w-full bg-[#FAFAFA] pb-12">
         <OfflineToast />
         
         {/* Step Progress Indicator */}
-        <StepProgress currentStep={currentSubStep} />
+        <StepProgress currentStep="all" />
         
-        {/* Main content area */}
-        <motion.div
-          className="grid-12-columns pt-[48px] pb-[80px]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          {renderSubStep()}
-        </motion.div>
+        {/* Header Section */}
+        <div className="text-center pt-[48px] mb-8">
+          <motion.h1
+            className="text-[32px] font-bold"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            Positioning Module
+          </motion.h1>
+          <motion.p
+            className="text-gray-600"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            Complete all sections below to define your brand positioning.
+          </motion.p>
+        </div>
+        
+        {/* Main content area with all steps */}
+        <div className="grid-12-columns max-w-[950px] mx-auto">
+          {/* Map through all steps to create collapsible sections */}
+          {STEP_CONFIG.map((stepConfig, index) => {
+            const Component = stepConfig.component;
+            const isStepCompleted = completedSteps.includes(stepConfig.id);
+            const isStepActive = activeStep === stepConfig.id;
+            const isOpen = openSteps.includes(stepConfig.id);
+            const canOpen = canOpenStep(stepConfig.id);
+            
+            return (
+              <div key={stepConfig.id} className="col-span-12 mb-6">
+                <Collapsible
+                  open={isOpen}
+                  onOpenChange={() => canOpen && toggleStep(stepConfig.id)}
+                  className="w-full"
+                >
+                  <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm">
+                    <div 
+                      className={`w-8 h-8 rounded-full flex items-center justify-center 
+                      ${isStepCompleted ? "bg-cyan text-black" : 
+                        isStepActive ? "bg-black text-white" : "bg-gray-200 text-gray-500"}`}
+                    >
+                      {isStepCompleted ? <Check className="w-4 h-4" /> : index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-lg">{stepConfig.name}</h3>
+                    </div>
+                    <CollapsibleTrigger disabled={!canOpen} className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">
+                        {isStepCompleted ? "Completed" : 
+                          isOpen ? "Close" : 
+                          canOpen ? "Expand" : "Locked"}
+                      </span>
+                      {isOpen ? 
+                        <ChevronUp className={`w-5 h-5 ${canOpen ? "text-gray-500" : "text-gray-300"}`} /> : 
+                        <ChevronDown className={`w-5 h-5 ${canOpen ? "text-gray-500" : "text-gray-300"}`} />
+                      }
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <div className="pt-6 pb-4 px-4">
+                      <Component 
+                        onComplete={() => completeStep(stepConfig.id)}
+                        isValid={isStepValid(stepConfig.id)}
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            );
+          })}
+          
+          {/* Final Submit Button */}
+          <div className="col-span-12 mt-8 flex justify-center">
+            <button
+              onClick={handleModuleComplete}
+              disabled={!completedSteps.includes("statements")}
+              className={`px-8 py-3 rounded-full font-medium ${
+                completedSteps.includes("statements")
+                  ? "bg-black text-white hover:bg-cyan hover:text-black"
+                  : "bg-gray-200 text-gray-500"
+              } transition-colors`}
+            >
+              Complete Positioning Module
+            </button>
+          </div>
+        </div>
       </div>
     </PositioningContext.Provider>
   );

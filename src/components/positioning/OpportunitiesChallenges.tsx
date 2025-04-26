@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import StickyNote from "./StickyNote";
-import StepNavBar from "./StepNavBar";
+import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/pages/StepPage";
 
 // Mock data for development - in production this would come from GPT API
@@ -71,8 +71,13 @@ const DraggableNote: React.FC<DraggableNoteProps> = ({
   );
 };
 
-const OpportunitiesChallenges: React.FC = () => {
-  const { selectedOpportunities, setSelectedOpportunities, selectedChallenges, setSelectedChallenges } = useContext(PositioningContext);
+interface OpportunitiesChallengesProps {
+  onComplete?: () => void;
+  isValid?: boolean;
+}
+
+const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onComplete, isValid = false }) => {
+  const { selectedOpportunities, setSelectedOpportunities, selectedChallenges, setSelectedChallenges, completeStep } = useContext(PositioningContext);
   
   const [isLoading, setIsLoading] = useState(true);
   const [opportunities, setOpportunities] = useState<string[]>([]);
@@ -153,117 +158,121 @@ const OpportunitiesChallenges: React.FC = () => {
     return true;
   };
   
-  const handleNext = () => {
-    if (validateSelection()) {
-      window.location.href = "/step/1/roadmap";
+  const handleComplete = () => {
+    if (!validateSelection()) return;
+    
+    if (onComplete) {
+      onComplete();
+    } else if (completeStep) {
+      completeStep("opportunities-challenges");
     }
   };
   
   return (
     <>
-      <div className="col-span-12">
-        <motion.p
-          className="text-gray-500 text-sm mb-1 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          Spot tailwinds and tripwires.
-        </motion.p>
-        
-        <motion.h1
-          className="text-[32px] font-bold mb-8 text-center"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Opportunities & Challenges
-        </motion.h1>
-        
-        <div className="flex gap-8">
-          {/* Opportunities Column */}
-          <div className="flex-1">
-            <motion.h2
-              className="text-[20px] font-bold mb-6"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Opportunities
-            </motion.h2>
-            
-            <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="opportunities">
-              {isLoading ? (
-                <div className="flex flex-col items-center mt-8">
-                  <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-                  <p className="text-gray-500">Still shaping ideas... one second.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {opportunities.map((opportunity, index) => (
-                    <DraggableNote
-                      key={`opportunities-${index}`}
-                      id={`opportunities-${index}`}
-                      content={opportunity}
-                      isSelected={selectedOpportunities.includes(opportunity)}
-                      isDiscarded={discardedOpportunities.includes(opportunity)}
-                      onSelect={() => handleSelectOpportunity(opportunity)}
-                      onDiscard={() => handleDiscardOpportunity(opportunity)}
-                      onMove={() => moveToChallenge(opportunity)}
-                      section="opportunities"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+      <motion.h2
+        className="text-[24px] font-bold mb-2 text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        Opportunities & Challenges
+      </motion.h2>
+      
+      <motion.p
+        className="text-gray-600 mb-6 text-center"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        Spot tailwinds and tripwires.
+      </motion.p>
+      
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Opportunities Column */}
+        <div className="flex-1">
+          <motion.h3
+            className="text-[18px] font-bold mb-4"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            Opportunities
+          </motion.h3>
           
-          {/* Challenges Column */}
-          <div className="flex-1">
-            <motion.h2
-              className="text-[20px] font-bold mb-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Challenges
-            </motion.h2>
-            
-            <div className="p-4 bg-white rounded-lg shadow-sm min-h-[500px]" id="challenges">
-              {isLoading ? (
-                <div className="flex flex-col items-center mt-8">
-                  <div className="w-[180px] h-[220px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-                  <p className="text-gray-500">Still shaping ideas... one second.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {challenges.map((challenge, index) => (
-                    <DraggableNote
-                      key={`challenges-${index}`}
-                      id={`challenges-${index}`}
-                      content={challenge}
-                      isSelected={selectedChallenges.includes(challenge)}
-                      isDiscarded={discardedChallenges.includes(challenge)}
-                      onSelect={() => handleSelectChallenge(challenge)}
-                      onDiscard={() => handleDiscardChallenge(challenge)}
-                      onMove={() => moveToOpportunity(challenge)}
-                      section="challenges"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="p-4 bg-white rounded-lg shadow-sm min-h-[400px]" id="opportunities">
+            {isLoading ? (
+              <div className="flex flex-col items-center mt-8">
+                <div className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
+                <p className="text-gray-500">Still shaping ideas... one second.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {opportunities.map((opportunity, index) => (
+                  <DraggableNote
+                    key={`opportunities-${index}`}
+                    id={`opportunities-${index}`}
+                    content={opportunity}
+                    isSelected={selectedOpportunities.includes(opportunity)}
+                    isDiscarded={discardedOpportunities.includes(opportunity)}
+                    onSelect={() => handleSelectOpportunity(opportunity)}
+                    onDiscard={() => handleDiscardOpportunity(opportunity)}
+                    onMove={() => moveToChallenge(opportunity)}
+                    section="opportunities"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Challenges Column */}
+        <div className="flex-1">
+          <motion.h3
+            className="text-[18px] font-bold mb-4"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            Challenges
+          </motion.h3>
+          
+          <div className="p-4 bg-white rounded-lg shadow-sm min-h-[400px]" id="challenges">
+            {isLoading ? (
+              <div className="flex flex-col items-center mt-8">
+                <div className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
+                <p className="text-gray-500">Still shaping ideas... one second.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {challenges.map((challenge, index) => (
+                  <DraggableNote
+                    key={`challenges-${index}`}
+                    id={`challenges-${index}`}
+                    content={challenge}
+                    isSelected={selectedChallenges.includes(challenge)}
+                    isDiscarded={discardedChallenges.includes(challenge)}
+                    onSelect={() => handleSelectChallenge(challenge)}
+                    onDiscard={() => handleDiscardChallenge(challenge)}
+                    onMove={() => moveToOpportunity(challenge)}
+                    section="challenges"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
       
-      <StepNavBar 
-        title="Opportunities & Challenges"
-        nextStep="/step/1/roadmap"
-        nextButtonLabel="Confirm context →"
-        isButtonDisabled={isLoading || selectedOpportunities.length < 2 || selectedChallenges.length < 2}
-        onNext={handleNext}
-      />
+      <div className="mt-6 text-right">
+        <Button
+          onClick={handleComplete}
+          disabled={isLoading || selectedOpportunities.length < 2 || selectedChallenges.length < 2}
+          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+        >
+          Complete & Continue
+        </Button>
+      </div>
     </>
   );
 };
