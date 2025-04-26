@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import TimelineTopBar from "@/components/TimelineTopBar";
@@ -18,7 +17,6 @@ const Timeline: React.FC = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   
-  // Define all steps
   const steps: Step[] = [
     { id: 1, title: "Positioning", description: "Define purpose, edge and long-range roadmap.", duration: "4 min" },
     { id: 2, title: "Audience", description: "Segment target cohorts and mine core insights.", duration: "5 min" },
@@ -36,16 +34,13 @@ const Timeline: React.FC = () => {
     { id: 14, title: "Brand Book", description: "Bind everything into a polished PDF kit.", duration: "1 min" },
   ];
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Toggle help drawer with "?"
       if (e.key === "?") {
         setShowHelpDrawer(prev => !prev);
         return;
       }
       
-      // Handle Command + Number shortcuts
       if (e.metaKey && !isNaN(Number(e.key)) && Number(e.key) >= 1 && Number(e.key) <= 14) {
         const stepNumber = Number(e.key);
         document.getElementById(`step-card-${stepNumber}`)?.scrollIntoView({ behavior: "smooth" });
@@ -61,12 +56,10 @@ const Timeline: React.FC = () => {
   
   const handleStepView = (stepId: number) => {
     console.log(`onStepView fired for step ${stepId}`);
-    // This would typically fire an analytics event
   };
   
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
-    // This would typically fire an analytics event
   };
   
   const getStepStatus = (stepId: number): "todo" | "current" | "done" => {
@@ -76,7 +69,7 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FAFAFA]">
+    <div className="min-h-screen w-full bg-background text-foreground">
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />
       
@@ -87,13 +80,12 @@ const Timeline: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="inter-font font-bold text-[32px] text-black mb-2">Your route beyond zero.</h1>
-          <p className="inter-font text-[18px] text-gray-600 mb-8">
+          <h1 className="inter-font font-bold text-[32px] text-foreground mb-2">Your route beyond zero.</h1>
+          <p className="inter-font text-[18px] text-muted-foreground mb-8">
             Fourteen concise modules. Move in order or jump to what matters.
           </p>
         </motion.div>
         
-        {/* Timeline */}
         <div className="flex justify-center">
           <div className="relative">
             {steps.map((step, index) => (
@@ -113,9 +105,8 @@ const Timeline: React.FC = () => {
         </div>
       </div>
       
-      {/* Help toggle button */}
       <motion.button
-        className="fixed right-6 bottom-6 w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center text-xl font-semibold z-50 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-cyan/40"
+        className="fixed right-6 bottom-6 w-12 h-12 bg-secondary text-secondary-foreground rounded-full shadow-md flex items-center justify-center text-xl font-semibold z-50 hover:bg-secondary/90 focus:outline-none focus:ring focus:ring-ring"
         onClick={() => setShowHelpDrawer(prev => !prev)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -123,7 +114,6 @@ const Timeline: React.FC = () => {
         ?
       </motion.button>
       
-      {/* Help drawer */}
       <AnimatePresence>
         {showHelpDrawer && (
           <HelpDrawer isOpen={showHelpDrawer} onClose={() => setShowHelpDrawer(false)} />

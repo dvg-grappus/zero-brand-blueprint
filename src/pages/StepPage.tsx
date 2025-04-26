@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import OfflineToast from "@/components/OfflineToast";
@@ -201,14 +201,14 @@ const StepPage: React.FC = () => {
       completeStep,
       completedSteps,
     }}>
-      <div className="min-h-screen w-full bg-[#FAFAFA] pb-12">
+      <div className="min-h-screen w-full bg-background text-foreground pb-12">
         <OfflineToast />
         
         <StepProgress currentStep="all" />
         
         <div className="text-center pt-[48px] mb-8">
           <motion.h1
-            className="text-[32px] font-bold"
+            className="text-[32px] font-bold text-foreground"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
@@ -216,7 +216,7 @@ const StepPage: React.FC = () => {
             Positioning Module
           </motion.h1>
           <motion.p
-            className="text-gray-600"
+            className="text-muted-foreground"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
@@ -240,11 +240,11 @@ const StepPage: React.FC = () => {
                   onOpenChange={() => canOpen && toggleStep(stepConfig.id)}
                   className="w-full"
                 >
-                  <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-sm">
+                  <div className="flex items-center gap-4 bg-secondary p-4 rounded-lg">
                     <div 
                       className={`w-8 h-8 rounded-full flex items-center justify-center 
-                      ${isStepCompleted ? "bg-cyan text-black" : 
-                        isStepActive ? "bg-black text-white" : "bg-gray-200 text-gray-500"}`}
+                      ${isStepCompleted ? "bg-cyan text-background" : 
+                        isStepActive ? "bg-foreground text-background" : "bg-muted text-muted-foreground"}`}
                     >
                       {isStepCompleted ? <Check className="w-4 h-4" /> : index + 1}
                     </div>
@@ -252,23 +252,20 @@ const StepPage: React.FC = () => {
                       <h3 className="font-medium text-lg">{stepConfig.name}</h3>
                     </div>
                     <CollapsibleTrigger disabled={!canOpen} className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-muted-foreground">
                         {isStepCompleted ? "Completed" : 
                           isOpen ? "Close" : 
                           canOpen ? "Expand" : "Locked"}
                       </span>
                       {isOpen ? 
-                        <ChevronUp className={`w-5 h-5 ${canOpen ? "text-gray-500" : "text-gray-300"}`} /> : 
-                        <ChevronDown className={`w-5 h-5 ${canOpen ? "text-gray-500" : "text-gray-300"}`} />
+                        <ChevronUp className={`w-5 h-5 ${canOpen ? "text-foreground" : "text-muted-foreground"}`} /> : 
+                        <ChevronDown className={`w-5 h-5 ${canOpen ? "text-foreground" : "text-muted-foreground"}`} />
                       }
                     </CollapsibleTrigger>
                   </div>
                   <CollapsibleContent>
                     <div className="pt-6 pb-4 px-4">
-                      <Component 
-                        onComplete={() => completeStep(stepConfig.id)}
-                        isValid={isStepValid(stepConfig.id)}
-                      />
+                      <Component />
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -282,8 +279,8 @@ const StepPage: React.FC = () => {
               disabled={!completedSteps.includes("statements")}
               className={`px-8 py-3 rounded-full font-medium ${
                 completedSteps.includes("statements")
-                  ? "bg-black text-white hover:bg-cyan hover:text-black"
-                  : "bg-gray-200 text-gray-500"
+                  ? "bg-foreground text-background hover:bg-cyan hover:text-background"
+                  : "bg-muted text-muted-foreground"
               } transition-colors`}
             >
               Complete Positioning Module

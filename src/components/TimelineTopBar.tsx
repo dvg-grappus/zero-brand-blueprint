@@ -12,13 +12,13 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
   
   return (
     <motion.div 
-      className="fixed top-0 left-0 right-0 h-[88px] bg-white flex items-center justify-between px-[120px] z-30 shadow-topbar"
+      className="fixed top-0 left-0 right-0 h-[88px] bg-background/95 backdrop-blur-sm border-b border-border flex items-center justify-between px-[120px] z-30"
       initial={{ y: -88 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
     >
       {/* Logo */}
-      <div className="satoshi-font font-bold text-[20px] tracking-[0.5em] text-black">
+      <div className="satoshi-font font-bold text-[20px] tracking-[0.5em] text-foreground">
         North of Zero
       </div>
       
@@ -29,14 +29,14 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
           const isCompleted = completedSteps.includes(stepNumber);
           const isCurrent = currentStep === stepNumber;
           
-          let bgColor = "";
-          if (isCompleted) bgColor = "bg-cyan";
-          else if (isCurrent) bgColor = "bg-black";
+          let bgColor = "bg-transparent border-border";
+          if (isCompleted) bgColor = "bg-cyan border-cyan";
+          else if (isCurrent) bgColor = "bg-foreground border-foreground";
           
           return (
             <div
               key={i}
-              className={`w-5 h-5 border border-[#E0E0E0] ${bgColor} transition-colors duration-300`}
+              className={`w-5 h-5 border ${bgColor} transition-colors duration-300`}
             />
           );
         })}
@@ -44,8 +44,8 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
       
       {/* Draft Info and Avatar */}
       <div className="flex items-center gap-4">
-        <span className="text-gray-700">Draft #041</span>
-        <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+        <span className="text-muted-foreground">Draft #041</span>
+        <div className="w-8 h-8 rounded-full bg-muted"></div>
       </div>
     </motion.div>
   );
