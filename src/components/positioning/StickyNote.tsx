@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
@@ -28,10 +27,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
     <motion.div
       id={`sticky-note-${id}`}
       className={`relative w-[140px] h-[160px] rounded-lg p-3 font-medium text-[13px] ${className}`}
-      style={{
-        backgroundColor: color,
-        opacity: isDiscarded ? 0.3 : 1
-      }}
+      style={{ backgroundColor: color }}
       whileHover={{ y: -4 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -56,11 +52,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
         </button>
         
         <button
-          className={`flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold transition-colors ${
-            isDiscarded 
-              ? "bg-black text-white" 
-              : "bg-white text-black hover:bg-black/5"
-          }`}
+          className="flex items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold transition-colors bg-white text-black hover:bg-black/5"
           onClick={onDiscard}
         >
           <X className="w-2.5 h-2.5 mr-0.5" />

@@ -1,8 +1,6 @@
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import StickyNote from "./StickyNote";
-import CircleSegment from "./CircleSegment";
-import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/pages/StepPage";
 import StepNavBar from "./StepNavBar";
 
@@ -36,6 +34,7 @@ const mockIdeas = {
 const GoldenCircle: React.FC = () => {
   const { selectedGoldenCircle, setSelectedGoldenCircle, completeStep } = useContext(PositioningContext);
   const [activeSegment, setActiveSegment] = useState<'why' | 'how' | 'what'>('why');
+  const [discardedIdeas, setDiscardedIdeas] = useState<string[]>([]);
 
   const handleSegmentClick = (segment: 'why' | 'how' | 'what') => {
     setActiveSegment(segment);
@@ -50,8 +49,8 @@ const GoldenCircle: React.FC = () => {
     }));
   };
 
-  const handleDiscard = () => {
-    // Currently a no-op as requested
+  const handleDiscard = (idea: string) => {
+    setDiscardedIdeas(prev => [...prev, idea]);
   };
 
   const handleComplete = () => {
@@ -82,27 +81,27 @@ const GoldenCircle: React.FC = () => {
       
       <div className="flex flex-col md:flex-row justify-center items-start gap-12">
         <div className="w-full md:w-1/3 flex flex-col items-center">
-          <svg width="300" height="300" viewBox="0 0 300 300">
+          <svg width="280" height="280" viewBox="0 0 280 280">
             <g onClick={() => handleSegmentClick('why')}>
               <circle
-                cx="150"
-                cy="150"
-                r="140"
+                cx="140"
+                cy="140"
+                r="120"
                 fill={activeSegment === 'why' ? "hsl(var(--cyan))" : "transparent"}
                 className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
-                cx="150"
-                cy="150"
-                r="140"
+                cx="140"
+                cy="140"
+                r="120"
                 fill="transparent"
                 stroke={activeSegment === 'why' ? "hsl(var(--cyan))" : "#E0E0E0"}
                 strokeWidth="2"
                 className="transition-colors duration-300"
               />
               <text
-                x="150"
-                y="40"
+                x="140"
+                y="50"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={activeSegment === 'why' ? "hsl(var(--cyan))" : "#999999"}
@@ -114,24 +113,24 @@ const GoldenCircle: React.FC = () => {
             
             <g onClick={() => handleSegmentClick('how')}>
               <circle
-                cx="150"
-                cy="150"
-                r="95"
+                cx="140"
+                cy="140"
+                r="80"
                 fill={activeSegment === 'how' ? "hsl(var(--cyan))" : "transparent"}
                 className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
-                cx="150"
-                cy="150"
-                r="95"
+                cx="140"
+                cy="140"
+                r="80"
                 fill="transparent"
                 stroke={activeSegment === 'how' ? "hsl(var(--cyan))" : "#E0E0E0"}
                 strokeWidth="2"
                 className="transition-colors duration-300"
               />
               <text
-                x="150"
-                y="85"
+                x="140"
+                y="90"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={activeSegment === 'how' ? "hsl(var(--cyan))" : "#999999"}
@@ -143,24 +142,24 @@ const GoldenCircle: React.FC = () => {
             
             <g onClick={() => handleSegmentClick('what')}>
               <circle
-                cx="150"
-                cy="150"
-                r="50"
+                cx="140"
+                cy="140"
+                r="40"
                 fill={activeSegment === 'what' ? "hsl(var(--cyan))" : "transparent"}
                 className="transition-colors duration-300 cursor-pointer opacity-10"
               />
               <circle
-                cx="150"
-                cy="150"
-                r="50"
+                cx="140"
+                cy="140"
+                r="40"
                 fill="transparent"
                 stroke={activeSegment === 'what' ? "hsl(var(--cyan))" : "#E0E0E0"}
                 strokeWidth="2"
                 className="transition-colors duration-300"
               />
               <text
-                x="150"
-                y="150"
+                x="140"
+                y="140"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill={activeSegment === 'what' ? "hsl(var(--cyan))" : "#999999"}
@@ -170,7 +169,7 @@ const GoldenCircle: React.FC = () => {
               </text>
             </g>
           </svg>
-          <p className="text-sm text-muted-foreground mt-4">Tap on a circle to view its statements</p>
+          <p className="text-sm text-muted-foreground mt-4">Tap on a circle to switch</p>
         </div>
         
         <div className="w-full md:w-2/3">
@@ -178,23 +177,25 @@ const GoldenCircle: React.FC = () => {
             {activeSegment.toUpperCase()} Statements
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {mockIdeas[activeSegment].map((idea, index) => (
-              <motion.div
-                key={`${activeSegment}-${index}`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                <StickyNote
-                  id={`${activeSegment}-${index}`}
-                  content={idea}
-                  isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
-                  isDiscarded={false}
-                  onClick={() => handleSelect(activeSegment, idea)}
-                  onDiscard={handleDiscard}
-                />
-              </motion.div>
+            {mockIdeas[activeSegment]
+              .filter(idea => !discardedIdeas.includes(idea))
+              .map((idea, index) => (
+                <motion.div
+                  key={`${activeSegment}-${index}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <StickyNote
+                    id={`${activeSegment}-${index}`}
+                    content={idea}
+                    isSelected={selectedGoldenCircle[activeSegment].includes(idea)}
+                    isDiscarded={false}
+                    onClick={() => handleSelect(activeSegment, idea)}
+                    onDiscard={() => handleDiscard(idea)}
+                  />
+                </motion.div>
             ))}
           </div>
         </div>
@@ -204,11 +205,6 @@ const GoldenCircle: React.FC = () => {
         title="Golden Circle"
         nextStep="opportunities-challenges"
         nextButtonLabel="Complete & Continue"
-        isButtonDisabled={
-          selectedGoldenCircle.why.length === 0 ||
-          selectedGoldenCircle.how.length === 0 ||
-          selectedGoldenCircle.what.length === 0
-        }
         onNext={handleComplete}
       />
     </div>
