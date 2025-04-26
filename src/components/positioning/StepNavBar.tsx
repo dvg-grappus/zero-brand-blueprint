@@ -28,7 +28,7 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
       <Button
         onClick={handleNext}
         disabled={isButtonDisabled}
-        className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+        className="bg-white hover:bg-cyan text-black border border-border/40 shadow-sm transition-colors disabled:opacity-50"
       >
         {nextButtonLabel}
       </Button>
