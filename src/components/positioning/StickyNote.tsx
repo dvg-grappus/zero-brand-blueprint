@@ -21,7 +21,7 @@ const StickyNote = forwardRef<HTMLDivElement, StickyNoteProps>(({
   isDiscarded,
   onClick,
   onDiscard,
-  color = "#252A33", // Default to dark theme color
+  color = "#FEF7CD", // Soft yellow color
   className = ""
 }, ref) => {
   return (
@@ -38,7 +38,7 @@ const StickyNote = forwardRef<HTMLDivElement, StickyNoteProps>(({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="h-full overflow-hidden mb-6 text-gray-200">
+      <div className="h-full overflow-hidden mb-6 text-black"> {/* Changed text color to black for better readability */}
         {content}
       </div>
       

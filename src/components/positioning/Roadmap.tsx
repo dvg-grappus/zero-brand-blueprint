@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -20,7 +19,6 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
-// Mock data for development - in production this would come from GPT API
 const mockMilestones = [
   "Launch MVP with core features",
   "Reach 1000 active users",
@@ -43,7 +41,6 @@ const Roadmap: React.FC = () => {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [dragOverTimepoint, setDragOverTimepoint] = useState<string | null>(null);
   
-  // Set up DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -54,7 +51,6 @@ const Roadmap: React.FC = () => {
   );
   
   useEffect(() => {
-    // Simulate GPT API call
     const timer = setTimeout(() => {
       setMilestones(mockMilestones);
       setIsLoading(false);
@@ -87,14 +83,12 @@ const Roadmap: React.FC = () => {
   };
   
   const handleAssignMilestone = (milestone: string, timePoint: string) => {
-    // Remove from any existing timepoint
     const updatedMilestones = { ...roadmapMilestones };
     
     Object.keys(updatedMilestones).forEach(point => {
       updatedMilestones[point] = updatedMilestones[point].filter(m => m !== milestone);
     });
     
-    // Add to new timepoint
     updatedMilestones[timePoint] = [...updatedMilestones[timePoint], milestone];
     
     setRoadmapMilestones(updatedMilestones);
@@ -107,7 +101,6 @@ const Roadmap: React.FC = () => {
         : [...prev, milestone]
     );
     
-    // Remove from any timepoint if discarded
     const updatedMilestones = { ...roadmapMilestones };
     
     Object.keys(updatedMilestones).forEach(point => {
@@ -141,7 +134,6 @@ const Roadmap: React.FC = () => {
   };
   
   const validateRoadmap = () => {
-    // Check if each timepoint has at least one milestone
     const isValid = timelinePoints.every(point => roadmapMilestones[point].length > 0);
     
     if (!isValid) {
@@ -158,7 +150,6 @@ const Roadmap: React.FC = () => {
     }
   };
   
-  // Get available milestones (not assigned or discarded)
   const getAvailableMilestones = () => {
     return milestones.filter(milestone => {
       return !discardedMilestones.includes(milestone) && 
@@ -213,18 +204,14 @@ const Roadmap: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Timeline Column */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-foreground">Timeline</h3>
                 <div className="relative">
-                  {/* Vertical Line */}
                   <div className="absolute left-[15px] top-6 bottom-6 w-0.5 bg-gray-600/30"></div>
-                  
-                  {/* Timeline Points */}
                   {timelinePoints.map((point, index) => (
                     <div
                       key={point}
-                      id={point} // For DnD
+                      id={point}
                       className={`relative mb-12 ${
                         dragOverTimepoint === point 
                           ? "bg-muted/30 rounded-lg" 
@@ -242,8 +229,6 @@ const Roadmap: React.FC = () => {
                         
                         <div>
                           <h4 className="text-base font-semibold mb-2">{point}</h4>
-                          
-                          {/* Milestones for this timepoint */}
                           <div className="pl-2 space-y-3 min-h-[100px]">
                             {roadmapMilestones[point].map((milestone, idx) => (
                               <motion.div
@@ -259,7 +244,7 @@ const Roadmap: React.FC = () => {
                                   isDiscarded={false}
                                   onClick={() => {/* Already assigned */}}
                                   onDiscard={() => handleDiscardMilestone(milestone)}
-                                  color="#252A33" // Dark color for milestone cards
+                                  color="#252A33"
                                   className="border border-border/40"
                                 />
                               </motion.div>
@@ -272,7 +257,6 @@ const Roadmap: React.FC = () => {
                 </div>
               </div>
               
-              {/* Milestone Pool Column */}
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-foreground">Available Milestones</h3>
                 
@@ -290,7 +274,7 @@ const Roadmap: React.FC = () => {
                       >
                         <div
                           className="cursor-grab active:cursor-grabbing"
-                          id={milestone} // For DnD
+                          id={milestone}
                         >
                           <StickyNote
                             id={milestone}
@@ -299,7 +283,7 @@ const Roadmap: React.FC = () => {
                             isDiscarded={discardedMilestones.includes(milestone)}
                             onClick={() => {/* No action on click */}}
                             onDiscard={() => handleDiscardMilestone(milestone)}
-                            color="#252A33" // Dark color for milestone cards
+                            color="#252A33"
                             className="border border-border/40"
                           />
                         </div>
@@ -325,7 +309,6 @@ const Roadmap: React.FC = () => {
         </DndContext>
       </div>
       
-      {/* Add Custom Milestone Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -350,7 +333,7 @@ const Roadmap: React.FC = () => {
         <Button
           onClick={handleComplete}
           disabled={isLoading || !validateRoadmap()}
-          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+          className="bg-white text-black hover:bg-gray-100 transition-colors border border-gray-300 shadow-sm"
         >
           Save timeline
         </Button>
