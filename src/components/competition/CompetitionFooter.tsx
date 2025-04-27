@@ -67,10 +67,10 @@ export const CompetitionFooter: React.FC<CompetitionFooterProps> = ({
           action: () => onNavigate("landscape")
         };
       case "landscape":
-        // Need brand position and non-empty axes
+        // No validation for landscape step
         return {
           label: "Finalise map →",
-          disabled: !brandPosition,
+          disabled: false, // Always enabled
           action: () => onNavigate("review")
         };
       case "review":

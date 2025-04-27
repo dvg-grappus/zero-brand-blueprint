@@ -32,6 +32,8 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
   const [showDetails, setShowDetails] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isDragging = useRef(false);
+  const dragStartPositionRef = useRef({ x: 0, y: 0 });
   
   // Calculate position in pixels relative to canvas size
   const getPixelPosition = () => {
@@ -58,6 +60,20 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
     const normalizedY = Math.min(Math.max(canvasY / rect.height, 0), 1);
     
     onDragEnd(id, { x: normalizedX, y: normalizedY });
+    
+    // Set a flag to prevent click after drag
+    isDragging.current = true;
+    
+    // Reset the dragging flag after a short delay
+    setTimeout(() => {
+      isDragging.current = false;
+    }, 300);
+  };
+  
+  const handleDragStart = (_event: any, info: any) => {
+    // Store the starting position to detect if it was a drag or just a click
+    dragStartPositionRef.current = { x: info.point.x, y: info.point.y };
+    isDragging.current = true;
   };
   
   const handlePointerDown = () => {
@@ -86,11 +102,15 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent click from propagating to avoid drag issues
-    if (!isPressed) {
+    // Prevent click from propagating and opening drawer if we just finished dragging
+    if (isDragging.current) {
       e.stopPropagation();
-      setShowPreview(true);
+      return;
     }
+    
+    // Only open the drawer if it was a genuine click, not at the end of a drag
+    e.stopPropagation();
+    setShowPreview(true);
   };
   
   const pixelPosition = getPixelPosition();
@@ -102,6 +122,7 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
           <motion.div
             drag
             dragControls={controls}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             dragMomentum={false}
             dragElastic={0.2}
