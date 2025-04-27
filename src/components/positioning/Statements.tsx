@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -96,7 +97,7 @@ const StatementCard: React.FC<StatementCardProps> = ({
   );
 };
 
-const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+const Statements: React.FC<{ onComplete?: () => void }> = ({ onComplete }) => {
   const navigate = useNavigate();
   const { 
     selectedGoldenCircle,
@@ -115,50 +116,29 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [tokenOptions, setTokenOptions] = useState<Record<string, string[]>>({
     WHAT: [
       "A brand identity system generator",
-      "An AI branding platform",
-      "A visual identity automation suite",
-      "A design democratization tool",
-      "A brand experience builder",
-      "An AI-powered design system",
-      "A brand transformation platform"
+      "An AI branding platform"
     ],
     HOW: [
       "Through AI-powered creative assistance",
-      "With step-by-step guided pathways",
-      "Using pre-validated design patterns",
-      "By automating complex design tasks",
-      "Through intelligent brand algorithms",
-      "With machine learning optimization",
-      "Using predictive design intelligence"
+      "With step-by-step guided pathways"
     ],
-    WHO: ["startups", "small businesses", "solopreneurs", "creatives", "entrepreneurs", "digital agencies", "brand managers"],
-    WHERE: ["digital platforms", "emerging markets", "competitive industries", "global marketplaces", "online ecosystems"],
+    WHO: ["startups", "solopreneurs"],
+    WHERE: ["digital platforms", "emerging markets"],
     WHY: [
       "To democratize professional design",
-      "To transform brand creation",
-      "To empower creative expression",
-      "To revolutionize brand building",
-      "To enable design innovation",
-      "To accelerate brand growth"
+      "To transform brand creation"
     ],
-    WHEN: ["rapid digital transformation", "growing design awareness", "brand saturation", "market evolution", "digital disruption"]
+    WHEN: ["rapid digital transformation", "growing design awareness"]
   });
 
   useEffect(() => {
-    setTokenOptions(prev => ({
-      ...prev,
-      WHAT: [...new Set([...selectedGoldenCircle.what, ...prev.WHAT])],
-      HOW: [...new Set([...selectedGoldenCircle.how, ...prev.HOW])],
-      WHY: [...new Set([...selectedGoldenCircle.why, ...prev.WHY])]
-    }));
-    
     const timer = setTimeout(() => {
       setExternalStatements(mockStatements);
       setIsLoading(false);
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [selectedGoldenCircle]);
+  }, []);
   
   const handleTokenSelect = (type: string, token: string) => {
     if (internalStatement[type] === token) {
@@ -205,13 +185,9 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     });
   };
   
-  const validateSelections = () => {
-    return true;
-  };
-  
   const handleComplete = () => {
     setPositioningComplete(true);
-    navigate("/timeline");
+    navigate("/timeline", { state: { fromPositioning: true } });
   };
   
   return (

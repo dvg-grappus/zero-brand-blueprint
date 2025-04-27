@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -15,7 +16,7 @@ interface Step {
 
 const Timeline: React.FC = () => {
   const location = useLocation();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   
@@ -48,6 +49,14 @@ const Timeline: React.FC = () => {
       });
       setCurrentStep(2);
     }
+    
+    // Always mark position as completed when returning to timeline
+    setCompletedSteps(prev => {
+      if (!prev.includes(1)) {
+        return [...prev, 1]; 
+      }
+      return prev;
+    });
   }, [location]);
 
   useEffect(() => {

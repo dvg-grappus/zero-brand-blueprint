@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -43,7 +44,6 @@ interface StickyNoteProps {
   content: string;
   isPinned: boolean;
   onTogglePin: () => void;
-  isPinLimited: boolean;
   index: number;
   isCompetitor?: boolean;
 }
@@ -51,14 +51,13 @@ interface StickyNoteProps {
 const StickyNote: React.FC<StickyNoteProps> = ({ 
   content, 
   isPinned, 
-  onTogglePin, 
-  isPinLimited,
+  onTogglePin,
   index,
   isCompetitor = false
 }) => {
   return (
     <motion.div
-      className={`p-4 rounded-lg cursor-pointer relative h-full ${
+      className={`p-6 rounded-lg cursor-pointer relative h-full ${
         isPinned ? "bg-[#FFEB3B] shadow-lg ring-2 ring-[#FFEB3B]/50" : "bg-[#FFEB3B]"
       }`}
       initial={{ opacity: 0, y: 20 }}
@@ -66,18 +65,15 @@ const StickyNote: React.FC<StickyNoteProps> = ({
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -4 }}
     >
-      <p className="text-black text-sm mb-8">{content}</p>
+      <p className="text-black text-sm mb-10">{content}</p>
       
       <button
-        className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded-full ${
+        className={`absolute bottom-3 right-3 text-xs px-2 py-1 rounded-full ${
           isPinned 
             ? "bg-black text-white" 
-            : isPinLimited 
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
-              : "bg-white text-black hover:bg-gray-100"
+            : "bg-white text-black hover:bg-gray-100"
         }`}
         onClick={onTogglePin}
-        disabled={!isPinned && isPinLimited}
       >
         {isPinned ? "📌 Pinned" : "Pin"}
       </button>
@@ -106,12 +102,6 @@ const Differentiators: React.FC = () => {
       if (prev.includes(competitor)) {
         return prev.filter(c => c !== competitor);
       }
-      
-      if (prev.length >= 3) {
-        toast.error("You can pin a maximum of 3 competitor statements");
-        return prev;
-      }
-      
       return [...prev, competitor];
     });
   };
@@ -121,25 +111,12 @@ const Differentiators: React.FC = () => {
       if (prev.includes(differentiator)) {
         return prev.filter(d => d !== differentiator);
       }
-      
-      if (prev.length >= 3) {
-        toast.error("You can pin a maximum of 3 differentiators");
-        return prev;
-      }
-      
       return [...prev, differentiator];
     });
   };
   
-  const isPinLimitedCompetitors = pinnedCompetitors.length >= 3;
-  const isPinLimitedDifferentiators = pinnedDifferentiators.length >= 3;
-  
   const handleComplete = () => {
-    if (pinnedDifferentiators.length === 3 && pinnedCompetitors.length === 3) {
-      completeStep("differentiators");
-    } else {
-      toast.error("Please pin exactly 3 pairs of statements");
-    }
+    completeStep("differentiators");
   };
   
   return (
@@ -169,7 +146,7 @@ const Differentiators: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Pin your top 3 pairs of contrasting statements.
+          Pin your top differentiators.
         </motion.p>
         
         {isLoading ? (
@@ -177,12 +154,12 @@ const Differentiators: React.FC = () => {
             <div className="grid grid-cols-2 gap-8 w-full">
               <div className="space-y-4">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
+                  <div key={i} className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg"></div>
                 ))}
               </div>
               <div className="space-y-4">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
+                  <div key={i} className="w-full h-[180px] bg-gray-100 animate-pulse rounded-lg"></div>
                 ))}
               </div>
             </div>
@@ -192,67 +169,43 @@ const Differentiators: React.FC = () => {
           <div className="grid grid-cols-2 gap-8">
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">While others...</h2>
-              <div className="space-y-4 grid auto-rows-fr">
+              <div className="grid grid-rows-8 gap-4">
                 {pairs.map((pair, index) => (
-                  <StickyNote
-                    key={index}
-                    content={pair.competitor}
-                    isPinned={pinnedCompetitors.includes(pair.competitor)}
-                    onTogglePin={() => handleToggleCompetitor(pair.competitor)}
-                    isPinLimited={isPinLimitedCompetitors}
-                    index={index}
-                    isCompetitor={true}
-                  />
+                  <div key={index} className="h-[180px]">
+                    <StickyNote
+                      content={pair.competitor}
+                      isPinned={pinnedCompetitors.includes(pair.competitor)}
+                      onTogglePin={() => handleToggleCompetitor(pair.competitor)}
+                      index={index}
+                      isCompetitor={true}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
             
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">We are the only...</h2>
-              <div className="space-y-4 grid auto-rows-fr">
+              <div className="grid grid-rows-8 gap-4">
                 {pairs.map((pair, index) => (
-                  <StickyNote
-                    key={index}
-                    content={pair.differentiator}
-                    isPinned={pinnedDifferentiators.includes(pair.differentiator)}
-                    onTogglePin={() => handleToggleDifferentiator(pair.differentiator)}
-                    isPinLimited={isPinLimitedDifferentiators}
-                    index={index}
-                  />
+                  <div key={index} className="h-[180px]">
+                    <StickyNote
+                      content={pair.differentiator}
+                      isPinned={pinnedDifferentiators.includes(pair.differentiator)}
+                      onTogglePin={() => handleToggleDifferentiator(pair.differentiator)}
+                      index={index}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
           </div>
         )}
-        
-        <motion.div 
-          className="mt-8 text-center space-x-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className={`inline-block px-4 py-2 rounded-full ${
-            pinnedCompetitors.length === 3 
-              ? "bg-green-100 text-green-700" 
-              : "bg-yellow-100 text-yellow-700"
-          }`}>
-            {pinnedCompetitors.length} of 3 competitor pins used
-          </div>
-          
-          <div className={`inline-block px-4 py-2 rounded-full ${
-            pinnedDifferentiators.length === 3 
-              ? "bg-green-100 text-green-700" 
-              : "bg-yellow-100 text-yellow-700"
-          }`}>
-            {pinnedDifferentiators.length} of 3 differentiator pins used
-          </div>
-        </motion.div>
       </div>
       
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={pinnedDifferentiators.length !== 3 || pinnedCompetitors.length !== 3}
           className="bg-white text-black hover:bg-gray-100 transition-colors"
         >
           Craft statements
