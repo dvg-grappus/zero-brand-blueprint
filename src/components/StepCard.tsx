@@ -77,7 +77,7 @@ const StepCard: React.FC<StepCardProps> = ({
 
   const getMarkerIcon = () => {
     if (status === "done") {
-      return <Check className="w-4 h-4" />;
+      return <Check className="w-4 h-4 text-black" />; // Changed to text-black
     }
     if (status === "current") {
       return <ArrowRight className="w-4 h-4 text-background" />;
