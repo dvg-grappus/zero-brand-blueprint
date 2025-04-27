@@ -9,6 +9,7 @@ import Timeline from "./pages/Timeline";
 import NotFound from "./pages/NotFound";
 import StepPage from "./pages/StepPage";
 import AudiencePage from "./pages/AudiencePage";
+import CompetitionPage from "./pages/CompetitionPage";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,9 @@ const App = () => (
             {/* Audience module routes */}
             <Route path="/step/2/:substep" element={<AudiencePage />} />
             <Route path="/step/2/persona/:personaId" element={<AudiencePage />} />
+            
+            {/* Competition module routes */}
+            <Route path="/step/3/:substep" element={<CompetitionPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
