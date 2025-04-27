@@ -49,7 +49,7 @@ const InsightCard: React.FC<InsightCardProps> = ({ insight, onRate, onStartDrag,
   };
   
   return (
-    <motion.div
+    <div
       ref={cardRef}
       draggable
       onDragStart={handleDragStart}
@@ -59,40 +59,44 @@ const InsightCard: React.FC<InsightCardProps> = ({ insight, onRate, onStartDrag,
       className={`w-[280px] h-[120px] bg-[#2B2B2B] rounded-lg p-4 shadow-md relative ${
         isDragging ? 'opacity-50' : 'opacity-100'
       }`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
-      <div className="flex items-start mb-2">
-        <div 
-          className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${
-            insight.isSystemGenerated ? "bg-green-500" : "bg-purple-500"
-          }`}
-        />
-        <p className="text-sm text-foreground ml-2 line-clamp-3">{insight.text}</p>
-      </div>
-      
-      <div className="absolute bottom-3 left-4">
-        <div className="flex items-center">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              onClick={() => onRate(insight.id, star)}
-              className={`${
-                (insight.rating || 0) >= star ? "text-yellow-500" : "text-gray-500"
-              } hover:text-yellow-500 transition-colors`}
-            >
-              <Star size={14} />
-            </button>
-          ))}
+      <motion.div
+        className="w-full h-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      >
+        <div className="flex items-start mb-2">
+          <div 
+            className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${
+              insight.isSystemGenerated ? "bg-green-500" : "bg-purple-500"
+            }`}
+          />
+          <p className="text-sm text-foreground ml-2 line-clamp-3">{insight.text}</p>
         </div>
-      </div>
-      
-      <div className="absolute bottom-3 right-4 text-xs text-muted-foreground">
-        {insight.source}
-      </div>
-    </motion.div>
+        
+        <div className="absolute bottom-3 left-4">
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                onClick={() => onRate(insight.id, star)}
+                className={`${
+                  (insight.rating || 0) >= star ? "text-yellow-500" : "text-gray-500"
+                } hover:text-yellow-500 transition-colors`}
+              >
+                <Star size={14} />
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="absolute bottom-3 right-4 text-xs text-muted-foreground">
+          {insight.source}
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
