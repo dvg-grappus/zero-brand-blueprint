@@ -26,7 +26,8 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     }
     
     if (nextStep) {
-      navigate(nextStep);
+      // Ensure nextStep uses the correct format for navigation
+      navigate(`/step/${nextStep}`);
     }
   };
   
@@ -35,7 +36,6 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
       <Button
         onClick={handleClick}
         className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
-        // Remove disabled prop to allow clicking regardless of validation
       >
         {nextButtonLabel}
       </Button>

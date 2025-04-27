@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import StickyNote from "./StickyNote";
@@ -204,7 +205,7 @@ const GoldenCircle: React.FC = () => {
       
       <StepNavBar
         title="Golden Circle"
-        nextStep="opportunities-challenges"
+        nextStep="opportunities-challenges" 
         nextButtonLabel="Complete & Continue"
         onNext={handleComplete}
       />
