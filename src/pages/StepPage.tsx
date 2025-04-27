@@ -9,7 +9,14 @@ import { usePositioning } from "@/contexts/PositioningContext";
 import PositioningStep from "@/components/positioning/PositioningStep";
 
 const PositioningContent = () => {
-  const { activeStep, completedSteps, openSteps, setOpenSteps } = usePositioning();
+  const { 
+    activeStep, 
+    completedSteps, 
+    openSteps, 
+    setOpenSteps,
+    positioningComplete,
+    setPositioningComplete 
+  } = usePositioning();
   
   const toggleStep = (stepId: string) => {
     if (openSteps.includes(stepId)) {

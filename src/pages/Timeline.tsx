@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
 import StepCard from "@/components/StepCard";
 import HelpDrawer from "@/components/HelpDrawer";
@@ -14,6 +15,7 @@ interface Step {
 }
 
 const Timeline: React.FC = () => {
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
@@ -34,6 +36,15 @@ const Timeline: React.FC = () => {
     { id: 13, title: "Collaterals", description: "Apply the system to merch, print and digital.", duration: "5 min" },
     { id: 14, title: "Brand Book", description: "Bind everything into a polished PDF kit.", duration: "1 min" },
   ];
+
+  useEffect(() => {
+    // Check if we're coming from the positioning statements page
+    const fromPositioning = location.state && location.state.fromPositioning;
+    if (fromPositioning && !completedSteps.includes(1)) {
+      setCompletedSteps(prev => [...prev, 1]);
+      setCurrentStep(2);
+    }
+  }, [location]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

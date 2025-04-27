@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 interface StepNavBarProps {
@@ -17,11 +18,24 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
   isButtonDisabled = false,
   onNext
 }) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (onNext) {
+      onNext();
+    }
+    
+    if (nextStep) {
+      navigate(nextStep);
+    }
+  };
+  
   return (
     <div className="mt-8 flex justify-end">
       <Button
-        onClick={onNext}
+        onClick={handleClick}
         className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
+        disabled={isButtonDisabled}
       >
         {nextButtonLabel}
       </Button>
