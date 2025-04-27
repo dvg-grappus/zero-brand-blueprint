@@ -34,8 +34,8 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     <div className="mt-8 flex justify-end">
       <Button
         onClick={handleClick}
-        className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
-        disabled={isButtonDisabled}
+        className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
+        // Remove disabled prop to allow clicking regardless of validation
       >
         {nextButtonLabel}
       </Button>

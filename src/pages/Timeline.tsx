@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -38,10 +37,15 @@ const Timeline: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Check if we're coming from the positioning statements page
+    console.log("Location state:", location.state);
     const fromPositioning = location.state && location.state.fromPositioning;
-    if (fromPositioning && !completedSteps.includes(1)) {
-      setCompletedSteps(prev => [...prev, 1]);
+    if (fromPositioning) {
+      setCompletedSteps(prev => {
+        if (!prev.includes(1)) {
+          return [...prev, 1];
+        }
+        return prev;
+      });
       setCurrentStep(2);
     }
   }, [location]);

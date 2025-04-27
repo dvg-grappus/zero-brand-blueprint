@@ -26,7 +26,8 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
     setWordCount(countWords(text));
   };
   
-  const isButtonDisabled = wordCount < 20 || wordCount > 80;
+  // Removed word count restrictions
+  const isButtonDisabled = false;
   
   const handleComplete = () => {
     if (onComplete) {
@@ -69,11 +70,7 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
           className="w-full min-h-[180px] p-4 text-[16px]"
         />
         
-        <div 
-          className={`absolute bottom-4 right-4 text-sm ${
-            wordCount > 80 ? "text-red-500" : "text-gray-500"
-          }`}
-        >
+        <div className="absolute bottom-4 right-4 text-sm text-gray-500">
           {wordCount}/80 words
         </div>
       </motion.div>
@@ -81,8 +78,7 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isButtonDisabled}
-          className="bg-white text-black border border-gray-300 hover:bg-gray-50 transition-colors"
+          className="bg-white text-black border border-gray-300 hover:bg-gray-50 transition-colors dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
         >
           Complete & Continue
         </Button>

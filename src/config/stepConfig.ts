@@ -12,44 +12,42 @@ export const STEP_CONFIG = [
     id: "brief", 
     name: "Brief Intake", 
     component: BriefIntake, 
-    isValid: (ctx: any) => ctx.briefContext.split(/\s+/).filter(Boolean).length >= 20 
+    isValid: () => true  // Always valid
   },
   { 
     id: "golden-circle", 
     name: "Golden Circle", 
     component: GoldenCircle, 
-    isValid: (ctx: any) => ctx.selectedGoldenCircle.why.length > 0 && 
-      ctx.selectedGoldenCircle.how.length > 0 && 
-      ctx.selectedGoldenCircle.what.length > 0 
+    isValid: () => true  // Always valid
   },
   { 
     id: "opportunities-challenges", 
     name: "Opportunities & Challenges", 
     component: OpportunitiesChallenges, 
-    isValid: (ctx: any) => ctx.selectedOpportunities.length >= 2 && ctx.selectedChallenges.length >= 2 
+    isValid: () => true  // Always valid
   },
   { 
     id: "roadmap", 
     name: "Roadmap", 
     component: Roadmap, 
-    isValid: () => true 
+    isValid: () => true  // Always valid
   },
   { 
     id: "values", 
     name: "Values", 
     component: Values, 
-    isValid: (ctx: any) => ctx.selectedValues.length >= 3 && ctx.selectedValues.length <= 7 
+    isValid: () => true  // Always valid
   },
   { 
     id: "differentiators", 
     name: "Differentiators", 
     component: Differentiators, 
-    isValid: (ctx: any) => ctx.pinnedDifferentiators.length === 3 
+    isValid: () => true  // Always valid
   },
   { 
     id: "statements", 
     name: "Statements", 
     component: Statements, 
-    isValid: () => true 
+    isValid: () => true  // Always valid
   },
 ];

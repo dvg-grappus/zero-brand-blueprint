@@ -26,12 +26,9 @@ const PositioningContent = () => {
     }
   };
   
+  // Modified to always return true - allow opening any step
   const canOpenStep = (stepId: string) => {
-    const stepIndex = STEP_CONFIG.findIndex(s => s.id === stepId);
-    if (stepIndex === 0) return true;
-    
-    const prevStepId = STEP_CONFIG[stepIndex - 1].id;
-    return completedSteps.includes(prevStepId) || activeStep === stepId;
+    return true;
   };
 
   return (

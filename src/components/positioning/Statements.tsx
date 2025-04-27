@@ -183,28 +183,13 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   };
   
   const validateSelections = () => {
-    const requiredSlots = ["WHAT", "HOW", "WHO", "WHERE", "WHY", "WHEN"];
-    const allSlotsFilled = requiredSlots.every(slot => Boolean(internalStatement[slot]));
-    
-    if (!allSlotsFilled) {
-      toast.error("Complete the internal positioning statement");
-      return false;
-    }
-    
-    if (!selectedExternalStatement) {
-      toast.error("Select an external positioning statement");
-      return false;
-    }
-    
     return true;
   };
   
   const handleComplete = () => {
-    if (validateSelections()) {
-      setPositioningComplete(true);
-      onComplete();
-      navigate("/timeline", { state: { fromPositioning: true } });
-    }
+    setPositioningComplete(true);
+    onComplete();
+    navigate("/timeline", { state: { fromPositioning: true } });
   };
   
   return (
@@ -302,7 +287,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         title="Positioning Statements"
         nextStep="/timeline"
         nextButtonLabel="Publish Positioning →"
-        isButtonDisabled={!validateSelections()}
         onNext={handleComplete}
       />
     </>
