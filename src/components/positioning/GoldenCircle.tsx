@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import StickyNote from "./StickyNote";
 import StepNavBar from "./StepNavBar";
+import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/contexts/PositioningContext";
 
 const mockIdeas = {
