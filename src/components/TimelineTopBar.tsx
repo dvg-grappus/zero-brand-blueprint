@@ -1,6 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { CircleCheck } from "lucide-react";
 
 interface TopBarProps {
   currentStep: number;
@@ -17,35 +18,37 @@ const TimelineTopBar: React.FC<TopBarProps> = ({ currentStep, completedSteps }) 
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Logo */}
-      <div className="satoshi-font font-bold text-[20px] tracking-[0.5em] text-foreground">
-        North of Zero
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 bg-cyan rounded-full"></div>
+        <h1 className="inter-font text-[18px] font-medium tracking-wide text-foreground/90">
+          North of Zero
+        </h1>
       </div>
       
-      {/* Progress Squares */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {Array.from({ length: totalSteps }).map((_, i) => {
           const stepNumber = i + 1;
           const isCompleted = completedSteps.includes(stepNumber);
           const isCurrent = currentStep === stepNumber;
           
-          let classes = "border border-border/70 bg-transparent";
-          if (isCompleted) classes = "border-cyan bg-cyan";
-          else if (isCurrent) classes = "border-foreground bg-foreground";
-          
           return (
             <div
               key={i}
-              className={`w-5 h-5 ${classes} transition-colors duration-300`}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                isCompleted 
+                  ? 'w-8 bg-cyan' 
+                  : isCurrent 
+                    ? 'w-8 bg-foreground'
+                    : 'w-4 bg-border/70'
+              }`}
             />
           );
         })}
       </div>
       
-      {/* Draft Info and Avatar */}
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground">Draft #041</span>
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground/70">
+        <span className="text-muted-foreground text-sm">Draft #041</span>
+        <div className="w-8 h-8 rounded-full bg-secondary/80 border border-border/60 flex items-center justify-center text-xs text-muted-foreground/70 backdrop-blur-sm">
           <span>A</span>
         </div>
       </div>

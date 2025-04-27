@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -64,67 +65,75 @@ const Welcome = () => {
       <div className="radial-vignette absolute inset-0 opacity-20"></div>
       
       <motion.div 
-        className="absolute top-10 left-10 z-10"
+        className="absolute top-10 left-10 z-10 overflow-hidden"
         whileHover={{ y: -2 }}
         transition={{ duration: 0.25 }}
       >
-        <h1 className="satoshi-font text-[20px] font-bold tracking-[0.5em] text-foreground/80">
-          North of Zero
-        </h1>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
+        >
+          <h1 className="inter-font text-[18px] font-medium tracking-wide text-foreground/90 flex items-center">
+            <span className="w-2 h-2 bg-cyan rounded-full mr-2"></span>
+            North of Zero
+          </h1>
+        </motion.div>
       </motion.div>
       
       {!prefersReducedMotion && (
         <motion.div 
-          className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient opacity-20"
+          className="w-[1000px] h-[1000px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden opacity-10"
+          style={{
+            background: "linear-gradient(225deg, #7DF9FF 0%, #FFD56F 50%, #FF6363 100%)",
+            filter: "blur(80px)"
+          }}
           animate={{ 
             rotate: 360,
-            scale: [1, 1.12, 1]
+            scale: [1, 1.1, 1]
           }}
           transition={{ 
-            rotate: { duration: 24, ease: "linear", repeat: Infinity },
+            rotate: { duration: 20, ease: "linear", repeat: Infinity },
             scale: {
-              duration: 24,
+              duration: 8,
               times: [0, 0.5, 1],
               repeat: Infinity,
-              ease: "linear"
+              ease: "easeInOut"
             }
           }}
         />
       )}
       
-      {prefersReducedMotion && (
-        <div className="w-[800px] h-[800px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden brand-gradient opacity-20" />
-      )}
-      
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
         <motion.h2 
-          className="inter-font font-medium text-[42px] leading-[52px] text-foreground text-center max-w-3xl"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="inter-font font-medium text-[56px] leading-[1.1] text-foreground text-center max-w-3xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           Turn a 60-word brief into a complete brand system.
         </motion.h2>
         
         <motion.p 
-          className="inter-font text-[18px] text-foreground/70 mt-4 text-center max-w-2xl"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="inter-font text-[20px] text-foreground/70 mt-6 text-center max-w-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.55 }}
         >
           Strategy, visuals and assets—generated in minutes, always under your direction.
         </motion.p>
         
         <motion.button
-          className="mt-12 bg-foreground text-background hover:bg-foreground/90 font-semibold py-3 px-6 rounded-full focus:outline-none focus:ring focus:ring-foreground/20 relative overflow-hidden transition-colors duration-200 ease-in-out"
-          style={{ width: 200, height: 52 }}
+          className="mt-14 bg-foreground text-background hover:bg-foreground/90 font-medium py-4 px-8 rounded-full focus:outline-none focus:ring-2 focus:ring-foreground/20 relative overflow-hidden transition-all duration-300 ease-out hover:shadow-lg hover:shadow-foreground/5"
           onClick={handleButtonClick}
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          initial={{ y: 10, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <span className="inter-font font-semibold text-[16px]">Map the journey →</span>
+          <span className="inter-font text-[17px]">Map the journey →</span>
         </motion.button>
       </div>
       
