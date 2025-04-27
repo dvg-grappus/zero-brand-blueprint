@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Layers, Trash2, Star, List, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from "recharts";
 
 interface InsightCardProps {

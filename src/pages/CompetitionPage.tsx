@@ -20,6 +20,7 @@ const CompetitionPage: React.FC = () => {
   const [showSecondaryInsights, setShowSecondaryInsights] = useState(false);
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   // Default to discovery if no substep provided
   const currentSubstep = substep || "discovery";
@@ -33,9 +34,15 @@ const CompetitionPage: React.FC = () => {
 
   // Reset scroll position on page/substep change
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo(0, 0);
-    }
+    // Use setTimeout to ensure the DOM has updated before scrolling
+    setTimeout(() => {
+      if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (viewport) {
+          viewport.scrollTop = 0;
+        }
+      }
+    }, 50);
   }, [currentSubstep]);
   
   const subSteps = [
@@ -86,7 +93,7 @@ const CompetitionPage: React.FC = () => {
             
             <ScrollArea 
               className="flex-1 px-[120px] pt-8 pb-24"
-              ref={contentRef}
+              ref={scrollAreaRef}
             >
               <motion.div 
                 className="min-h-[calc(100vh-20rem)]"
@@ -94,6 +101,7 @@ const CompetitionPage: React.FC = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
                 key={currentSubstep}
+                ref={contentRef}
               >
                 {renderCurrentStep()}
               </motion.div>
