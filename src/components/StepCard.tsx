@@ -59,9 +59,11 @@ const StepCard: React.FC<StepCardProps> = ({
 
   const handleButtonClick = () => {
     onBegin(id);
-    if (isFirstCard) {
+    
+    // If it's the first step or the current step, navigate to it
+    if (isFirstCard || status === "current") {
       // Add blur to other cards
-      document.querySelectorAll('.step-card:not(.step-card-1)').forEach(card => {
+      document.querySelectorAll('.step-card:not(.step-card-' + id + ')').forEach(card => {
         (card as HTMLElement).style.opacity = '0.3';
         (card as HTMLElement).style.filter = 'blur(10px)';
       });
@@ -71,18 +73,29 @@ const StepCard: React.FC<StepCardProps> = ({
         navigate(`/step/${id}`);
       }, 300);
     } else {
+      // If it's not the current step or first, just toggle preview
       setShowPreview(!showPreview);
     }
   };
 
   const getMarkerIcon = () => {
     if (status === "done") {
-      return <Check className="w-4 h-4 text-black" />; // Changed to text-black
+      return <Check className="w-4 h-4 text-black" />; // Black checkmark for better visibility
     }
     if (status === "current") {
       return <ArrowRight className="w-4 h-4 text-background" />;
     }
     return null;
+  };
+
+  const getButtonText = () => {
+    if (status === "done") {
+      return "Review";
+    } 
+    if (status === "current") {
+      return "Begin";
+    }
+    return showPreview ? "Close" : "Preview";
   };
 
   const keyboardShortcut = `⌘ + ${id}`;
@@ -170,7 +183,7 @@ const StepCard: React.FC<StepCardProps> = ({
               style={{ minWidth: 104, height: 40 }}
               onClick={handleButtonClick}
             >
-              {isFirstCard ? "Begin" : (showPreview ? "Close" : "Preview")}
+              {getButtonText()}
             </button>
           </div>
         </div>

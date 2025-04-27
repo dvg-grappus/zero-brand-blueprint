@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -15,7 +16,7 @@ interface Step {
 
 const Timeline: React.FC = () => {
   const location = useLocation();
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0); // Default to 0 (no current step)
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   
@@ -51,8 +52,14 @@ const Timeline: React.FC = () => {
       
       // Set current step to Audience (step 2)
       setCurrentStep(2);
+    } else {
+      // If not coming from positioning completion, set first step as current
+      // Only when there are no completed steps yet
+      if (completedSteps.length === 0) {
+        setCurrentStep(1);
+      }
     }
-  }, [location]);
+  }, [location, completedSteps.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
