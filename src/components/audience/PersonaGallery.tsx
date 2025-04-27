@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Edit, RefreshCw, MessageCircle, CircleCheck, X, Plus } from "lucide-react";
-import { useAudience, Persona } from "@/providers/AudienceProvider";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import PersonaDetail from "./PersonaDetail";
+import { CircleCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAudience } from "@/providers/AudienceProvider";
+import PersonaCard from "./PersonaCard";
+import PersonaTalkDialog from "./PersonaTalkDialog";
+import { PersonaDetailsSheet } from "./PersonaDetailsSheet";
 
-const SAMPLE_PERSONAS: Persona[] = [
+const SAMPLE_PERSONAS = [
   {
     id: "p1",
     name: "Sara Wales",
@@ -143,133 +143,6 @@ const SAMPLE_PERSONAS: Persona[] = [
   }
 ];
 
-interface PersonaCardProps {
-  persona: Persona;
-  onReplace: (id: string) => void;
-  onEdit: (id: string) => void;
-  onTalk: (id: string) => void;
-  onViewProfile: (id: string) => void;
-}
-
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, onTalk, onViewProfile }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  
-  return (
-    <div className="w-full mb-8 flex flex-col">
-      <motion.div
-        className="w-full h-[380px] relative perspective-1000 cursor-pointer mx-auto"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Edit button on image */}
-        <button 
-          className="absolute top-2 left-2 z-20 bg-black/50 p-1 rounded-full hover:bg-black/70 transition-colors"
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            onEdit(persona.id);
-          }}
-        >
-          <Edit size={16} className="text-white" />
-        </button>
-        
-        <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-          <div 
-            className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-4 border border-border/30 overflow-hidden ${
-              isFlipped ? 'opacity-0' : 'opacity-100'
-            }`}
-            onClick={() => setIsFlipped(true)}
-          >
-            <div className="aspect-w-3 aspect-h-4 bg-black/20 w-full h-[280px] rounded-lg overflow-hidden">
-              <img 
-                src={persona.image} 
-                alt={persona.name} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            <div className="mt-3">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 text-xs bg-background/30 backdrop-blur-sm rounded">
-                  {persona.country}
-                </span>
-                <span 
-                  className="px-2 py-1 text-xs rounded text-background" 
-                  style={{ backgroundColor: persona.archeTypeColor }}
-                >
-                  {persona.archetype}
-                </span>
-              </div>
-              
-              <h3 className="text-lg font-semibold">
-                {persona.name}, {persona.age}
-              </h3>
-            </div>
-          </div>
-          
-          <div 
-            className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-5 border border-border/30 overflow-hidden rotate-y-180 ${
-              isFlipped ? 'opacity-100' : 'opacity-0'
-            }`}
-            onClick={() => setIsFlipped(false)}
-          >
-            <div className="flex flex-col h-full">
-              <h3 className="text-xl font-semibold mb-2">
-                {persona.name}, {persona.age}
-              </h3>
-              
-              <div 
-                className="px-3 py-1 text-sm rounded text-background w-fit mb-6" 
-                style={{ backgroundColor: persona.archeTypeColor }}
-              >
-                {persona.archetype}
-              </div>
-              
-              <div className="space-y-4 flex-1">
-                <h4 className="text-sm font-medium text-cyan">Why they matter:</h4>
-                <p className="text-sm">{persona.whyTheyMatter}</p>
-              </div>
-              
-              <Button 
-                variant="link" 
-                className="text-cyan mt-4 text-left p-0"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewProfile(persona.id);
-                }}
-              >
-                See full profile →
-              </Button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-      
-      <div className="flex justify-center gap-3 mt-2">
-        <Button 
-          size="sm" 
-          variant="outline" 
-          className="rounded-full flex-grow"
-          onClick={(e) => { e.stopPropagation(); onReplace(persona.id); }}
-        >
-          <RefreshCw size={14} className="mr-1" />
-          Replace
-        </Button>
-        
-        <Button 
-          size="sm" 
-          variant="outline" 
-          className="rounded-full flex-grow"
-          onClick={(e) => { e.stopPropagation(); onTalk(persona.id); }}
-        >
-          <MessageCircle size={14} className="mr-1" />
-          Talk
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 interface PersonaGalleryProps {
   onComplete: () => void;
 }
@@ -282,51 +155,43 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
   const [showDetailSheet, setShowDetailSheet] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setPersonas(SAMPLE_PERSONAS);
       setIsLoading(false);
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, [setPersonas]);
-  
+
   const handleEdit = (id: string) => {
-    // Open persona detail in sheet instead of navigating
     setSelectedPersonaId(id);
     setShowDetailSheet(true);
   };
-  
+
   const handleViewProfile = (id: string) => {
-    // Open persona detail in sheet instead of navigating
     setSelectedPersonaId(id);
     setShowDetailSheet(true);
   };
-  
+
   const handleReplace = (id: string) => {
     setIsLoading(true);
     replacePersona(id);
-    
+
     setTimeout(() => {
       setIsLoading(false);
     }, 1500);
   };
-  
+
   const handleTalk = (id: string) => {
     const persona = personas.find(p => p.id === id);
     if (persona) {
       setActivePersonaCard(persona);
       setActiveTalkPersona(id);
-      console.log("onPersonaTalk", id, "Hello, how can I help?");
     }
   };
 
-  const closeDetailSheet = () => {
-    setShowDetailSheet(false);
-    setSelectedPersonaId(null);
-  };
-  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -334,7 +199,7 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
       transition={{ duration: 0.5 }}
       className="pb-16"
     >
-      <motion.div 
+      <motion.div
         className="text-center mb-12"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -343,7 +208,7 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
         <h1 className="text-3xl font-bold mb-2">Meet your audience</h1>
         <p className="text-muted-foreground">Get to know the personas behind your core cohorts.</p>
       </motion.div>
-      
+
       {isLoading ? (
         <div className="h-[400px] flex items-center justify-center">
           <div className="text-center">
@@ -355,9 +220,9 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
         <div className="flex flex-col items-center gap-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
             {personas.map(persona => (
-              <PersonaCard 
-                key={persona.id} 
-                persona={persona} 
+              <PersonaCard
+                key={persona.id}
+                persona={persona}
                 onReplace={handleReplace}
                 onEdit={handleEdit}
                 onTalk={handleTalk}
@@ -365,69 +230,33 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
               />
             ))}
           </div>
-          
+
           <p className="text-center text-muted-foreground max-w-2xl px-4">
             These personas represent the key segments of your audience. Each has unique goals, needs, and behaviors that inform product decisions.
             Explore their profiles to understand their motivations deeper.
           </p>
         </div>
       )}
-      
-      <AnimatePresence>
-        {activeTalkPersona && activePersonaCard && (
-          <PersonaTalkDialog
-            persona={activePersonaCard}
-            onClose={() => {
-              setActiveTalkPersona(null);
-              setActivePersonaCard(null);
-            }}
-          />
-        )}
-      </AnimatePresence>
-      
-      {/* Full profile bottom sheet */}
-      <AnimatePresence>
-        {showDetailSheet && selectedPersonaId && (
-          <motion.div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-end md:items-center md:justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/70"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeDetailSheet}
-            />
-            
-            <motion.div 
-              className="bg-[#1E1E1E] w-full max-w-4xl rounded-t-lg md:rounded-2xl shadow-xl border border-border/30 z-10 overflow-hidden flex flex-col"
-              style={{ height: "80vh" }}
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 20 }}
-            >
-              <div className="p-4 border-b border-border/30 flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Persona Profile</h2>
-                <Button variant="ghost" size="icon" onClick={closeDetailSheet}>
-                  <X size={20} />
-                </Button>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto p-4">
-                <PersonaDetail 
-                  personaId={selectedPersonaId} 
-                  onBack={closeDetailSheet}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
+
+      {activeTalkPersona && activePersonaCard && (
+        <PersonaTalkDialog
+          persona={activePersonaCard}
+          onClose={() => {
+            setActiveTalkPersona(null);
+            setActivePersonaCard(null);
+          }}
+        />
+      )}
+
+      <PersonaDetailsSheet
+        isOpen={showDetailSheet}
+        personaId={selectedPersonaId}
+        onClose={() => {
+          setShowDetailSheet(false);
+          setSelectedPersonaId(null);
+        }}
+      />
+
       <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
         <div className="text-sm">
           {personas.length === 3 && (
@@ -436,7 +265,7 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
             </span>
           )}
         </div>
-        <Button 
+        <Button
           onClick={onComplete}
           disabled={personas.length !== 3}
           className="bg-cyan hover:bg-cyan/90 text-background"
@@ -444,192 +273,6 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
           Approve personas →
         </Button>
       </div>
-    </motion.div>
-  );
-};
-
-interface PersonaTalkDialogProps {
-  persona: Persona;
-  onClose: () => void;
-}
-
-const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({ persona, onClose }) => {
-  const [messages, setMessages] = useState<{text: string, isUser: boolean}[]>([
-    { text: "Hello, how can I help you today?", isUser: false }
-  ]);
-  const [userInput, setUserInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  
-  const handleSendMessage = () => {
-    if (!userInput.trim()) return;
-    
-    setMessages(prev => [...prev, { text: userInput, isUser: true }]);
-    
-    setIsTyping(true);
-    
-    console.log("onPersonaTalk", persona.id, userInput);
-    
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev, 
-        { 
-          text: `As ${persona.name}, I'd say that's an interesting point. From my perspective as a ${persona.archetype.toLowerCase()}, I approach problems differently.`, 
-          isUser: false 
-        }
-      ]);
-      setIsTyping(false);
-    }, 2000);
-    
-    setUserInput("");
-  };
-  
-  const toggleListening = () => {
-    setIsListening(!isListening);
-  };
-  
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-end md:items-center md:justify-center p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="absolute inset-0 bg-black/70"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
-      
-      <motion.div 
-        className="bg-[#1E1E1E] w-full max-w-lg rounded-t-lg md:rounded-2xl shadow-xl border border-border/30 z-10 overflow-hidden flex flex-col"
-        style={{ maxHeight: "calc(100vh - 80px)" }}
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 20 }}
-      >
-        <div className="p-4 border-b border-border/30 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12 border border-border/50">
-              <AvatarImage src={persona.image} alt={persona.name} />
-              <AvatarFallback>{persona.name[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-medium text-lg">{persona.name}</h3>
-              <span 
-                className="px-2 py-1 text-xs rounded text-background inline-block"
-                style={{ backgroundColor: persona.archeTypeColor }}
-              >
-                {persona.archetype}
-              </span>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X size={20} />
-          </Button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-              <div 
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  msg.isUser 
-                    ? 'bg-cyan text-black'
-                    : 'bg-[#2B2B2B] text-white'
-                }`}
-              >
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-[#2B2B2B] text-white p-3 rounded-lg flex items-center space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="p-4 border-t border-border/30">
-          <div className="flex items-center gap-2">
-            <Button 
-              type="button" 
-              size="icon"
-              variant={isListening ? "default" : "outline"}
-              className={`rounded-full ${isListening ? 'bg-cyan text-background' : ''}`}
-              onClick={toggleListening}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isListening ? "lucide lucide-mic" : "lucide lucide-mic-off"}>
-                {isListening ? (
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z M19 10v2a7 7 0 0 1-14 0v-2 M12 19v3"></path>
-                ) : (
-                  <>
-                    <path d="m2 2 20 20"/>
-                    <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/>
-                    <path d="M5 10v2a7 7 0 0 0 12 5"/>
-                    <path d="M15 9.34V5a3 3 0 0 0-5.94-.6"/>
-                    <path d="M12 19v3"/>
-                  </>
-                )}
-              </svg>
-            </Button>
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              className="flex-1 bg-[#2B2B2B] border border-border/30 rounded-full px-4 py-3 focus:outline-none focus:ring-1 focus:ring-cyan"
-              placeholder="Ask me anything..."
-            />
-            <Button 
-              type="button" 
-              onClick={handleSendMessage}
-              className="bg-cyan hover:bg-cyan/90 text-background rounded-full"
-              size="icon"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send-horizontal">
-                <path d="m3 3 3 9-3 9 19-9Z"/>
-                <path d="M6 12h16"/>
-              </svg>
-            </Button>
-          </div>
-          
-          {isListening && (
-            <motion.div 
-              className="mt-3 flex justify-center items-center h-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="flex items-end space-x-1 h-full">
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 bg-cyan rounded-full"
-                    animate={{
-                      height: [4, Math.random() * 16 + 8, 4],
-                    }}
-                    transition={{
-                      duration: 0.6,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      delay: i * 0.05,
-                    }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
     </motion.div>
   );
 };
