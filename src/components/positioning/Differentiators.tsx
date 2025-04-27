@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/contexts/PositioningContext";
 
-// Mock data as pairs of competitor statements and differentiators
 const mockPairs = [
   {
     competitor: "Use conventional design tools with generic templates",
@@ -60,7 +58,7 @@ const StickyNote: React.FC<StickyNoteProps> = ({
 }) => {
   return (
     <motion.div
-      className={`p-4 rounded-lg cursor-pointer relative ${
+      className={`p-4 rounded-lg cursor-pointer relative h-full ${
         isPinned ? "bg-[#FFEB3B] shadow-lg ring-2 ring-[#FFEB3B]/50" : "bg-[#FFEB3B]"
       }`}
       initial={{ opacity: 0, y: 20 }}
@@ -95,7 +93,6 @@ const Differentiators: React.FC = () => {
   const [pinnedCompetitors, setPinnedCompetitors] = useState<string[]>([]);
   
   useEffect(() => {
-    // Simulate API call
     const timer = setTimeout(() => {
       setPairs(mockPairs);
       setIsLoading(false);
@@ -193,10 +190,9 @@ const Differentiators: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-8">
-            {/* While others... column */}
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">While others...</h2>
-              <div className="space-y-4">
+              <div className="space-y-4 grid auto-rows-fr">
                 {pairs.map((pair, index) => (
                   <StickyNote
                     key={index}
@@ -211,10 +207,9 @@ const Differentiators: React.FC = () => {
               </div>
             </div>
             
-            {/* We are the only... column */}
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">We are the only...</h2>
-              <div className="space-y-4">
+              <div className="space-y-4 grid auto-rows-fr">
                 {pairs.map((pair, index) => (
                   <StickyNote
                     key={index}

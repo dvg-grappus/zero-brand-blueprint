@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,8 +25,7 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     }
     
     if (nextStep) {
-      // Ensure nextStep uses the correct format for navigation
-      navigate(`/step/${nextStep}`);
+      navigate(nextStep);
     }
   };
   
@@ -35,7 +33,7 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     <div className="mt-8 flex justify-end">
       <Button
         onClick={handleClick}
-        className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
+        className="bg-white text-black hover:bg-gray-100 transition-colors"
       >
         {nextButtonLabel}
       </Button>

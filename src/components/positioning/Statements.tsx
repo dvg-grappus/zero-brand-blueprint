@@ -113,20 +113,43 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [externalStatements, setExternalStatements] = useState<typeof mockStatements>([]);
   
   const [tokenOptions, setTokenOptions] = useState<Record<string, string[]>>({
-    WHAT: ["A brand identity system generator", "An AI branding platform", "A visual identity automation suite", "A design democratization tool"],
-    HOW: ["Through AI-powered creative assistance", "With step-by-step guided pathways", "Using pre-validated design patterns", "By automating complex design tasks"],
-    WHO: ["startups", "small businesses", "solopreneurs", "creatives"],
-    WHERE: ["digital platforms", "emerging markets", "competitive industries"],
-    WHY: [],
-    WHEN: ["rapid digital transformation", "growing design awareness", "brand saturation"]
+    WHAT: [
+      "A brand identity system generator",
+      "An AI branding platform",
+      "A visual identity automation suite",
+      "A design democratization tool",
+      "A brand experience builder",
+      "An AI-powered design system",
+      "A brand transformation platform"
+    ],
+    HOW: [
+      "Through AI-powered creative assistance",
+      "With step-by-step guided pathways",
+      "Using pre-validated design patterns",
+      "By automating complex design tasks",
+      "Through intelligent brand algorithms",
+      "With machine learning optimization",
+      "Using predictive design intelligence"
+    ],
+    WHO: ["startups", "small businesses", "solopreneurs", "creatives", "entrepreneurs", "digital agencies", "brand managers"],
+    WHERE: ["digital platforms", "emerging markets", "competitive industries", "global marketplaces", "online ecosystems"],
+    WHY: [
+      "To democratize professional design",
+      "To transform brand creation",
+      "To empower creative expression",
+      "To revolutionize brand building",
+      "To enable design innovation",
+      "To accelerate brand growth"
+    ],
+    WHEN: ["rapid digital transformation", "growing design awareness", "brand saturation", "market evolution", "digital disruption"]
   });
-  
+
   useEffect(() => {
     setTokenOptions(prev => ({
       ...prev,
-      WHAT: selectedGoldenCircle.what,
-      HOW: selectedGoldenCircle.how,
-      WHY: selectedGoldenCircle.why
+      WHAT: [...new Set([...selectedGoldenCircle.what, ...prev.WHAT])],
+      HOW: [...new Set([...selectedGoldenCircle.how, ...prev.HOW])],
+      WHY: [...new Set([...selectedGoldenCircle.why, ...prev.WHY])]
     }));
     
     const timer = setTimeout(() => {
@@ -188,8 +211,7 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   
   const handleComplete = () => {
     setPositioningComplete(true);
-    onComplete();
-    navigate("/timeline", { state: { fromPositioning: true } });
+    navigate("/timeline");
   };
   
   return (
@@ -285,7 +307,6 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       
       <StepNavBar 
         title="Positioning Statements"
-        nextStep="/timeline"
         nextButtonLabel="Publish Positioning →"
         onNext={handleComplete}
       />
