@@ -29,10 +29,20 @@ export const CompetitionFooter: React.FC<CompetitionFooterProps> = ({
   } = useCompetition();
   
   const getNextButtonState = () => {
+    // Guard against invalid currentStep index
+    if (currentStep < 0 || currentStep >= steps.length) {
+      return {
+        label: "Next →",
+        disabled: true,
+        action: () => {}
+      };
+    }
+
     const isLastStep = currentStep === steps.length - 1;
+    const currentStepId = steps[currentStep].id;
     
     // Validation logic for each step
-    switch (steps[currentStep].id) {
+    switch (currentStepId) {
       case "discovery":
         // Need at least 6 competitors selected
         return {
@@ -91,11 +101,11 @@ export const CompetitionFooter: React.FC<CompetitionFooterProps> = ({
       <Button
         variant="ghost"
         onClick={() => {
-          if (currentStep > 0) {
+          if (currentStep > 0 && currentStep < steps.length) {
             onNavigate(steps[currentStep - 1].id);
           }
         }}
-        disabled={currentStep === 0}
+        disabled={currentStep <= 0}
       >
         ← Back
       </Button>
