@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StepNavBar from "./StepNavBar";
 import { PositioningContext } from "@/contexts/PositioningContext";
+import ExternalPositioningBuilder from "./ExternalPositioningBuilder";
 
 const mockStatements = [
   {
@@ -46,10 +47,10 @@ const TokenChip: React.FC<TokenChipProps> = ({
     <motion.button
       className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
         isSelected 
-          ? "bg-black text-white" 
+          ? "bg-primary text-primary-foreground" 
           : disabled 
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-            : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+            ? "bg-muted text-muted-foreground cursor-not-allowed" 
+            : "bg-accent hover:bg-accent/80 text-accent-foreground"
       }`}
       onClick={onClick}
       whileTap={!disabled ? { scale: 0.95 } : undefined}
@@ -225,34 +226,38 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         </motion.h1>
         
         <motion.section
-          className="bg-white p-6 rounded-lg shadow-sm mb-12"
+          className="bg-card p-6 rounded-lg shadow-sm mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Internal Positioning</h2>
+            <h2 className="text-xl font-semibold text-foreground">Internal Positioning</h2>
             <Button 
               onClick={shuffleInternalStatement} 
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-background text-foreground hover:bg-accent"
             >
               <span>Shuffle</span>
               <span className="text-lg">🔄</span>
             </Button>
           </div>
           
-          <div className="bg-gray-100 p-4 rounded-md mb-6">
-            <p className="text-sm text-gray-500 mb-1">Onliness Formula</p>
-            <p className="font-medium">The only <span className="font-bold">WHAT</span> that <span className="font-bold">HOW</span> for <span className="font-bold">WHO</span>, mostly in <span className="font-bold">WHERE</span>, because <span className="font-bold">WHY</span>, in an era of <span className="font-bold">WHEN</span>.</p>
+          <div className="bg-muted/50 p-4 rounded-md mb-6">
+            <p className="text-sm text-muted-foreground mb-1">Onliness Formula</p>
+            <p className="font-medium text-foreground">
+              The only <span className="font-bold">WHAT</span> that <span className="font-bold">HOW</span> for <span className="font-bold">WHO</span>, 
+              mostly in <span className="font-bold">WHERE</span>, because <span className="font-bold">WHY</span>, 
+              in an era of <span className="font-bold">WHEN</span>.
+            </p>
           </div>
           
           <div className="space-y-4 mb-6">
             {Object.entries(tokenOptions).map(([type, tokens]) => (
               <div key={type} className="mb-4">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-sm text-gray-600">{type}</h3>
-                  <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                  <h3 className="font-medium text-sm text-muted-foreground">{type}</h3>
+                  <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
                     {internalStatement[type] ? '✓' : '…'}
                   </span>
                 </div>
@@ -271,39 +276,22 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             ))}
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-md">
-            <p className="text-sm font-medium mb-1">Preview:</p>
-            <p className="text-lg">{getFormattedInternalStatement()}</p>
+          <div className="bg-muted/50 p-4 rounded-md">
+            <p className="text-sm font-medium text-muted-foreground mb-1">Preview:</p>
+            <p className="text-lg text-foreground">{getFormattedInternalStatement()}</p>
           </div>
         </motion.section>
         
         <motion.section
-          className="bg-white p-6 rounded-lg shadow-sm"
+          className="bg-card p-6 rounded-lg shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <h2 className="text-xl font-semibold mb-6">External Positioning</h2>
-          
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, idx) => (
-                <div key={idx} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {externalStatements.map((statement, idx) => (
-                <StatementCard
-                  key={idx}
-                  title={statement.title}
-                  description={statement.description}
-                  isSelected={selectedExternalStatement === JSON.stringify(statement)}
-                  onClick={() => handleExternalStatementSelect(statement)}
-                />
-              ))}
-            </div>
-          )}
+          <h2 className="text-xl font-semibold mb-6 text-foreground">External Positioning</h2>
+          <ExternalPositioningBuilder 
+            onStatementChange={statement => setSelectedExternalStatement(statement)}
+          />
         </motion.section>
       </div>
       
@@ -311,7 +299,7 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         title="Positioning Statements"
         nextStep="/timeline"
         nextButtonLabel="Publish Positioning →"
-        isButtonDisabled={isLoading || !validateSelections()}
+        isButtonDisabled={!validateSelections()}
         onNext={handleComplete}
       />
     </>
