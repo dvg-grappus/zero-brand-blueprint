@@ -30,12 +30,15 @@ export const CompetitorSelector: React.FC = () => {
         
         <div className="mt-4">
           <Command className="rounded-lg border shadow-md">
-            <CommandInput 
-              placeholder="Search competitors..." 
-              value={search}
-              onValueChange={setSearch}
-              icon={Search}
-            />
+            <div className="flex items-center border-b px-3">
+              <Search className="h-4 w-4 shrink-0 opacity-50 mr-2" />
+              <CommandInput 
+                placeholder="Search competitors..." 
+                value={search}
+                onValueChange={setSearch}
+                className="flex h-9 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
             <CommandList>
               <CommandEmpty>No competitors found</CommandEmpty>
               <CommandGroup>

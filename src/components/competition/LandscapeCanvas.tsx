@@ -21,7 +21,8 @@ export const LandscapeCanvas: React.FC = () => {
     updateAxisLabels,
     brandPosition,
     setBrandPosition,
-    createSnapshot
+    createSnapshot,
+    toggleSelectCompetitor
   } = useCompetition();
   
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -35,16 +36,26 @@ export const LandscapeCanvas: React.FC = () => {
     type: comp.name === "Google Primer" ? "you" as const : comp.type
   }));
   
-  // Initialize competitors with default positions if not set
+  // Preselect competitors and set initial positions if not already set
   useEffect(() => {
-    selectedCompetitorData.forEach(comp => {
+    const defaultCompetitorIds = ["1", "2", "3", "6", "8"];
+    
+    // Add default competitors if none selected
+    if (selectedCompetitors.length === 0) {
+      defaultCompetitorIds.forEach(id => {
+        toggleSelectCompetitor(id);
+      });
+    }
+    
+    // Initialize all competitors with positions if not set
+    competitors.forEach(comp => {
       if (!comp.position) {
         const randomX = 0.3 + Math.random() * 0.4; // 0.3 - 0.7 range
         const randomY = 0.3 + Math.random() * 0.4; // 0.3 - 0.7 range
         updateCompetitorPosition(comp.id, { x: randomX, y: randomY });
       }
     });
-  }, [selectedCompetitorData, updateCompetitorPosition]);
+  }, [competitors, selectedCompetitors, toggleSelectCompetitor, updateCompetitorPosition]);
   
   // Update canvas size on resize
   useEffect(() => {
@@ -72,9 +83,9 @@ export const LandscapeCanvas: React.FC = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center cursor-help">
-                  <span className="text-xs text-muted-foreground">?</span>
-                </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full">
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
               </TooltipTrigger>
               <TooltipContent side="left">
                 <p className="text-xs max-w-[240px]">
@@ -168,8 +179,8 @@ export const LandscapeCanvas: React.FC = () => {
           />
         </div>
         
-        {/* Y-axis label editor */}
-        <div className="absolute top-1/2 left-[-110px] transform -translate-y-1/2 -rotate-90">
+        {/* Y-axis label editor - moved further left */}
+        <div className="absolute top-1/2 left-[-140px] transform -translate-y-1/2 -rotate-90">
           <AxisLabelEditor 
             axis="y"
             labels={axes.y}

@@ -1,7 +1,8 @@
+
 import React, { useState, useRef } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { useCompetition } from "@/providers/CompetitionProvider";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTrigger } from "@/components/ui/drawer";
 
 interface CompetitorTokenProps {
   id: string;
@@ -96,8 +97,8 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
   
   return (
     <>
-      <Sheet open={showPreview} onOpenChange={setShowPreview}>
-        <SheetTrigger asChild>
+      <Drawer open={showPreview} onOpenChange={setShowPreview}>
+        <DrawerTrigger asChild>
           <motion.div
             drag
             dragControls={controls}
@@ -124,12 +125,10 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
             className="cursor-grab active:cursor-grabbing"
           >
             <div 
-              className={`flex items-center justify-center ${
+              className={`flex items-center justify-center rounded-full ${
                 type === "you"
-                  ? "rounded-full bg-[#FEF7CD] text-black border border-amber-400"
-                  : type === "startup" 
-                    ? "rounded-full bg-green-600/90" 
-                    : "rounded-md bg-blue-600/90"
+                  ? "bg-[#FEF7CD] text-black border border-amber-400"
+                  : "bg-green-600/90"
               }`}
               style={{ 
                 width: 60, 
@@ -138,14 +137,12 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
                 boxShadow: `0 0 ${priority}px ${priority / 2}px rgba(${
                   type === "you" 
                     ? "250, 204, 21"
-                    : type === "startup" 
-                      ? "34, 197, 94" 
-                      : "59, 130, 246"
+                    : "34, 197, 94"
                 }, 0.${priority})`,
               }}
             >
               <span className={`text-xs ${type === "you" ? "text-black font-semibold" : "text-white font-medium"} text-center px-1`}>
-                {name}
+                {type === "you" ? "You" : name}
               </span>
             </div>
             
@@ -174,22 +171,38 @@ export const CompetitorToken: React.FC<CompetitorTokenProps> = ({
               </div>
             )}
           </motion.div>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
-          {website && (
-            <iframe 
-              src={website} 
-              title={`${name} website`} 
-              className="w-full h-full border-none"
-            />
-          )}
-          {!website && (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">No website available</p>
+        </DrawerTrigger>
+        <DrawerContent className="max-h-[85vh]">
+          <div className="mx-auto w-full max-w-sm">
+            <DrawerHeader className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-secondary rounded"></div>
+                <div>
+                  <h3 className="text-lg font-medium">{name}</h3>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div>Alexa: {alexaRank || "N/A"}</div>
+                    <div>Stage: {fundingStage || "N/A"}</div>
+                  </div>
+                </div>
+              </div>
+            </DrawerHeader>
+            
+            <div className="p-4">
+              {website ? (
+                <iframe 
+                  src={website} 
+                  title={`${name} website`} 
+                  className="w-full h-[50vh] border-none rounded overflow-hidden"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-[50vh] bg-muted rounded">
+                  <p className="text-muted-foreground">No website available</p>
+                </div>
+              )}
             </div>
-          )}
-        </SheetContent>
-      </Sheet>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };
