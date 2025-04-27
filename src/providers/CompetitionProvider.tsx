@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAudience } from "./AudienceProvider";
@@ -101,7 +100,7 @@ export const CompetitionProvider: React.FC<{children: ReactNode}> = ({ children 
   const navigate = useNavigate();
   const { addInsight: addAudienceInsight } = useAudience();
   
-  // State for competitors
+  // State for competitors with expanded mock data
   const [competitors, setCompetitors] = useState<Competitor[]>([
     {
       id: "1",
@@ -111,7 +110,6 @@ export const CompetitionProvider: React.FC<{children: ReactNode}> = ({ children 
       type: "startup",
       alexaRank: "28,750",
       fundingStage: "Series B",
-      website: "https://www.scaler.com",
       priority: 8,
       position: { x: 0.3, y: 0.7 }
     },
@@ -247,6 +245,138 @@ export const CompetitionProvider: React.FC<{children: ReactNode}> = ({ children 
       priority: 5,
       position: { x: 0.6, y: 0.7 }
     },
+    {
+      id: "13",
+      name: "LearnPath",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "Career platform", "Enterprise"],
+      type: "startup",
+      alexaRank: "156,780",
+      fundingStage: "Series A",
+      priority: 6,
+      position: { x: 0.4, y: 0.3 }
+    },
+    {
+      id: "14",
+      name: "SkillBridge",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "B2B", "Enterprise"],
+      type: "large-company",
+      alexaRank: "89,450",
+      fundingStage: "Series C",
+      priority: 7,
+      position: { x: 0.6, y: 0.4 }
+    },
+    {
+      id: "15",
+      name: "TechMentor",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "1:1 Coaching", "Premium"],
+      type: "startup",
+      alexaRank: "234,567",
+      fundingStage: "Seed",
+      priority: 5,
+      position: { x: 0.7, y: 0.6 }
+    },
+    {
+      id: "16",
+      name: "CareerBoost",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "Job platform", "Enterprise"],
+      type: "large-company",
+      alexaRank: "45,678",
+      fundingStage: "Series D",
+      priority: 8,
+      position: { x: 0.3, y: 0.4 }
+    },
+    {
+      id: "17",
+      name: "SkillForge",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "Community", "B2B"],
+      type: "startup",
+      alexaRank: "167,890",
+      fundingStage: "Series A",
+      priority: 6,
+      position: { x: 0.5, y: 0.7 }
+    },
+    {
+      id: "18",
+      name: "LearnHub Pro",
+      logo: "/placeholder.svg",
+      tags: ["Adjacent", "Enterprise", "LMS"],
+      type: "large-company",
+      alexaRank: "78,901",
+      fundingStage: "Series B",
+      priority: 7,
+      position: { x: 0.6, y: 0.3 }
+    },
+    {
+      id: "19",
+      name: "AITeach",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "AI-powered", "EdTech"],
+      type: "startup",
+      alexaRank: "345,678",
+      fundingStage: "Seed",
+      priority: 4,
+      position: { x: 0.7, y: 0.5 }
+    },
+    {
+      id: "20",
+      name: "SkillAI",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "AI", "Personalized"],
+      type: "startup",
+      alexaRank: "456,789",
+      fundingStage: "Pre-seed",
+      priority: 3,
+      position: { x: 0.4, y: 0.6 }
+    },
+    {
+      id: "21",
+      name: "LearnGPT",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "AI", "Practice"],
+      type: "startup",
+      alexaRank: "567,890",
+      fundingStage: "Seed",
+      priority: 4,
+      position: { x: 0.5, y: 0.4 }
+    },
+    {
+      id: "22",
+      name: "CodeMaster AI",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "AI", "Coding"],
+      type: "startup",
+      alexaRank: "678,901",
+      fundingStage: "Seed",
+      priority: 4,
+      position: { x: 0.3, y: 0.6 }
+    },
+    {
+      id: "23",
+      name: "TechPrep",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "Practice", "Community"],
+      type: "startup",
+      alexaRank: "789,012",
+      fundingStage: "Pre-seed",
+      priority: 3,
+      position: { x: 0.6, y: 0.5 }
+    },
+    {
+      id: "24",
+      name: "InterviewPro",
+      logo: "/placeholder.svg",
+      tags: ["Emerging", "Interview prep", "AI"],
+      type: "startup",
+      alexaRank: "890,123",
+      fundingStage: "Seed",
+      priority: 4,
+      position: { x: 0.4, y: 0.7 }
+    }
   ]);
   
   const [selectedCompetitors, setSelectedCompetitors] = useState<string[]>([]);
