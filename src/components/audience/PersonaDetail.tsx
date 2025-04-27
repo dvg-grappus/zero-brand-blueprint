@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAudience } from "@/providers/AudienceProvider";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, ArrowLeft, MessageCircle } from "lucide-react";
+import { Lightbulb, ArrowLeft, MessageCircle, X } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useParams, useNavigate } from "react-router-dom";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 interface PersonaDetailProps {
   personaId?: string;
@@ -122,9 +123,9 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
         </Button>
       </div>
       
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Main content (left column) */}
-        <div className="w-[68%]">
+        <div className="w-full lg:w-[68%]">
           {/* Hero cover */}
           <div className="w-full h-[320px] rounded-lg overflow-hidden mb-8">
             <img 
@@ -150,9 +151,9 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-6">Journey</h3>
             
-            <div className="relative flex justify-between">
+            <div className="relative flex flex-wrap lg:flex-nowrap justify-between">
               {/* Timeline line */}
-              <div className="absolute top-4 left-0 right-0 h-1 bg-muted"></div>
+              <div className="absolute top-4 left-0 right-0 h-1 bg-muted hidden lg:block"></div>
               
               {/* Timeline nodes */}
               <TimelineNode 
@@ -189,7 +190,7 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
         </div>
         
         {/* Sidebar (right column) */}
-        <div className="w-[28%] sticky top-24">
+        <div className="w-full lg:w-[28%] lg:sticky lg:top-24">
           {/* Accordion sections */}
           <Accordion
             type="single"
@@ -308,98 +309,17 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
         </div>
       </div>
 
-      {/* Dialog for persona simulation */}
-      <Dialog open={showSimulationDialog} onOpenChange={setShowSimulationDialog}>
-        <DialogContent className="sm:max-w-[500px] bg-[#1E1E1E] border-border/30">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage src={persona.image} alt={persona.name} />
-                <AvatarFallback>{persona.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <span className="text-lg">{persona.name}</span>
-                <div className="text-xs text-muted-foreground">{persona.archetype}</div>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="max-h-[400px] overflow-y-auto p-2 space-y-4 mt-2">
-            {conversationMessages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-                <div 
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    msg.isUser 
-                      ? 'bg-cyan text-black'
-                      : 'bg-[#2B2B2B] text-white'
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-4 flex gap-2">
-            <Button
-              type="button"
-              size="icon"
-              variant={isListening ? "default" : "outline"}
-              className={`rounded-full ${isListening ? 'bg-cyan text-background' : ''}`}
-              onClick={() => setIsListening(!isListening)}
-            >
-              {isListening ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic-off"><path d="m2 2 20 20"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.94-.6"/><path d="M12 19v3"/></svg>
-              )}
-            </Button>
-            
-            <input
-              type="text"
-              placeholder="Ask me anything..."
-              className="flex-1 bg-[#2B2B2B] border border-border/30 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-cyan"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSendMessage((e.target as HTMLInputElement).value);
-                  (e.target as HTMLInputElement).value = '';
-                }
-              }}
-            />
-            
-            <Button
-              type="button"
-              onClick={() => {
-                const input = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement;
-                if (input) {
-                  handleSendMessage(input.value);
-                  input.value = '';
-                }
-              }}
-            >
-              Send
-            </Button>
-          </div>
-          
-          {isListening && (
-            <div className="mt-2 flex justify-center">
-              <div className="h-8 flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="w-1 bg-cyan"
-                    style={{ 
-                      height: `${Math.random() * 24 + 4}px`,
-                      animation: 'pulse 0.5s infinite alternate',
-                      animationDelay: `${i * 0.1}s`
-                    }}
-                  ></div>
-                ))}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Animated Bottom Sheet for Persona Conversation */}
+      <AnimatePresence>
+        {showSimulationDialog && (
+          <PersonaTalkDialog
+            persona={persona}
+            messages={conversationMessages}
+            onClose={() => setShowSimulationDialog(false)}
+            onSendMessage={handleSendMessage}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -415,7 +335,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ label, text, onCapture }) =
   
   return (
     <div 
-      className="flex flex-col items-center w-[18%]"
+      className="flex flex-col items-center w-full lg:w-[18%] mb-6 lg:mb-0"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -440,6 +360,187 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ label, text, onCapture }) =
       <h5 className="font-medium text-sm mt-3 mb-1">{label}</h5>
       <p className="text-xs text-muted-foreground text-center">{text}</p>
     </div>
+  );
+};
+
+interface PersonaTalkDialogProps {
+  persona: Persona;
+  messages: {text: string, isUser: boolean}[];
+  onClose: () => void;
+  onSendMessage: (message: string) => void;
+}
+
+const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({ 
+  persona, 
+  messages,
+  onClose,
+  onSendMessage
+}) => {
+  const [userInput, setUserInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  
+  const handleSendMessage = () => {
+    if (!userInput.trim()) return;
+    onSendMessage(userInput);
+    setIsTyping(true);
+    
+    setTimeout(() => {
+      setIsTyping(false);
+    }, 1500);
+    
+    setUserInput("");
+  };
+  
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-end md:items-center md:justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {/* Backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-black/70"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      />
+      
+      {/* Talk Dialog */}
+      <motion.div 
+        className="bg-[#1E1E1E] w-full max-w-lg rounded-t-lg md:rounded-2xl shadow-xl border border-border/30 z-10 overflow-hidden flex flex-col"
+        style={{ maxHeight: "calc(100vh - 80px)" }}
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 20 }}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-border/30 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-12 w-12 border border-border/50">
+              <AvatarImage src={persona.image} alt={persona.name} />
+              <AvatarFallback>{persona.name[0]}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-medium text-lg">{persona.name}</h3>
+              <span 
+                className="px-2 py-1 text-xs rounded text-background inline-block"
+                style={{ backgroundColor: persona.archeTypeColor }}
+              >
+                {persona.archetype}
+              </span>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X size={20} />
+          </Button>
+        </div>
+        
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+              <div 
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  msg.isUser 
+                    ? 'bg-cyan text-black'
+                    : 'bg-[#2B2B2B] text-white'
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-[#2B2B2B] text-white p-3 rounded-lg flex items-center space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Input area */}
+        <div className="p-4 border-t border-border/30">
+          <div className="flex items-center gap-2">
+            <Button 
+              type="button" 
+              size="icon"
+              variant={isListening ? "default" : "outline"}
+              className={`rounded-full ${isListening ? 'bg-cyan text-background' : ''}`}
+              onClick={() => setIsListening(!isListening)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isListening ? "lucide lucide-mic" : "lucide lucide-mic-off"}>
+                {isListening ? (
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z M19 10v2a7 7 0 0 1-14 0v-2 M12 19v3"></path>
+                ) : (
+                  <>
+                    <path d="m2 2 20 20"/>
+                    <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/>
+                    <path d="M5 10v2a7 7 0 0 0 12 5"/>
+                    <path d="M15 9.34V5a3 3 0 0 0-5.94-.6"/>
+                    <path d="M12 19v3"/>
+                  </>
+                )}
+              </svg>
+            </Button>
+            <input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="flex-1 bg-[#2B2B2B] border border-border/30 rounded-full px-4 py-3 focus:outline-none focus:ring-1 focus:ring-cyan"
+              placeholder="Ask me anything..."
+            />
+            <Button 
+              type="button" 
+              onClick={handleSendMessage}
+              className="bg-cyan hover:bg-cyan/90 text-background rounded-full"
+              size="icon"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send-horizontal">
+                <path d="m3 3 3 9-3 9 19-9Z"/>
+                <path d="M6 12h16"/>
+              </svg>
+            </Button>
+          </div>
+          
+          {/* Voice waveform animation */}
+          {isListening && (
+            <motion.div 
+              className="mt-3 flex justify-center items-center h-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="flex items-end space-x-1 h-full">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1 bg-cyan rounded-full"
+                    animate={{
+                      height: [4, Math.random() * 16 + 8, 4],
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: i * 0.05,
+                    }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
