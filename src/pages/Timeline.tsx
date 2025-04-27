@@ -40,23 +40,28 @@ const Timeline: React.FC = () => {
   useEffect(() => {
     console.log("Location state:", location.state);
     const fromPositioning = location.state && location.state.fromPositioning;
+    
     if (fromPositioning) {
+      // Mark positioning (step 1) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(1)) {
           return [...prev, 1];
         }
         return prev;
       });
+      
+      // Set current step to Audience (step 2)
       setCurrentStep(2);
+    } else {
+      // Always mark positioning as completed when returning to timeline
+      // This is a temporary solution for the demo
+      setCompletedSteps(prev => {
+        if (!prev.includes(1)) {
+          return [...prev, 1]; 
+        }
+        return prev;
+      });
     }
-    
-    // Always mark position as completed when returning to timeline
-    setCompletedSteps(prev => {
-      if (!prev.includes(1)) {
-        return [...prev, 1]; 
-      }
-      return prev;
-    });
   }, [location]);
 
   useEffect(() => {

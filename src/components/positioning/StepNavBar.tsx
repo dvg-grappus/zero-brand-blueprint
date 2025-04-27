@@ -26,7 +26,12 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
     }
     
     if (nextStep) {
-      navigate(nextStep);
+      if (nextStep === "/timeline") {
+        // Pass state to indicate we're coming from positioning
+        navigate(nextStep, { state: { fromPositioning: true } });
+      } else {
+        navigate(nextStep);
+      }
     }
   };
   
@@ -35,6 +40,7 @@ const StepNavBar: React.FC<StepNavBarProps> = ({
       <Button
         onClick={handleClick}
         className="bg-white text-black hover:bg-gray-100 transition-colors"
+        disabled={isButtonDisabled}
       >
         {nextButtonLabel}
       </Button>
