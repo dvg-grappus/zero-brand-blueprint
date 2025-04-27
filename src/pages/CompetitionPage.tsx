@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Steps } from "@/components/competition/Steps";
 import { CompetitionHeader } from "@/components/competition/CompetitionHeader";
 import { CompetitionFooter } from "@/components/competition/CompetitionFooter";
 import { CompetitorDiscovery } from "@/components/competition/CompetitorDiscovery";
@@ -13,6 +12,7 @@ import { InsightDigest } from "@/components/competition/InsightDigest";
 import { AIAssistantPanel } from "@/components/competition/AIAssistantPanel";
 import { SecondaryInsightPool } from "@/components/competition/SecondaryInsightPool";
 import { CompetitionProvider } from "@/providers/CompetitionProvider";
+import { AudienceProvider } from "@/providers/AudienceProvider";
 
 const CompetitionPage: React.FC = () => {
   const { substep = "discovery" } = useParams<{ substep: string }>();
@@ -55,41 +55,43 @@ const CompetitionPage: React.FC = () => {
   };
 
   return (
-    <CompetitionProvider>
-      <div className="min-h-screen bg-background text-foreground flex">
-        <div className="flex-1 flex flex-col">
-          <CompetitionHeader 
-            currentStep={currentStepIndex} 
-            steps={subSteps} 
-            onToggleSecondaryInsights={toggleSecondaryInsights} 
-          />
+    <AudienceProvider>
+      <CompetitionProvider>
+        <div className="min-h-screen bg-background text-foreground flex">
+          <div className="flex-1 flex flex-col">
+            <CompetitionHeader 
+              currentStep={currentStepIndex} 
+              steps={subSteps} 
+              onToggleSecondaryInsights={toggleSecondaryInsights} 
+            />
+            
+            <motion.div 
+              className="flex-1 px-[120px] pt-8 pb-24 overflow-y-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderCurrentStep()}
+            </motion.div>
+            
+            <CompetitionFooter 
+              currentStep={currentStepIndex} 
+              steps={subSteps} 
+              onNavigate={navigateToStep} 
+            />
+          </div>
           
-          <motion.div 
-            className="flex-1 px-[120px] pt-8 pb-24 overflow-y-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {renderCurrentStep()}
-          </motion.div>
+          <div className="w-[320px] border-l border-border/40 min-h-screen">
+            <AIAssistantPanel currentStep={substep} />
+          </div>
           
-          <CompetitionFooter 
-            currentStep={currentStepIndex} 
-            steps={subSteps} 
-            onNavigate={navigateToStep} 
+          <SecondaryInsightPool 
+            isOpen={showSecondaryInsights} 
+            onClose={() => setShowSecondaryInsights(false)} 
           />
         </div>
-        
-        <div className="w-[320px] border-l border-border/40 min-h-screen">
-          <AIAssistantPanel currentStep={substep} />
-        </div>
-        
-        <SecondaryInsightPool 
-          isOpen={showSecondaryInsights} 
-          onClose={() => setShowSecondaryInsights(false)} 
-        />
-      </div>
-    </CompetitionProvider>
+      </CompetitionProvider>
+    </AudienceProvider>
   );
 };
 
