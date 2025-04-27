@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
@@ -60,8 +59,8 @@ const StepCard: React.FC<StepCardProps> = ({
   const handleButtonClick = () => {
     onBegin(id);
     
-    // If it's the first step or the current step, navigate to it
-    if (isFirstCard || status === "current") {
+    // If it's done, current, or first step, navigate directly
+    if (status === "done" || status === "current" || isFirstCard) {
       // Add blur to other cards
       document.querySelectorAll('.step-card:not(.step-card-' + id + ')').forEach(card => {
         (card as HTMLElement).style.opacity = '0.3';
@@ -70,6 +69,7 @@ const StepCard: React.FC<StepCardProps> = ({
       
       // Navigate after delay
       setTimeout(() => {
+        // Direct navigation to the module without substep for cleaner URLs
         navigate(`/step/${id}`);
       }, 300);
     } else {
@@ -92,7 +92,8 @@ const StepCard: React.FC<StepCardProps> = ({
     if (status === "done") {
       return "Review";
     } 
-    if (status === "current") {
+    // Always show "Begin" for current step or developed modules (1-3)
+    if (status === "current" || id <= 3) {
       return "Begin";
     }
     return showPreview ? "Close" : "Preview";

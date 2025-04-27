@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CompetitionHeader } from "@/components/competition/CompetitionHeader";
@@ -15,9 +15,19 @@ import { CompetitionProvider } from "@/providers/CompetitionProvider";
 import { AudienceProvider } from "@/providers/AudienceProvider";
 
 const CompetitionPage: React.FC = () => {
-  const { substep = "discovery" } = useParams<{ substep: string }>();
+  const { substep } = useParams<{ substep: string }>();
   const [showSecondaryInsights, setShowSecondaryInsights] = useState(false);
   const navigate = useNavigate();
+  
+  // Default to discovery if no substep provided
+  const currentSubstep = substep || "discovery";
+  
+  // Ensure we're on a valid route if accessed directly
+  useEffect(() => {
+    if (!substep) {
+      navigate("/step/3/discovery", { replace: true });
+    }
+  }, [substep, navigate]);
   
   const subSteps = [
     { id: "discovery", label: "Discovery" },
@@ -27,10 +37,10 @@ const CompetitionPage: React.FC = () => {
     { id: "review", label: "Review" },
   ];
 
-  const currentStepIndex = subSteps.findIndex(step => step.id === substep);
+  const currentStepIndex = subSteps.findIndex(step => step.id === currentSubstep);
 
   const renderCurrentStep = () => {
-    switch (substep) {
+    switch (currentSubstep) {
       case "discovery":
         return <CompetitorDiscovery />;
       case "takeaways":
@@ -82,7 +92,7 @@ const CompetitionPage: React.FC = () => {
           </div>
           
           <div className="w-[320px] border-l border-border/40 min-h-screen">
-            <AIAssistantPanel currentStep={substep} />
+            <AIAssistantPanel currentStep={currentSubstep} />
           </div>
           
           <SecondaryInsightPool 

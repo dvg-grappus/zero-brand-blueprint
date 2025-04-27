@@ -26,6 +26,7 @@ const App = () => (
             <Route path="/timeline" element={<Timeline />} />
             
             {/* Positioning module routes */}
+            <Route path="/step/1" element={<StepPage />} /> {/* Add this route */}
             <Route path="/step/all" element={<StepPage />} />
             <Route path="/step/1/:substep" element={<StepPage />} />
             
@@ -35,6 +36,7 @@ const App = () => (
             
             {/* Competition module routes */}
             <Route path="/step/3/:substep" element={<CompetitionPage />} />
+            <Route path="/step/3" element={<CompetitionPage />} /> {/* Add this route */}
             
             <Route path="*" element={<NotFound />} />
           </Routes>
