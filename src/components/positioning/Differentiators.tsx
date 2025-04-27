@@ -5,27 +5,40 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/contexts/PositioningContext";
 
-// Mock data for development - in production this would come from GPT API
-const mockCompetitorStatements = [
-  "Use conventional design tools with generic templates",
-  "Offer one-size-fits-all branding solutions",
-  "Focus only on visual deliverables",
-  "Rely on fully automated processes",
-  "Work in isolation from business strategy",
-  "Provide basic design tools for professionals only",
-  "Separate brand voice from visual identity",
-  "Charge per revision or iteration"
-];
-
-const mockDifferentiators = [
-  "The only design automation platform that provides brand-specific customization for solopreneurs.",
-  "The only AI branding tool that preserves human creative direction while automating technical execution.",
-  "The only identity generator that builds complete systems from strategy through assets, not just logos.",
-  "The only design platform that provides real-time collaboration between AI and human decision makers.",
-  "The only brand toolkit that guides users through strategic positioning before visualizing solutions.",
-  "The only design solution that adapts to user skill level from beginner to professional.",
-  "The only brand system creator that emphasizes voice and messaging equal to visual elements.",
-  "The only identity platform that allows unlimited revisions without cost penalties."
+// Mock data as pairs of competitor statements and differentiators
+const mockPairs = [
+  {
+    competitor: "Use conventional design tools with generic templates",
+    differentiator: "The only design automation platform that provides brand-specific customization for solopreneurs."
+  },
+  {
+    competitor: "Offer one-size-fits-all branding solutions",
+    differentiator: "The only AI branding tool that preserves human creative direction while automating technical execution."
+  },
+  {
+    competitor: "Focus only on visual deliverables",
+    differentiator: "The only identity generator that builds complete systems from strategy through assets, not just logos."
+  },
+  {
+    competitor: "Rely on fully automated processes",
+    differentiator: "The only design platform that provides real-time collaboration between AI and human decision makers."
+  },
+  {
+    competitor: "Work in isolation from business strategy",
+    differentiator: "The only brand toolkit that guides users through strategic positioning before visualizing solutions."
+  },
+  {
+    competitor: "Provide basic design tools for professionals only",
+    differentiator: "The only design solution that adapts to user skill level from beginner to professional."
+  },
+  {
+    competitor: "Separate brand voice from visual identity",
+    differentiator: "The only brand system creator that emphasizes voice and messaging equal to visual elements."
+  },
+  {
+    competitor: "Charge per revision or iteration",
+    differentiator: "The only identity platform that allows unlimited revisions without cost penalties."
+  }
 ];
 
 interface StickyNoteProps {
@@ -34,6 +47,7 @@ interface StickyNoteProps {
   onTogglePin: () => void;
   isPinLimited: boolean;
   index: number;
+  isCompetitor?: boolean;
 }
 
 const StickyNote: React.FC<StickyNoteProps> = ({ 
@@ -41,7 +55,8 @@ const StickyNote: React.FC<StickyNoteProps> = ({
   isPinned, 
   onTogglePin, 
   isPinLimited,
-  index 
+  index,
+  isCompetitor = false
 }) => {
   return (
     <motion.div
@@ -76,21 +91,35 @@ const Differentiators: React.FC = () => {
   const { pinnedDifferentiators, setPinnedDifferentiators, completeStep } = useContext(PositioningContext);
   
   const [isLoading, setIsLoading] = useState(true);
-  const [differentiators, setDifferentiators] = useState<string[]>([]);
-  const [competitors, setCompetitors] = useState<string[]>([]);
+  const [pairs, setPairs] = useState<typeof mockPairs>([]);
+  const [pinnedCompetitors, setPinnedCompetitors] = useState<string[]>([]);
   
   useEffect(() => {
     // Simulate API call
     const timer = setTimeout(() => {
-      setDifferentiators(mockDifferentiators);
-      setCompetitors(mockCompetitorStatements);
+      setPairs(mockPairs);
       setIsLoading(false);
     }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
   
-  const handleTogglePin = (differentiator: string) => {
+  const handleToggleCompetitor = (competitor: string) => {
+    setPinnedCompetitors(prev => {
+      if (prev.includes(competitor)) {
+        return prev.filter(c => c !== competitor);
+      }
+      
+      if (prev.length >= 3) {
+        toast.error("You can pin a maximum of 3 competitor statements");
+        return prev;
+      }
+      
+      return [...prev, competitor];
+    });
+  };
+
+  const handleToggleDifferentiator = (differentiator: string) => {
     setPinnedDifferentiators(prev => {
       if (prev.includes(differentiator)) {
         return prev.filter(d => d !== differentiator);
@@ -105,13 +134,14 @@ const Differentiators: React.FC = () => {
     });
   };
   
-  const isPinLimited = pinnedDifferentiators.length >= 3;
+  const isPinLimitedCompetitors = pinnedCompetitors.length >= 3;
+  const isPinLimitedDifferentiators = pinnedDifferentiators.length >= 3;
   
   const handleComplete = () => {
-    if (pinnedDifferentiators.length === 3) {
+    if (pinnedDifferentiators.length === 3 && pinnedCompetitors.length === 3) {
       completeStep("differentiators");
     } else {
-      toast.error("Please pin exactly 3 differentiators");
+      toast.error("Please pin exactly 3 pairs of statements");
     }
   };
   
@@ -142,7 +172,7 @@ const Differentiators: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Pin your top 3 unique selling points.
+          Pin your top 3 pairs of contrasting statements.
         </motion.p>
         
         {isLoading ? (
@@ -167,10 +197,16 @@ const Differentiators: React.FC = () => {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">While others...</h2>
               <div className="space-y-4">
-                {competitors.map((statement, index) => (
-                  <div key={index} className="p-4 rounded-lg bg-[#FFEB3B]">
-                    <p className="text-black text-sm">{statement}</p>
-                  </div>
+                {pairs.map((pair, index) => (
+                  <StickyNote
+                    key={index}
+                    content={pair.competitor}
+                    isPinned={pinnedCompetitors.includes(pair.competitor)}
+                    onTogglePin={() => handleToggleCompetitor(pair.competitor)}
+                    isPinLimited={isPinLimitedCompetitors}
+                    index={index}
+                    isCompetitor={true}
+                  />
                 ))}
               </div>
             </div>
@@ -179,13 +215,13 @@ const Differentiators: React.FC = () => {
             <div>
               <h2 className="text-xl font-semibold mb-4 text-center">We are the only...</h2>
               <div className="space-y-4">
-                {differentiators.map((differentiator, index) => (
+                {pairs.map((pair, index) => (
                   <StickyNote
                     key={index}
-                    content={differentiator}
-                    isPinned={pinnedDifferentiators.includes(differentiator)}
-                    onTogglePin={() => handleTogglePin(differentiator)}
-                    isPinLimited={isPinLimited}
+                    content={pair.differentiator}
+                    isPinned={pinnedDifferentiators.includes(pair.differentiator)}
+                    onTogglePin={() => handleToggleDifferentiator(pair.differentiator)}
+                    isPinLimited={isPinLimitedDifferentiators}
                     index={index}
                   />
                 ))}
@@ -195,17 +231,25 @@ const Differentiators: React.FC = () => {
         )}
         
         <motion.div 
-          className="mt-4 text-center"
+          className="mt-8 text-center space-x-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className={`inline-block px-4 py-2 rounded-full ${
+            pinnedCompetitors.length === 3 
+              ? "bg-green-100 text-green-700" 
+              : "bg-yellow-100 text-yellow-700"
+          }`}>
+            {pinnedCompetitors.length} of 3 competitor pins used
+          </div>
+          
+          <div className={`inline-block px-4 py-2 rounded-full ${
             pinnedDifferentiators.length === 3 
               ? "bg-green-100 text-green-700" 
               : "bg-yellow-100 text-yellow-700"
           }`}>
-            {pinnedDifferentiators.length} of 3 pins used
+            {pinnedDifferentiators.length} of 3 differentiator pins used
           </div>
         </motion.div>
       </div>
@@ -213,7 +257,7 @@ const Differentiators: React.FC = () => {
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={pinnedDifferentiators.length !== 3}
+          disabled={pinnedDifferentiators.length !== 3 || pinnedCompetitors.length !== 3}
           className="bg-white text-black hover:bg-gray-100 transition-colors"
         >
           Craft statements
