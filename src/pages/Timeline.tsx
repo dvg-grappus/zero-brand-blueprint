@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -110,11 +111,11 @@ const Timeline: React.FC = () => {
     
     // Navigate to the appropriate module based on step ID
     if (stepId === 1) {
-      navigate("/step/1"); // Updated to the new positioning module route
+      navigate("/step/1"); // Positioning module route
     } else if (stepId === 2) {
-      navigate("/step/2/cohort-canvas"); // Audience module
+      navigate("/step/2"); // Updated to use the base audience route which will redirect
     } else if (stepId === 3) {
-      navigate("/step/3"); // Competition module - direct route
+      navigate("/step/3"); // Competition module route
     }
     // Add other module routes as they're implemented
   };
