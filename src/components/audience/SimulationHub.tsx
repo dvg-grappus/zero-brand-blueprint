@@ -237,17 +237,17 @@ const SimulationHub: React.FC<SimulationHubProps> = ({ onComplete }) => {
       {/* Topic carousel */}
       <div className="mb-8 overflow-x-auto">
         <div className="flex gap-2 pb-2">
-          {simulationTopics.map(topic => (
+          {simulationTopics.map(simulationTopic => (
             <Button
-              key={topic.id}
+              key={simulationTopic.id}
               variant="outline"
               size="sm"
               className={`rounded-full whitespace-nowrap ${
-                topic.id === topic ? "bg-cyan/20 border-cyan" : ""
+                simulationTopic.id === topic ? "bg-cyan/20 border-cyan" : ""
               }`}
-              onClick={() => handleTopicSelection(topic.id)}
+              onClick={() => handleTopicSelection(simulationTopic.id)}
             >
-              {topic.title}
+              {simulationTopic.title}
             </Button>
           ))}
         </div>
