@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CompetitionHeader } from "@/components/competition/CompetitionHeader";
@@ -13,11 +13,13 @@ import { AIAssistantPanel } from "@/components/competition/AIAssistantPanel";
 import { SecondaryInsightPool } from "@/components/competition/SecondaryInsightPool";
 import { CompetitionProvider } from "@/providers/CompetitionProvider";
 import { AudienceProvider } from "@/providers/AudienceProvider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CompetitionPage: React.FC = () => {
   const { substep } = useParams<{ substep: string }>();
   const [showSecondaryInsights, setShowSecondaryInsights] = useState(false);
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLDivElement>(null);
   
   // Default to discovery if no substep provided
   const currentSubstep = substep || "discovery";
@@ -28,6 +30,13 @@ const CompetitionPage: React.FC = () => {
       navigate("/step/3/discovery", { replace: true });
     }
   }, [substep, navigate]);
+
+  // Reset scroll position on page/substep change
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTo(0, 0);
+    }
+  }, [currentSubstep]);
   
   const subSteps = [
     { id: "discovery", label: "Discovery" },
@@ -75,15 +84,20 @@ const CompetitionPage: React.FC = () => {
               onToggleSecondaryInsights={toggleSecondaryInsights} 
             />
             
-            <motion.div 
-              className="flex-1 px-[120px] pt-8 pb-24 overflow-y-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              key={currentSubstep}
+            <ScrollArea 
+              className="flex-1 px-[120px] pt-8 pb-24"
+              ref={contentRef}
             >
-              {renderCurrentStep()}
-            </motion.div>
+              <motion.div 
+                className="min-h-[calc(100vh-20rem)]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                key={currentSubstep}
+              >
+                {renderCurrentStep()}
+              </motion.div>
+            </ScrollArea>
             
             <CompetitionFooter 
               currentStep={currentStepIndex} 

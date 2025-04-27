@@ -60,7 +60,7 @@ export const CompetitorDiscovery: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="pb-10">
       {/* Hero Header */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold mb-2">Who else plays in this space?</h1>
