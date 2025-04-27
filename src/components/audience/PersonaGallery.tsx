@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Edit, RefreshCw, MessageCircle, CircleCheck, X } from "lucide-react";
+import { Edit, RefreshCw, MessageCircle, CircleCheck, X, Plus } from "lucide-react";
 import { useAudience, Persona } from "@/providers/AudienceProvider";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import PersonaDetail from "./PersonaDetail";
 
 const SAMPLE_PERSONAS: Persona[] = [
   {
@@ -15,7 +16,7 @@ const SAMPLE_PERSONAS: Persona[] = [
     country: "United States",
     archetype: "Spiral",
     archeTypeColor: "#FF6B6B",
-    image: "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=800&q=80",
     whyTheyMatter: "Sara represents our most engaged early adopters. Her feedback drives 40% of new feature adoption across our user base.",
     story: "As a recent design graduate working at a tech startup, Sara is constantly balancing multiple responsibilities. She seeks tools that help her organize chaotic workflows without rigid structure.",
     quote: "I don't think linearly. I need tools that let me work in spirals and still arrive at my destination.",
@@ -147,108 +148,108 @@ interface PersonaCardProps {
   onReplace: (id: string) => void;
   onEdit: (id: string) => void;
   onTalk: (id: string) => void;
+  onViewProfile: (id: string) => void;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, onTalk }) => {
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, onTalk, onViewProfile }) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const navigate = useNavigate();
   
   return (
-    <motion.div
-      className="w-full sm:w-[320px] h-[450px] relative cursor-pointer perspective-1000 mx-auto mb-8"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-        <div 
-          className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-4 border border-border/30 overflow-hidden ${
-            isFlipped ? 'opacity-0' : 'opacity-100'
-          }`}
-          onClick={() => setIsFlipped(true)}
-        >
-          <div className="aspect-w-3 aspect-h-4 bg-black/20 w-full rounded-lg overflow-hidden">
-            <img 
-              src={persona.image} 
-              alt={persona.name} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-1 text-xs bg-background/30 backdrop-blur-sm rounded">
-                {persona.country}
-              </span>
-              <span 
-                className="px-2 py-1 text-xs rounded text-background" 
-                style={{ backgroundColor: persona.archeTypeColor }}
-              >
-                {persona.archetype}
-              </span>
-            </div>
-            
-            <h3 className="text-lg font-semibold">
-              {persona.name}, {persona.age}
-            </h3>
-          </div>
-        </div>
-        
-        <div 
-          className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-5 border border-border/30 overflow-hidden rotate-y-180 ${
-            isFlipped ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={() => setIsFlipped(false)}
-        >
-          <div className="flex flex-col h-full">
-            <h3 className="text-xl font-semibold mb-2">
-              {persona.name}, {persona.age}
-            </h3>
-            
-            <div 
-              className="px-3 py-1 text-sm rounded text-background w-fit mb-6" 
-              style={{ backgroundColor: persona.archeTypeColor }}
-            >
-              {persona.archetype}
-            </div>
-            
-            <div className="space-y-4 flex-1">
-              <h4 className="text-sm font-medium text-cyan">Why they matter:</h4>
-              <p className="text-sm">{persona.whyTheyMatter}</p>
-            </div>
-            
-            <Button 
-              variant="link" 
-              className="text-cyan mt-4"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/step/2/persona/${persona.id}`);
-              }}
-            >
-              See full profile →
-            </Button>
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex justify-center gap-2 mt-4">
-        <Button 
-          size="sm" 
-          variant="outline" 
-          className="rounded-full" 
+    <div className="w-full mb-8 flex flex-col">
+      <motion.div
+        className="w-full h-[380px] relative perspective-1000 cursor-pointer mx-auto"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Edit button on image */}
+        <button 
+          className="absolute top-2 left-2 z-20 bg-black/50 p-1 rounded-full hover:bg-black/70 transition-colors"
           onClick={(e) => { 
             e.stopPropagation(); 
             onEdit(persona.id);
           }}
         >
-          <Edit size={14} className="mr-1" />
-          Edit
-        </Button>
+          <Edit size={16} className="text-white" />
+        </button>
         
+        <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+          <div 
+            className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-4 border border-border/30 overflow-hidden ${
+              isFlipped ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => setIsFlipped(true)}
+          >
+            <div className="aspect-w-3 aspect-h-4 bg-black/20 w-full h-[280px] rounded-lg overflow-hidden">
+              <img 
+                src={persona.image} 
+                alt={persona.name} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <div className="mt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-1 text-xs bg-background/30 backdrop-blur-sm rounded">
+                  {persona.country}
+                </span>
+                <span 
+                  className="px-2 py-1 text-xs rounded text-background" 
+                  style={{ backgroundColor: persona.archeTypeColor }}
+                >
+                  {persona.archetype}
+                </span>
+              </div>
+              
+              <h3 className="text-lg font-semibold">
+                {persona.name}, {persona.age}
+              </h3>
+            </div>
+          </div>
+          
+          <div 
+            className={`absolute backface-hidden w-full h-full rounded-lg shadow-lg bg-[#2B2B2B] p-5 border border-border/30 overflow-hidden rotate-y-180 ${
+              isFlipped ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={() => setIsFlipped(false)}
+          >
+            <div className="flex flex-col h-full">
+              <h3 className="text-xl font-semibold mb-2">
+                {persona.name}, {persona.age}
+              </h3>
+              
+              <div 
+                className="px-3 py-1 text-sm rounded text-background w-fit mb-6" 
+                style={{ backgroundColor: persona.archeTypeColor }}
+              >
+                {persona.archetype}
+              </div>
+              
+              <div className="space-y-4 flex-1">
+                <h4 className="text-sm font-medium text-cyan">Why they matter:</h4>
+                <p className="text-sm">{persona.whyTheyMatter}</p>
+              </div>
+              
+              <Button 
+                variant="link" 
+                className="text-cyan mt-4 text-left p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewProfile(persona.id);
+                }}
+              >
+                See full profile →
+              </Button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+      
+      <div className="flex justify-center gap-3 mt-2">
         <Button 
           size="sm" 
           variant="outline" 
-          className="rounded-full"
+          className="rounded-full flex-grow"
           onClick={(e) => { e.stopPropagation(); onReplace(persona.id); }}
         >
           <RefreshCw size={14} className="mr-1" />
@@ -258,14 +259,14 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, o
         <Button 
           size="sm" 
           variant="outline" 
-          className="rounded-full"
+          className="rounded-full flex-grow"
           onClick={(e) => { e.stopPropagation(); onTalk(persona.id); }}
         >
           <MessageCircle size={14} className="mr-1" />
           Talk
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -278,6 +279,8 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTalkPersona, setActiveTalkPersona] = useState<string | null>(null);
   const [activePersonaCard, setActivePersonaCard] = useState<Persona | null>(null);
+  const [showDetailSheet, setShowDetailSheet] = useState(false);
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -290,7 +293,15 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
   }, [setPersonas]);
   
   const handleEdit = (id: string) => {
-    navigate(`/step/2/persona/${id}`);
+    // Open persona detail in sheet instead of navigating
+    setSelectedPersonaId(id);
+    setShowDetailSheet(true);
+  };
+  
+  const handleViewProfile = (id: string) => {
+    // Open persona detail in sheet instead of navigating
+    setSelectedPersonaId(id);
+    setShowDetailSheet(true);
   };
   
   const handleReplace = (id: string) => {
@@ -309,6 +320,11 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
       setActiveTalkPersona(id);
       console.log("onPersonaTalk", id, "Hello, how can I help?");
     }
+  };
+
+  const closeDetailSheet = () => {
+    setShowDetailSheet(false);
+    setSelectedPersonaId(null);
   };
   
   return (
@@ -337,7 +353,7 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
         </div>
       ) : (
         <div className="flex flex-col items-center gap-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
             {personas.map(persona => (
               <PersonaCard 
                 key={persona.id} 
@@ -345,6 +361,7 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
                 onReplace={handleReplace}
                 onEdit={handleEdit}
                 onTalk={handleTalk}
+                onViewProfile={handleViewProfile}
               />
             ))}
           </div>
@@ -358,13 +375,56 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
       
       <AnimatePresence>
         {activeTalkPersona && activePersonaCard && (
-          <PersonaTalkSheet
+          <PersonaTalkDialog
             persona={activePersonaCard}
             onClose={() => {
               setActiveTalkPersona(null);
               setActivePersonaCard(null);
             }}
           />
+        )}
+      </AnimatePresence>
+      
+      {/* Full profile bottom sheet */}
+      <AnimatePresence>
+        {showDetailSheet && selectedPersonaId && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-end md:items-center md:justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/70"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeDetailSheet}
+            />
+            
+            <motion.div 
+              className="bg-[#1E1E1E] w-full max-w-4xl rounded-t-lg md:rounded-2xl shadow-xl border border-border/30 z-10 overflow-hidden flex flex-col"
+              style={{ height: "80vh" }}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 20 }}
+            >
+              <div className="p-4 border-b border-border/30 flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Persona Profile</h2>
+                <Button variant="ghost" size="icon" onClick={closeDetailSheet}>
+                  <X size={20} />
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4">
+                <PersonaDetail 
+                  personaId={selectedPersonaId} 
+                  onBack={closeDetailSheet}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
       
@@ -388,12 +448,12 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
   );
 };
 
-interface PersonaTalkSheetProps {
+interface PersonaTalkDialogProps {
   persona: Persona;
   onClose: () => void;
 }
 
-const PersonaTalkSheet: React.FC<PersonaTalkSheetProps> = ({ persona, onClose }) => {
+const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({ persona, onClose }) => {
   const [messages, setMessages] = useState<{text: string, isUser: boolean}[]>([
     { text: "Hello, how can I help you today?", isUser: false }
   ]);

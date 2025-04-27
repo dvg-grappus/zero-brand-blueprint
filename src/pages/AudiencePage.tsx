@@ -67,6 +67,11 @@ const AudienceContent = () => {
 
   // Determine which component to render based on the substep
   const renderSubStep = () => {
+    if (personaId) {
+      // Always render PersonaDetail if personaId is present in URL
+      return <PersonaDetail personaId={personaId} onBack={() => navigate("/step/2/persona-gallery")} />;
+    }
+    
     switch (substep) {
       case "cohort-canvas":
         return <CohortCanvas onComplete={() => { completeStep("cohort-canvas"); goToNextStep(); }} />;
@@ -74,8 +79,6 @@ const AudienceContent = () => {
         return <CohortBoard onComplete={() => { completeStep("cohort-board"); goToNextStep(); }} />;
       case "persona-gallery":
         return <PersonaGallery onComplete={() => { completeStep("persona-gallery"); goToNextStep(); }} />;
-      case "persona":
-        return <PersonaDetail personaId={personaId} onBack={() => navigate("/step/2/persona-gallery")} />;
       case "simulations":
         return <SimulationHub onComplete={() => { completeStep("simulations"); goToNextStep(); }} />;
       case "insight-review":

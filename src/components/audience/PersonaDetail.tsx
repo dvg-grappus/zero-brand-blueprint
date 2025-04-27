@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAudience } from "@/providers/AudienceProvider";
+import { useAudience, Persona } from "@/providers/AudienceProvider";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, ArrowLeft, MessageCircle, X } from "lucide-react";
 import {
@@ -34,12 +33,10 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
   const [isListening, setIsListening] = useState(false);
   const [conversationMessages, setConversationMessages] = useState<{text: string, isUser: boolean}[]>([]);
   
-  // Use personaId from props or from URL params
   const actualPersonaId = personaId || params.personaId;
   const persona = personas.find(p => p.id === actualPersonaId);
   
   useEffect(() => {
-    // Reset conversation when persona changes
     setConversationMessages([
       { 
         text: "Happy to elaborate on any of these pains—just ask.", 
@@ -71,13 +68,10 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
   const handleSendMessage = (message: string) => {
     if (!message.trim()) return;
     
-    // Add user message
     setConversationMessages(prev => [...prev, { text: message, isUser: true }]);
     
-    // Log the event
     console.log("onPersonaTalk", persona.id, message);
     
-    // Simulate response after delay
     setTimeout(() => {
       let response = "";
       
@@ -124,9 +118,7 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
       </div>
       
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main content (left column) */}
         <div className="w-full lg:w-[68%]">
-          {/* Hero cover */}
           <div className="w-full h-[320px] rounded-lg overflow-hidden mb-8">
             <img 
               src={persona.image} 
@@ -135,27 +127,22 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
             />
           </div>
           
-          {/* Story section */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-4">Story</h3>
             <p className="text-muted-foreground">{persona.story}</p>
           </div>
           
-          {/* Quote block */}
           <div className="border-l-4 border-cyan pl-4 mb-8">
             <p className="text-lg italic">"{persona.quote}"</p>
             <p className="text-sm text-muted-foreground mt-2">— {persona.name}</p>
           </div>
           
-          {/* Journey timeline */}
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-6">Journey</h3>
             
             <div className="relative flex flex-wrap lg:flex-nowrap justify-between">
-              {/* Timeline line */}
               <div className="absolute top-4 left-0 right-0 h-1 bg-muted hidden lg:block"></div>
               
-              {/* Timeline nodes */}
               <TimelineNode 
                 label="Discover" 
                 text={persona.journey.discover}
@@ -189,9 +176,7 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
           </div>
         </div>
         
-        {/* Sidebar (right column) */}
         <div className="w-full lg:w-[28%] lg:sticky lg:top-24">
-          {/* Accordion sections */}
           <Accordion
             type="single"
             collapsible
@@ -288,7 +273,6 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
             </AccordionItem>
           </Accordion>
           
-          {/* Artifacts thumbnails */}
           <div>
             <h4 className="text-sm font-medium mb-3">Personal Artifacts</h4>
             <div className="grid grid-cols-3 gap-2">
@@ -309,7 +293,6 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
         </div>
       </div>
 
-      {/* Animated Bottom Sheet for Persona Conversation */}
       <AnimatePresence>
         {showSimulationDialog && (
           <PersonaTalkDialog
@@ -344,7 +327,6 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ label, text, onCapture }) =
           <div className="w-3 h-3 bg-background rounded-full"></div>
         </div>
         
-        {/* Capture insight button */}
         {hovered && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
@@ -399,7 +381,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Backdrop */}
       <motion.div
         className="absolute inset-0 bg-black/70"
         initial={{ opacity: 0 }}
@@ -408,7 +389,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
         onClick={onClose}
       />
       
-      {/* Talk Dialog */}
       <motion.div 
         className="bg-[#1E1E1E] w-full max-w-lg rounded-t-lg md:rounded-2xl shadow-xl border border-border/30 z-10 overflow-hidden flex flex-col"
         style={{ maxHeight: "calc(100vh - 80px)" }}
@@ -417,7 +397,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 20 }}
       >
-        {/* Header */}
         <div className="p-4 border-b border-border/30 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12 border border-border/50">
@@ -439,7 +418,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
           </Button>
         </div>
         
-        {/* Messages area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
@@ -466,7 +444,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
           )}
         </div>
         
-        {/* Input area */}
         <div className="p-4 border-t border-border/30">
           <div className="flex items-center gap-2">
             <Button 
@@ -511,7 +488,6 @@ const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({
             </Button>
           </div>
           
-          {/* Voice waveform animation */}
           {isListening && (
             <motion.div 
               className="mt-3 flex justify-center items-center h-8"
