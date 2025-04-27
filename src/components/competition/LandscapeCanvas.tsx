@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { Edit2, Camera, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,13 +42,8 @@ const CompetitorToken: React.FC<CompetitorTokenProps> = ({
   const [showDetails, setShowDetails] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const canvasRef = useRef<HTMLDivElement | null>(null);
-  
-  // We need to convert the normalized position (0-1) to actual px coordinates
-  // This will be relative to the canvas size
+  // Calculate position in pixels relative to canvas size
   const getPixelPosition = () => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    
     const canvas = document.getElementById("landscape-canvas");
     if (!canvas) return { x: 0, y: 0 };
     
@@ -63,10 +59,12 @@ const CompetitorToken: React.FC<CompetitorTokenProps> = ({
     if (!canvas) return;
     
     const rect = canvas.getBoundingClientRect();
+    const canvasX = info.point.x - rect.left;
+    const canvasY = info.point.y - rect.top;
     
     // Convert pixel coordinates back to normalized (0-1) coordinates
-    const normalizedX = Math.min(Math.max(info.point.x / rect.width, 0), 1);
-    const normalizedY = Math.min(Math.max(info.point.y / rect.height, 0), 1);
+    const normalizedX = Math.min(Math.max(canvasX / rect.width, 0), 1);
+    const normalizedY = Math.min(Math.max(canvasY / rect.height, 0), 1);
     
     onDragEnd(id, { x: normalizedX, y: normalizedY });
   };
@@ -104,8 +102,7 @@ const CompetitorToken: React.FC<CompetitorTokenProps> = ({
       dragControls={controls}
       onDragEnd={handleDragEnd}
       dragMomentum={false}
-      dragElastic={0}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragElastic={0.2}
       initial={false}
       animate={{ 
         x: pixelPosition.x, 
@@ -122,16 +119,17 @@ const CompetitorToken: React.FC<CompetitorTokenProps> = ({
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
       style={{ position: "absolute", top: 0, left: 0 }}
+      className="cursor-grab active:cursor-grabbing"
     >
       <div 
         className={`flex items-center justify-center ${
           type === "startup" 
             ? "rounded-full bg-green-600/90" 
             : "rounded-md bg-blue-600/90"
-        } cursor-grab active:cursor-grabbing`}
+        }`}
         style={{ 
-          width: 64, 
-          height: 64, 
+          width: 60, 
+          height: 60, 
           transform: "translate(-50%, -50%)",
           boxShadow: `0 0 ${priority}px ${priority / 2}px rgba(${type === "startup" ? "34, 197, 94" : "59, 130, 246"}, 0.${priority})`,
         }}
@@ -177,14 +175,11 @@ const BrandPin: React.FC<BrandPinProps> = ({ position, onDragEnd }) => {
   const controls = useDragControls();
   const [isPressed, setIsPressed] = useState(false);
   
-  const canvasRef = useRef<HTMLDivElement | null>(null);
-  
-  // We need to convert the normalized position (0-1) to actual px coordinates
-  // This will be relative to the canvas size
+  // Calculate position in pixels for the brand pin
   const getPixelPosition = () => {
     if (!position) {
-      // By default, place it in the top-right corner outside the canvas
-      return { x: window.innerWidth - 240, y: 100 };
+      // Default position outside canvas
+      return { x: window.innerWidth - 140, y: 100 };
     }
     
     const canvas = document.getElementById("landscape-canvas");
@@ -203,7 +198,7 @@ const BrandPin: React.FC<BrandPinProps> = ({ position, onDragEnd }) => {
     
     const rect = canvas.getBoundingClientRect();
     
-    // Check if the pin is within the canvas bounds
+    // Check if within canvas bounds
     if (
       info.point.x >= rect.left && 
       info.point.x <= rect.right &&
@@ -230,7 +225,7 @@ const BrandPin: React.FC<BrandPinProps> = ({ position, onDragEnd }) => {
       dragControls={controls}
       onDragEnd={handleDragEnd}
       dragMomentum={false}
-      dragElastic={0}
+      dragElastic={0.2}
       initial={false}
       animate={{ 
         x: pixelPosition.x, 
@@ -246,14 +241,15 @@ const BrandPin: React.FC<BrandPinProps> = ({ position, onDragEnd }) => {
       onPointerDown={() => setIsPressed(true)}
       onPointerUp={() => setIsPressed(false)}
       style={{ position: "absolute", top: 0, left: 0 }}
+      className="cursor-grab active:cursor-grabbing"
     >
       <div 
         className={`flex items-center justify-center rounded-full ${
           position ? "bg-yellow-500" : "bg-yellow-500/70 animate-pulse"
-        } cursor-grab active:cursor-grabbing shadow-lg`}
+        } shadow-lg`}
         style={{ 
-          width: 64, 
-          height: 64, 
+          width: 60, 
+          height: 60, 
           transform: "translate(-50%, -50%)"
         }}
       >
@@ -407,10 +403,41 @@ export const LandscapeCanvas: React.FC = () => {
     createSnapshot
   } = useCompetition();
   
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  
   // Get only the selected competitors
   const selectedCompetitorData = competitors.filter(
     comp => selectedCompetitors.includes(comp.id)
   );
+  
+  // Initialize competitors with default positions if not set
+  useEffect(() => {
+    selectedCompetitorData.forEach(comp => {
+      if (!comp.position) {
+        const randomX = 0.3 + Math.random() * 0.4; // 0.3 - 0.7 range
+        const randomY = 0.3 + Math.random() * 0.4; // 0.3 - 0.7 range
+        updateCompetitorPosition(comp.id, { x: randomX, y: randomY });
+      }
+    });
+  }, [selectedCompetitorData, updateCompetitorPosition]);
+  
+  // Update canvas size on resize
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (canvasRef.current) {
+        const { width, height } = canvasRef.current.getBoundingClientRect();
+        setCanvasSize({ width, height });
+      }
+    };
+    
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
 
   return (
     <div>
@@ -420,14 +447,15 @@ export const LandscapeCanvas: React.FC = () => {
         <div className="flex items-center gap-2">
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
-                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+              <TooltipTrigger asChild>
+                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center cursor-help">
                   <span className="text-xs text-muted-foreground">?</span>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side="left">
                 <p className="text-xs max-w-[240px]">
-                  Concentric rings show category density. The closer competitors are, the more similar their offerings.
+                  Drag competitors to position them on the map. The closer they are, the more similar their offerings.
+                  Circle size represents market importance.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -450,6 +478,7 @@ export const LandscapeCanvas: React.FC = () => {
         {/* The actual canvas */}
         <div 
           id="landscape-canvas"
+          ref={canvasRef}
           className="w-full h-[500px] bg-muted/20 rounded-lg border border-border relative overflow-hidden"
         >
           {/* Axes lines */}
@@ -463,6 +492,13 @@ export const LandscapeCanvas: React.FC = () => {
             <div className="absolute top-1/2 left-1/2 w-[40%] h-[40%] border border-border/40 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute top-1/2 left-1/2 w-[20%] h-[20%] border border-border/60 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
           </div>
+          
+          {/* Debug info */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="absolute top-2 left-2 text-xs text-muted-foreground bg-background/80 p-1 rounded">
+              Selected: {selectedCompetitors.length} | Canvas: {Math.round(canvasSize.width)}×{Math.round(canvasSize.height)}
+            </div>
+          )}
           
           {/* Competitor tokens */}
           {selectedCompetitorData.map(competitor => (
