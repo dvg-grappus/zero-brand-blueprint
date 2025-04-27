@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import OfflineToast from "@/components/OfflineToast";
 import StepProgress from "@/components/StepProgress";
@@ -7,6 +7,7 @@ import { STEP_CONFIG } from "@/config/stepConfig";
 import { PositioningProvider } from "@/providers/PositioningProvider";
 import { usePositioning } from "@/contexts/PositioningContext";
 import PositioningStep from "@/components/positioning/PositioningStep";
+import AIAssistantPanel from "@/components/positioning/AIAssistantPanel";
 
 const PositioningContent = () => {
   const { 
@@ -56,30 +57,40 @@ const PositioningContent = () => {
         </motion.p>
       </div>
       
-      <div className="grid-12-columns max-w-[950px] mx-auto">
-        {STEP_CONFIG.map((stepConfig, index) => {
-          const Component = stepConfig.component;
-          const isCompleted = completedSteps.includes(stepConfig.id);
-          const isActive = activeStep === stepConfig.id;
-          const isOpen = openSteps.includes(stepConfig.id);
-          const canOpen = canOpenStep(stepConfig.id);
-          
-          return (
-            <PositioningStep
-              key={stepConfig.id}
-              id={stepConfig.id}
-              title={stepConfig.name}
-              index={index}
-              isCompleted={isCompleted}
-              isActive={isActive}
-              isOpen={isOpen}
-              canOpen={canOpen}
-              onToggle={() => toggleStep(stepConfig.id)}
-            >
-              <Component />
-            </PositioningStep>
-          );
-        })}
+      <div className="flex px-8">
+        {/* Left side - Positioning steps */}
+        <div className="w-[70%] pr-6">
+          <div className="max-w-[800px] mx-auto">
+            {STEP_CONFIG.map((stepConfig, index) => {
+              const Component = stepConfig.component;
+              const isCompleted = completedSteps.includes(stepConfig.id);
+              const isActive = activeStep === stepConfig.id;
+              const isOpen = openSteps.includes(stepConfig.id);
+              const canOpen = canOpenStep(stepConfig.id);
+              
+              return (
+                <PositioningStep
+                  key={stepConfig.id}
+                  id={stepConfig.id}
+                  title={stepConfig.name}
+                  index={index}
+                  isCompleted={isCompleted}
+                  isActive={isActive}
+                  isOpen={isOpen}
+                  canOpen={canOpen}
+                  onToggle={() => toggleStep(stepConfig.id)}
+                >
+                  <Component />
+                </PositioningStep>
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* Right side - AI Assistant */}
+        <div className="w-[30%] sticky top-24 h-[calc(100vh-180px)]">
+          <AIAssistantPanel />
+        </div>
       </div>
     </div>
   );
