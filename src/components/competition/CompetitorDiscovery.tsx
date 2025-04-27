@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCompetition } from "@/providers/CompetitionProvider";
 import { CompetitorCard } from "./discovery/CompetitorCard";
 import { CompetitorSearchModal } from "./discovery/CompetitorSearchModal";
-import { toast } from "sonner";
+import { toast } from 'sonner';
 
 export const CompetitorDiscovery: React.FC = () => {
   const { 

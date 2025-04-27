@@ -18,92 +18,129 @@ export const CompetitorSearchModal: React.FC<CompetitorSearchModalProps> = ({
 }) => {
   const { addCompetitor } = useCompetition();
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryName, setCategoryName] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     
-    // Create category name if not provided
-    const category = categoryName || `${searchQuery} competitors`;
+    // Mock search process
+    setIsSearching(true);
     
-    // Mock creating a new competitor based on search
-    const newCompetitorId = `custom-${Date.now()}`;
-    const newCompetitor = {
-      id: newCompetitorId,
-      name: searchQuery,
-      logo: "/placeholder.svg",
-      tags: [category, "Custom", "New"],
-      type: "startup" as const,
-      priority: 5,
-      position: { x: 0.5, y: 0.5 }
-    };
+    // Simulate API call delay
+    setTimeout(() => {
+      // Create a category name based on the search query
+      const categoryName = generateCategoryName(searchQuery);
+      
+      // Generate mock competitors based on the search query
+      const mockCompetitors = generateMockCompetitors(searchQuery, categoryName);
+      
+      // Add each mock competitor to the competition provider
+      mockCompetitors.forEach(competitor => {
+        addCompetitor(competitor);
+      });
+      
+      toast.success(`Found ${mockCompetitors.length} competitors matching your query`);
+      
+      // Reset form and close modal
+      setSearchQuery('');
+      setIsSearching(false);
+      onClose();
+    }, 1500);
+  };
+  
+  // Generate a category name based on the search query
+  const generateCategoryName = (query: string): string => {
+    if (query.toLowerCase().includes('australia') || query.toLowerCase().includes('australian')) {
+      return 'Australian Startups';
+    } else if (query.toLowerCase().includes('fund')) {
+      return 'Recently Funded Companies';
+    } else if (query.toLowerCase().includes('ai') || query.toLowerCase().includes('artificial intelligence')) {
+      return 'AI Innovators';
+    } else if (query.toLowerCase().includes('tech')) {
+      return 'Tech Disruptors';
+    } else {
+      return `${query.charAt(0).toUpperCase() + query.slice(1)} Competitors`;
+    }
+  };
+  
+  // Generate mock competitors based on the search query
+  const generateMockCompetitors = (query: string, category: string) => {
+    const baseNames = [
+      "Nexus", "Quantum", "Apex", "Horizon", "Eclipse", 
+      "Fusion", "Vertex", "Catalyst", "Zenith", "Pulse"
+    ];
     
-    addCompetitor(newCompetitor);
-    toast.success(`Added "${searchQuery}" as a new competitor`);
+    const industries = [
+      "Tech", "AI", "Fintech", "Health", "SaaS"
+    ];
     
-    // Reset form and close modal
-    setSearchQuery('');
-    setCategoryName('');
-    onClose();
+    // Generate 3-5 mock competitors
+    const count = 3 + Math.floor(Math.random() * 3);
+    const mockCompetitors = [];
+    
+    for (let i = 0; i < count; i++) {
+      const baseName = baseNames[Math.floor(Math.random() * baseNames.length)];
+      const industry = industries[Math.floor(Math.random() * industries.length)];
+      
+      // Create a unique mock competitor
+      const mockCompetitor = {
+        id: `mock-${Date.now()}-${i}`,
+        name: `${baseName} ${industry}`,
+        logo: "/placeholder.svg",
+        tags: [category, industry, query.includes('fund') ? 'Funded' : 'Startup'],
+        type: "startup" as const,
+        priority: 3 + Math.floor(Math.random() * 7),
+        position: { x: 0.3 + Math.random() * 0.4, y: 0.3 + Math.random() * 0.4 }
+      };
+      
+      mockCompetitors.push(mockCompetitor);
+    }
+    
+    return mockCompetitors;
   };
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add New Competitors</DialogTitle>
+          <DialogTitle>Find Competitors</DialogTitle>
           <DialogDescription>
-            Search and add competitors to your market analysis.
+            Use natural language to describe the competitors you're looking for
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSearch} className="py-4 space-y-4">
-          <div className="flex items-center space-x-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search for competitors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-          </div>
-          
-          <div>
+        <form onSubmit={handleSearch} className="py-4 space-y-5">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Optional: Category name"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              className="w-full"
+              placeholder="e.g., 'Find me competitors who are recently funded in Australia'"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              Leave blank to use search term as category
-            </p>
           </div>
           
           <div className="bg-muted/30 p-4 rounded-md">
-            <h3 className="font-medium mb-2">Preview</h3>
-            {searchQuery ? (
-              <div>
-                <p className="text-sm">New competitor: <span className="font-medium">{searchQuery}</span></p>
-                <p className="text-sm">Will be added to: <span className="font-medium">{categoryName || `${searchQuery} competitors`}</span></p>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">Enter a search term to preview results</p>
-            )}
+            <h3 className="font-medium mb-2">How this works</h3>
+            <p className="text-sm text-muted-foreground">
+              Enter a natural language query describing the competitors you want to find.
+              Our AI will search for relevant companies and add them to your competition map.
+            </p>
+          </div>
+          
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose} type="button">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSearch} 
+              disabled={!searchQuery.trim() || isSearching}
+            >
+              {isSearching ? "Searching..." : "Find Competitors"}
+            </Button>
           </div>
         </form>
-        
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={onClose} type="button">
-            Cancel
-          </Button>
-          <Button onClick={handleSearch} disabled={!searchQuery.trim()}>
-            Add Competitor
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );
