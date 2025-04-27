@@ -114,7 +114,7 @@ const CompetitionPage: React.FC = () => {
             />
           </div>
           
-          <div className="w-[320px] border-l border-border/40 min-h-screen">
+          <div className="w-[320px] border-l border-border/40 h-screen sticky top-0">
             <AIAssistantPanel currentStep={currentSubstep} />
           </div>
           
