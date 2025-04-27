@@ -111,8 +111,8 @@ const Statements: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [externalStatements, setExternalStatements] = useState<typeof mockStatements>([]);
   
   const [tokenOptions, setTokenOptions] = useState<Record<string, string[]>>({
-    WHAT: [],
-    HOW: [],
+    WHAT: ["A brand identity system generator", "An AI branding platform", "A visual identity automation suite", "A design democratization tool"],
+    HOW: ["Through AI-powered creative assistance", "With step-by-step guided pathways", "Using pre-validated design patterns", "By automating complex design tasks"],
     WHO: ["startups", "small businesses", "solopreneurs", "creatives"],
     WHERE: ["digital platforms", "emerging markets", "competitive industries"],
     WHY: [],

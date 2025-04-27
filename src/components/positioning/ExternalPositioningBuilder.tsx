@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Shuffle } from "lucide-react";
 
 interface StatementPart {
   category: string;
@@ -71,6 +71,23 @@ interface ExternalPositioningBuilderProps {
 const ExternalPositioningBuilder: React.FC<ExternalPositioningBuilderProps> = ({ onStatementChange }) => {
   const [selectedParts, setSelectedParts] = useState<Record<string, string>>({});
 
+  const handleShuffle = () => {
+    const newParts: Record<string, string> = {};
+    statementParts.forEach(part => {
+      const randomIndex = Math.floor(Math.random() * part.options.length);
+      newParts[part.category] = part.options[randomIndex];
+    });
+    setSelectedParts(newParts);
+    
+    if (Object.keys(newParts).length === statementParts.length) {
+      const fullStatement = statementParts
+        .map(part => newParts[part.category])
+        .filter(Boolean)
+        .join(" ");
+      onStatementChange(fullStatement);
+    }
+  };
+
   const handleSelect = (category: string, value: string) => {
     const newParts = { ...selectedParts, [category]: value };
     setSelectedParts(newParts);
@@ -87,7 +104,18 @@ const ExternalPositioningBuilder: React.FC<ExternalPositioningBuilderProps> = ({
   return (
     <Card className="bg-card">
       <CardContent className="p-6">
-        <h2 className="text-xl font-semibold mb-4 text-foreground">Build Your Statement</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-foreground">Build Your Statement</h2>
+          <Button 
+            onClick={handleShuffle}
+            variant="outline"
+            className="flex items-center gap-2 bg-background text-foreground hover:bg-accent"
+          >
+            <span>Shuffle</span>
+            <Shuffle className="h-4 w-4" />
+          </Button>
+        </div>
+        
         {statementParts.map((part) => (
           <TokenSelect
             key={part.category}
