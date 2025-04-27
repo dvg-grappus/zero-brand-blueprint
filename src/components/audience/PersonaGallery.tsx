@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAudience } from "@/providers/AudienceProvider";
+import { useAudience, Persona } from "@/providers/AudienceProvider";
 import PersonaCard from "./PersonaCard";
 import PersonaTalkDialog from "./PersonaTalkDialog";
 import { PersonaDetailsSheet } from "./PersonaDetailsSheet";

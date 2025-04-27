@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAudience } from "@/providers/AudienceProvider";
@@ -8,7 +7,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import PersonaJourney from "./PersonaJourney";
 import PersonaAccordions from "./PersonaAccordions";
 import PersonaArtifacts from "./PersonaArtifacts";
-import { PersonaTalkDialog } from "./PersonaTalkDialog";
+import PersonaTalkDialog from "./PersonaTalkDialog";
 
 interface PersonaDetailProps {
   personaId?: string;
