@@ -8,6 +8,7 @@ import Welcome from "./pages/Welcome";
 import Timeline from "./pages/Timeline";
 import NotFound from "./pages/NotFound";
 import StepPage from "./pages/StepPage";
+import AudiencePage from "./pages/AudiencePage";
 
 const queryClient = new QueryClient();
 
@@ -22,8 +23,15 @@ const App = () => (
             <Route path="/" element={<Navigate to="/welcome" replace />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/timeline" element={<Timeline />} />
-            <Route path="/step/:stepId" element={<StepPage />} />
-            <Route path="/step/:stepId/:substep" element={<StepPage />} />
+            
+            {/* Positioning module routes */}
+            <Route path="/step/all" element={<StepPage />} />
+            <Route path="/step/1/:substep" element={<StepPage />} />
+            
+            {/* Audience module routes */}
+            <Route path="/step/2/:substep" element={<AudiencePage />} />
+            <Route path="/step/2/persona/:personaId" element={<AudiencePage />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>

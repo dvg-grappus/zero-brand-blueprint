@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
 import StepCard from "@/components/StepCard";
 import HelpDrawer from "@/components/HelpDrawer";
@@ -16,6 +16,7 @@ interface Step {
 
 const Timeline: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0); // Default to 0 (no current step)
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
@@ -39,8 +40,12 @@ const Timeline: React.FC = () => {
 
   useEffect(() => {
     console.log("Location state:", location.state);
-    const fromPositioning = location.state && location.state.fromPositioning;
     
+    // Check for completion flags from different modules
+    const fromPositioning = location.state && location.state.fromPositioning;
+    const fromAudience = location.state && location.state.fromAudience;
+    
+    // Mark steps as completed based on navigation state
     if (fromPositioning) {
       // Mark positioning (step 1) as completed
       setCompletedSteps(prev => {
@@ -52,12 +57,25 @@ const Timeline: React.FC = () => {
       
       // Set current step to Audience (step 2)
       setCurrentStep(2);
-    } else {
-      // If not coming from positioning completion, set first step as current
-      // Only when there are no completed steps yet
-      if (completedSteps.length === 0) {
-        setCurrentStep(1);
-      }
+    }
+    
+    if (fromAudience) {
+      // Mark audience (step 2) as completed
+      setCompletedSteps(prev => {
+        if (!prev.includes(2)) {
+          return [...prev, 2];
+        }
+        return prev;
+      });
+      
+      // Set current step to Competition (step 3)
+      setCurrentStep(3);
+    }
+    
+    // If not coming from any completion, set first step as current
+    // Only when there are no completed steps yet
+    if (completedSteps.length === 0 && !fromPositioning && !fromAudience) {
+      setCurrentStep(1);
     }
   }, [location, completedSteps.length]);
 
@@ -90,6 +108,14 @@ const Timeline: React.FC = () => {
   
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
+    
+    // Navigate to the appropriate module based on step ID
+    if (stepId === 1) {
+      navigate("/step/all"); // Positioning module
+    } else if (stepId === 2) {
+      navigate("/step/2/cohort-canvas"); // Audience module
+    }
+    // Add other module routes as they're implemented
   };
   
   const getStepStatus = (stepId: number): "todo" | "current" | "done" => {

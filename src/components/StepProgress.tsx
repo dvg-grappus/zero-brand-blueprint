@@ -9,7 +9,17 @@ const stepMap: Record<string, number> = {
   "roadmap": 3,
   "values": 4,
   "differentiators": 5,
-  "statements": 6
+  "statements": 6,
+  // Audience steps
+  "cohort-canvas": 0,
+  "cohort-board": 1,
+  "persona-gallery": 2,
+  "persona": 3,
+  "simulations": 4,
+  "insight-review": 5,
+  // Module identifiers
+  "positioning": 0,
+  "audience": 1
 };
 
 interface StepProgressProps {
@@ -17,8 +27,27 @@ interface StepProgressProps {
 }
 
 const StepProgress: React.FC<StepProgressProps> = ({ currentStep }) => {
-  const currentIndex = stepMap[currentStep] || 0;
-  const totalSteps = 6; // Total number of steps
+  let dots = 6; // Default number of dots
+  let currentIndex = 0;
+  
+  // Module-specific logic
+  if (currentStep === "positioning" || currentStep === "all") {
+    dots = 6; // Positioning has 6 steps
+    currentIndex = 0;
+  } else if (currentStep === "audience") {
+    dots = 6; // Audience has 6 steps
+    currentIndex = 0;
+  } else {
+    // Individual step tracking
+    currentIndex = stepMap[currentStep] || 0;
+    
+    // Determine which module we're in based on the step
+    if (["cohort-canvas", "cohort-board", "persona-gallery", "persona", "simulations", "insight-review"].includes(currentStep)) {
+      dots = 6; // Audience has 6 steps
+    } else {
+      dots = 6; // Positioning has 6 steps (default)
+    }
+  }
   
   return (
     <motion.div 
@@ -27,7 +56,7 @@ const StepProgress: React.FC<StepProgressProps> = ({ currentStep }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
     >
-      {Array.from({ length: totalSteps }).map((_, i) => {
+      {Array.from({ length: dots }).map((_, i) => {
         const isCompleted = i < currentIndex;
         const isCurrent = i === currentIndex;
         
