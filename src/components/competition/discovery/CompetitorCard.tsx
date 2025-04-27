@@ -10,14 +10,23 @@ interface CompetitorCardProps {
   isSelected: boolean;
   onClick: () => void;
   priorityLevel: number;
+  onPriorityChange?: (priority: number) => void;
 }
 
 export const CompetitorCard: React.FC<CompetitorCardProps> = ({ 
   competitor, 
   isSelected, 
   onClick,
-  priorityLevel
+  priorityLevel,
+  onPriorityChange
 }) => {
+  const handlePriorityClick = (e: React.MouseEvent, priority: number) => {
+    e.stopPropagation();
+    if (onPriorityChange) {
+      onPriorityChange(priority);
+    }
+  };
+  
   return (
     <motion.div
       className={`group w-full h-[120px] rounded-lg bg-muted/50 border cursor-pointer transition-all overflow-hidden relative ${
@@ -48,16 +57,38 @@ export const CompetitorCard: React.FC<CompetitorCardProps> = ({
         </div>
       </div>
       
-      <div 
-        className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="h-6 w-6 p-0 rounded-full"
-        >
-          <ExternalLink className="h-3 w-3" />
-        </Button>
+      <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+        {/* Priority selector */}
+        {isSelected && (
+          <div className="flex items-center gap-1">
+            <button 
+              className={`w-2 h-2 rounded-full ${priorityLevel <= 3 ? 'bg-cyan' : 'bg-muted'}`}
+              onClick={(e) => handlePriorityClick(e, 3)}
+            />
+            <button 
+              className={`w-2 h-2 rounded-full ${priorityLevel > 3 && priorityLevel <= 6 ? 'bg-cyan' : 'bg-muted'}`}
+              onClick={(e) => handlePriorityClick(e, 6)}
+            />
+            <button 
+              className={`w-2 h-2 rounded-full ${priorityLevel > 6 ? 'bg-cyan' : 'bg-muted'}`}
+              onClick={(e) => handlePriorityClick(e, 9)}
+            />
+            <span className="text-xs ml-1 text-muted-foreground">
+              {priorityLevel <= 3 ? 'Low' : priorityLevel <= 6 ? 'Med' : 'High'}
+            </span>
+          </div>
+        )}
+        
+        {/* External link button */}
+        <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="h-6 w-6 p-0 rounded-full"
+          >
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

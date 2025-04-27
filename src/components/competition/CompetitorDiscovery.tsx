@@ -1,12 +1,11 @@
 
 import React, { useState } from "react";
-import { Info, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCompetition } from "@/providers/CompetitionProvider";
 import { CompetitorCard } from "./discovery/CompetitorCard";
 import { CompetitorSearchModal } from "./discovery/CompetitorSearchModal";
-import { PriorityWeightingSlider } from "./discovery/PriorityWeightingSlider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 export const CompetitorDiscovery: React.FC = () => {
   const { 
@@ -50,6 +49,15 @@ export const CompetitorDiscovery: React.FC = () => {
     toggleSelectCompetitor(competitor.id);
     setSelectedCompetitorId(prevId => prevId === competitor.id ? null : competitor.id);
   };
+  
+  const handlePriorityChange = (competitorId: string, priority: number) => {
+    updateCompetitorPriority(competitorId, priority);
+  };
+  
+  const handleFetchMore = (categoryId: string) => {
+    toast.success(`Fetching 5 more ${categoryId} competitors...`);
+    // In a real app, this would fetch data from an API
+  };
 
   return (
     <div>
@@ -59,7 +67,7 @@ export const CompetitorDiscovery: React.FC = () => {
         <p className="text-muted-foreground text-lg">Start with auto-suggestions, then hunt further.</p>
       </div>
       
-      <div className="flex gap-8">
+      <div className="flex">
         <div className="flex-1">
           {/* Add competitors button */}
           <div className="flex justify-between items-center mb-6">
@@ -96,42 +104,25 @@ export const CompetitorDiscovery: React.FC = () => {
                       isSelected={selectedCompetitors.includes(competitor.id)}
                       onClick={() => handleCompetitorSelect(competitor)}
                       priorityLevel={competitor.priority}
+                      onPriorityChange={(priority) => handlePriorityChange(competitor.id, priority)}
                     />
                   ))}
+                </div>
+                
+                {/* Fetch more button */}
+                <div className="flex justify-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleFetchMore(category.id)}
+                    className="text-xs"
+                  >
+                    Fetch 5 more {category.title.toLowerCase()}
+                  </Button>
                 </div>
               </section>
             ))}
           </div>
-        </div>
-        
-        {/* Priority weighting sidebar with tooltip */}
-        <div className="w-12 flex flex-col items-center relative">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="mb-2">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[200px]">
-                <p>Adjust how prominent this competitor should be in your strategy. 
-                Higher priority competitors will appear larger on the landscape map.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <PriorityWeightingSlider 
-            selectedCompetitor={selectedCompetitorId} 
-            currentPriority={selectedCompetitorId ? 
-              competitors.find(c => c.id === selectedCompetitorId)?.priority || 5 
-              : 5
-            }
-            onPriorityChange={(priority) => {
-              if (selectedCompetitorId) {
-                updateCompetitorPriority(selectedCompetitorId, priority);
-              }
-            }}
-          />
         </div>
       </div>
       
