@@ -1,10 +1,22 @@
+
 import React, { useState, useEffect, useContext } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/contexts/PositioningContext";
 
 // Mock data for development - in production this would come from GPT API
+const mockCompetitorStatements = [
+  "Use conventional design tools with generic templates",
+  "Offer one-size-fits-all branding solutions",
+  "Focus only on visual deliverables",
+  "Rely on fully automated processes",
+  "Work in isolation from business strategy",
+  "Provide basic design tools for professionals only",
+  "Separate brand voice from visual identity",
+  "Charge per revision or iteration"
+];
+
 const mockDifferentiators = [
   "The only design automation platform that provides brand-specific customization for solopreneurs.",
   "The only AI branding tool that preserves human creative direction while automating technical execution.",
@@ -16,7 +28,7 @@ const mockDifferentiators = [
   "The only identity platform that allows unlimited revisions without cost penalties."
 ];
 
-interface DifferentiatorCardProps {
+interface StickyNoteProps {
   content: string;
   isPinned: boolean;
   onTogglePin: () => void;
@@ -24,55 +36,37 @@ interface DifferentiatorCardProps {
   index: number;
 }
 
-const DifferentiatorCard: React.FC<DifferentiatorCardProps> = ({ 
+const StickyNote: React.FC<StickyNoteProps> = ({ 
   content, 
   isPinned, 
   onTogglePin, 
   isPinLimited,
   index 
 }) => {
-  const controls = useAnimation();
-  
-  useEffect(() => {
-    if (isPinned) {
-      controls.start({
-        y: -20,
-        transition: { type: "spring", stiffness: 300, damping: 15 }
-      });
-    } else {
-      controls.start({
-        y: 0,
-        transition: { type: "spring", stiffness: 300, damping: 15 }
-      });
-    }
-  }, [isPinned, controls]);
-  
   return (
     <motion.div
-      className={`p-6 rounded-lg mb-4 relative ${
-        isPinned ? "bg-cyan shadow-lg ring-1 ring-cyan/50" : "bg-[#E5FBFF]"
+      className={`p-4 rounded-lg cursor-pointer relative ${
+        isPinned ? "bg-[#FFEB3B] shadow-lg ring-2 ring-[#FFEB3B]/50" : "bg-[#FFEB3B]"
       }`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      layout
+      whileHover={{ y: -4 }}
     >
-      <div className="text-black text-lg">
-        {content}
-      </div>
+      <p className="text-black text-sm mb-8">{content}</p>
       
       <button
-        className={`absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full ${
+        className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded-full ${
           isPinned 
             ? "bg-black text-white" 
             : isPinLimited 
               ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
-              : "bg-white text-gray-600 hover:bg-gray-100"
+              : "bg-white text-black hover:bg-gray-100"
         }`}
         onClick={onTogglePin}
         disabled={!isPinned && isPinLimited}
       >
-        {isPinned ? "📌" : "📍"}
+        {isPinned ? "📌 Pinned" : "Pin"}
       </button>
     </motion.div>
   );
@@ -83,12 +77,13 @@ const Differentiators: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [differentiators, setDifferentiators] = useState<string[]>([]);
+  const [competitors, setCompetitors] = useState<string[]>([]);
   
   useEffect(() => {
-    // Simulate GPT API call
+    // Simulate API call
     const timer = setTimeout(() => {
-      // Here you would make the actual API call
       setDifferentiators(mockDifferentiators);
+      setCompetitors(mockCompetitorStatements);
       setIsLoading(false);
     }, 1500);
     
@@ -97,42 +92,32 @@ const Differentiators: React.FC = () => {
   
   const handleTogglePin = (differentiator: string) => {
     setPinnedDifferentiators(prev => {
-      // If already pinned, unpin it
       if (prev.includes(differentiator)) {
         return prev.filter(d => d !== differentiator);
       }
       
-      // If trying to pin more than 3, show error
       if (prev.length >= 3) {
         toast.error("You can pin a maximum of 3 differentiators");
         return prev;
       }
       
-      // Otherwise pin it
       return [...prev, differentiator];
     });
   };
   
   const isPinLimited = pinnedDifferentiators.length >= 3;
   
-  const sortedDifferentiators = [...differentiators].sort((a, b) => {
-    const aIsPinned = pinnedDifferentiators.includes(a);
-    const bIsPinned = pinnedDifferentiators.includes(b);
-    
-    if (aIsPinned && !bIsPinned) return -1;
-    if (!aIsPinned && bIsPinned) return 1;
-    return 0;
-  });
-  
   const handleComplete = () => {
-    if (pinnedDifferentiators.length === 3 && completeStep) {
+    if (pinnedDifferentiators.length === 3) {
       completeStep("differentiators");
+    } else {
+      toast.error("Please pin exactly 3 differentiators");
     }
   };
   
   return (
     <>
-      <div className="col-span-12 max-w-[700px] mx-auto">
+      <div className="col-span-12">
         <motion.p
           className="text-gray-500 text-sm mb-1 text-center"
           initial={{ opacity: 0 }}
@@ -157,29 +142,56 @@ const Differentiators: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          Pin your top 3 differentiators that make you truly unique.
+          Pin your top 3 unique selling points.
         </motion.p>
         
         {isLoading ? (
           <div className="flex flex-col items-center mt-8">
-            <div className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-            <div className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
-            <div className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg mb-4"></div>
+            <div className="grid grid-cols-2 gap-8 w-full">
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
+                ))}
+              </div>
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="w-full h-[100px] bg-gray-100 animate-pulse rounded-lg"></div>
+                ))}
+              </div>
+            </div>
             <p className="text-gray-500 mt-4">Still shaping ideas... one second.</p>
           </div>
         ) : (
-          <motion.div layout>
-            {sortedDifferentiators.map((differentiator, index) => (
-              <DifferentiatorCard
-                key={index}
-                content={differentiator}
-                isPinned={pinnedDifferentiators.includes(differentiator)}
-                onTogglePin={() => handleTogglePin(differentiator)}
-                isPinLimited={isPinLimited && !pinnedDifferentiators.includes(differentiator)}
-                index={index}
-              />
-            ))}
-          </motion.div>
+          <div className="grid grid-cols-2 gap-8">
+            {/* While others... column */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-center">While others...</h2>
+              <div className="space-y-4">
+                {competitors.map((statement, index) => (
+                  <div key={index} className="p-4 rounded-lg bg-[#FFEB3B]">
+                    <p className="text-black text-sm">{statement}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* We are the only... column */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4 text-center">We are the only...</h2>
+              <div className="space-y-4">
+                {differentiators.map((differentiator, index) => (
+                  <StickyNote
+                    key={index}
+                    content={differentiator}
+                    isPinned={pinnedDifferentiators.includes(differentiator)}
+                    onTogglePin={() => handleTogglePin(differentiator)}
+                    isPinLimited={isPinLimited}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         )}
         
         <motion.div 
@@ -201,8 +213,8 @@ const Differentiators: React.FC = () => {
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isLoading || pinnedDifferentiators.length !== 3}
-          className="bg-black text-white hover:bg-cyan hover:text-black transition-colors"
+          disabled={pinnedDifferentiators.length !== 3}
+          className="bg-white text-black hover:bg-gray-100 transition-colors"
         >
           Craft statements
         </Button>
