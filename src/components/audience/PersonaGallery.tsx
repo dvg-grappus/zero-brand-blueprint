@@ -15,7 +15,7 @@ const SAMPLE_PERSONAS: Persona[] = [
     country: "United States",
     archetype: "Spiral",
     archeTypeColor: "#FF6B6B",
-    image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
     whyTheyMatter: "Sara represents our most engaged early adopters. Her feedback drives 40% of new feature adoption across our user base.",
     story: "As a recent design graduate working at a tech startup, Sara is constantly balancing multiple responsibilities. She seeks tools that help her organize chaotic workflows without rigid structure.",
     quote: "I don't think linearly. I need tools that let me work in spirals and still arrive at my destination.",
@@ -172,7 +172,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, o
             <img 
               src={persona.image} 
               alt={persona.name} 
-              className="w-full h-full object-cover grayscale"
+              className="w-full h-full object-cover"
             />
           </div>
           
@@ -239,7 +239,10 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, onReplace, onEdit, o
           size="sm" 
           variant="outline" 
           className="rounded-full" 
-          onClick={(e) => { e.stopPropagation(); onEdit(persona.id); }}
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            navigate(`/step/2/persona/${persona.id}`);
+          }}
         >
           <Edit size={14} className="mr-1" />
           Edit
@@ -337,17 +340,31 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-10 justify-center">
-          {personas.map(persona => (
-            <PersonaCard 
-              key={persona.id} 
-              persona={persona} 
-              onReplace={handleReplace}
-              onEdit={handleEdit}
-              onTalk={handleTalk}
-            />
-          ))}
+        <div className="flex flex-col items-center gap-10">
+          <div className="grid grid-cols-3 gap-8 justify-center">
+            {personas.map(persona => (
+              <PersonaCard 
+                key={persona.id} 
+                persona={persona} 
+                onReplace={handleReplace}
+                onEdit={handleEdit}
+                onTalk={handleTalk}
+              />
+            ))}
+          </div>
+          <p className="text-center text-muted-foreground max-w-2xl">
+            These personas represent the key segments of your audience. Each has unique goals, needs, and behaviors that inform product decisions.
+            Explore their profiles to understand their motivations deeper.
+          </p>
         </div>
+      )}
+      
+      {/* Persona Talk Dialog */}
+      {activeTalkPersona && (
+        <PersonaTalkDialog
+          personaId={activeTalkPersona}
+          onClose={() => setActiveTalkPersona(null)}
+        />
       )}
       
       <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
@@ -365,6 +382,162 @@ const PersonaGallery: React.FC<PersonaGalleryProps> = ({ onComplete }) => {
         >
           Approve personas →
         </Button>
+      </div>
+    </motion.div>
+  );
+};
+
+// New component for persona talk dialog
+interface PersonaTalkDialogProps {
+  personaId: string;
+  onClose: () => void;
+}
+
+const PersonaTalkDialog: React.FC<PersonaTalkDialogProps> = ({ personaId, onClose }) => {
+  const { personas } = useAudience();
+  const [messages, setMessages] = useState<{text: string, isUser: boolean}[]>([
+    { text: "Hello, how can I help you today?", isUser: false }
+  ]);
+  const [userInput, setUserInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  
+  const persona = personas.find(p => p.id === personaId);
+  
+  if (!persona) return null;
+  
+  const handleSendMessage = () => {
+    if (!userInput.trim()) return;
+    
+    // Add user message
+    setMessages(prev => [...prev, { text: userInput, isUser: true }]);
+    
+    // Simulate typing
+    setIsTyping(true);
+    
+    // Log the event
+    console.log("onPersonaTalk", personaId, userInput);
+    
+    // Simulate response after delay
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev, 
+        { 
+          text: `As ${persona.name}, I'd say that's an interesting point. From my perspective as a ${persona.archetype.toLowerCase()}, I approach problems differently.`, 
+          isUser: false 
+        }
+      ]);
+      setIsTyping(false);
+    }, 2000);
+    
+    setUserInput("");
+  };
+  
+  const toggleListening = () => {
+    setIsListening(!isListening);
+    // In a real implementation, this would activate speech recognition
+  };
+  
+  return (
+    <motion.div
+      className="fixed inset-y-0 right-0 w-96 bg-[#1E1E1E] border-l border-border/30 shadow-lg z-50 flex flex-col"
+      initial={{ x: "100%" }}
+      animate={{ x: 0 }}
+      exit={{ x: "100%" }}
+      transition={{ type: "spring", damping: 20 }}
+    >
+      <div className="p-4 border-b border-border/30 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full overflow-hidden">
+            <img src={persona.image} alt={persona.name} className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <h3 className="font-medium">{persona.name}</h3>
+            <span className="text-xs text-muted-foreground">{persona.archetype}</span>
+          </div>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </Button>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+            <div 
+              className={`max-w-[80%] p-3 rounded-lg ${
+                msg.isUser 
+                  ? 'bg-cyan text-black'
+                  : 'bg-[#2B2B2B] text-white'
+              }`}
+            >
+              {msg.text}
+            </div>
+          </div>
+        ))}
+        
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="bg-[#2B2B2B] text-white p-3 rounded-lg flex items-center space-x-1">
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <div className="p-4 border-t border-border/30">
+        <div className="flex items-center gap-2">
+          <Button 
+            type="button" 
+            size="icon"
+            variant={isListening ? "default" : "outline"}
+            className={`rounded-full ${isListening ? 'bg-cyan text-background' : ''}`}
+            onClick={toggleListening}
+          >
+            {isListening ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic-off"><path d="m2 2 20 20"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.94-.6"/><path d="M12 19v3"/></svg>
+            )}
+          </Button>
+          <input
+            type="text"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            className="flex-1 bg-[#2B2B2B] border border-border/30 rounded-full px-4 py-2 focus:outline-none focus:ring-1 focus:ring-cyan"
+            placeholder="Ask me anything..."
+          />
+          <Button 
+            type="button" 
+            size="icon"
+            variant="outline"
+            className="rounded-full text-cyan hover:text-background hover:bg-cyan"
+            onClick={handleSendMessage}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
+          </Button>
+        </div>
+        
+        {isListening && (
+          <div className="mt-3 flex justify-center">
+            <div className="h-8 flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="w-1 bg-cyan"
+                  style={{ 
+                    height: `${Math.random() * 24 + 4}px`,
+                    animation: 'pulse 0.5s infinite alternate',
+                    animationDelay: `${i * 0.1}s`
+                  }}
+                ></div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

@@ -1,15 +1,23 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAudience } from "@/providers/AudienceProvider";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, ArrowLeft } from "lucide-react";
+import { Lightbulb, ArrowLeft, MessageCircle } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface PersonaDetailProps {
   personaId?: string;
@@ -17,10 +25,27 @@ interface PersonaDetailProps {
 }
 
 const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
+  const params = useParams();
+  const navigate = useNavigate();
   const { personas, addInsight } = useAudience();
   const [activeAccordion, setActiveAccordion] = useState<string>("goals");
+  const [showSimulationDialog, setShowSimulationDialog] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [conversationMessages, setConversationMessages] = useState<{text: string, isUser: boolean}[]>([]);
   
-  const persona = personas.find(p => p.id === personaId);
+  // Use personaId from props or from URL params
+  const actualPersonaId = personaId || params.personaId;
+  const persona = personas.find(p => p.id === actualPersonaId);
+  
+  useEffect(() => {
+    // Reset conversation when persona changes
+    setConversationMessages([
+      { 
+        text: "Happy to elaborate on any of these pains—just ask.", 
+        isUser: false 
+      }
+    ]);
+  }, [actualPersonaId]);
   
   if (!persona) {
     return (
@@ -35,6 +60,38 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
   
   const captureInsight = (text: string) => {
     addInsight(text, `Persona: ${persona.name}`, true);
+  };
+  
+  const startSimulation = () => {
+    setShowSimulationDialog(true);
+    console.log("onPersonaTalk", persona.id, "Start simulation");
+  };
+  
+  const handleSendMessage = (message: string) => {
+    if (!message.trim()) return;
+    
+    // Add user message
+    setConversationMessages(prev => [...prev, { text: message, isUser: true }]);
+    
+    // Log the event
+    console.log("onPersonaTalk", persona.id, message);
+    
+    // Simulate response after delay
+    setTimeout(() => {
+      let response = "";
+      
+      if (message.toLowerCase().includes("frustrate") || message.toLowerCase().includes("pain")) {
+        response = `The most frustrating thing for me is ${persona.fears[0].toLowerCase()}. It really affects my productivity.`;
+      } else if (message.toLowerCase().includes("goal") || message.toLowerCase().includes("aim")) {
+        response = `My main goal right now is to ${persona.goals[0].toLowerCase()}. It's really important to me.`;
+      } else if (message.toLowerCase().includes("need") || message.toLowerCase().includes("want")) {
+        response = `What I really need is ${persona.needs[0].toLowerCase()}. Without that, I struggle daily.`;
+      } else {
+        response = `That's an interesting question! As a ${persona.archetype.toLowerCase()}, I approach problems with a focus on ${persona.goals[0].toLowerCase()}.`;
+      }
+      
+      setConversationMessages(prev => [...prev, { text: response, isUser: false }]);
+    }, 1500);
   };
   
   return (
@@ -58,11 +115,9 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => {
-            // This would trigger chat simulation in production
-            console.log("onPersonaTalk", persona.id, "Start simulation");
-          }}
+          onClick={startSimulation}
         >
+          <MessageCircle size={16} className="mr-1" />
           Start simulation with {persona.name}
         </Button>
       </div>
@@ -252,6 +307,99 @@ const PersonaDetail: React.FC<PersonaDetailProps> = ({ personaId, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Dialog for persona simulation */}
+      <Dialog open={showSimulationDialog} onOpenChange={setShowSimulationDialog}>
+        <DialogContent className="sm:max-w-[500px] bg-[#1E1E1E] border-border/30">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <Avatar>
+                <AvatarImage src={persona.image} alt={persona.name} />
+                <AvatarFallback>{persona.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <span className="text-lg">{persona.name}</span>
+                <div className="text-xs text-muted-foreground">{persona.archetype}</div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="max-h-[400px] overflow-y-auto p-2 space-y-4 mt-2">
+            {conversationMessages.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+                <div 
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    msg.isUser 
+                      ? 'bg-cyan text-black'
+                      : 'bg-[#2B2B2B] text-white'
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-4 flex gap-2">
+            <Button
+              type="button"
+              size="icon"
+              variant={isListening ? "default" : "outline"}
+              className={`rounded-full ${isListening ? 'bg-cyan text-background' : ''}`}
+              onClick={() => setIsListening(!isListening)}
+            >
+              {isListening ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-mic-off"><path d="m2 2 20 20"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.94-.6"/><path d="M12 19v3"/></svg>
+              )}
+            </Button>
+            
+            <input
+              type="text"
+              placeholder="Ask me anything..."
+              className="flex-1 bg-[#2B2B2B] border border-border/30 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-cyan"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSendMessage((e.target as HTMLInputElement).value);
+                  (e.target as HTMLInputElement).value = '';
+                }
+              }}
+            />
+            
+            <Button
+              type="button"
+              onClick={() => {
+                const input = document.querySelector('input[placeholder="Ask me anything..."]') as HTMLInputElement;
+                if (input) {
+                  handleSendMessage(input.value);
+                  input.value = '';
+                }
+              }}
+            >
+              Send
+            </Button>
+          </div>
+          
+          {isListening && (
+            <div className="mt-2 flex justify-center">
+              <div className="h-8 flex items-center gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="w-1 bg-cyan"
+                    style={{ 
+                      height: `${Math.random() * 24 + 4}px`,
+                      animation: 'pulse 0.5s infinite alternate',
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
