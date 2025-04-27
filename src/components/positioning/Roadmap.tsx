@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,20 +133,11 @@ const Roadmap: React.FC = () => {
   };
   
   const validateRoadmap = () => {
-    const isValid = timelinePoints.every(point => roadmapMilestones[point].length > 0);
-    
-    if (!isValid) {
-      toast.error("Place at least one milestone at each timepoint");
-      return false;
-    }
-    
     return true;
   };
   
   const handleComplete = () => {
-    if (validateRoadmap()) {
-      completeStep("roadmap");
-    }
+    completeStep("roadmap");
   };
   
   const getAvailableMilestones = () => {
@@ -332,7 +322,6 @@ const Roadmap: React.FC = () => {
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          disabled={isLoading || !validateRoadmap()}
           className="bg-white text-black hover:bg-gray-100 transition-colors border border-gray-300 shadow-sm"
         >
           Save timeline

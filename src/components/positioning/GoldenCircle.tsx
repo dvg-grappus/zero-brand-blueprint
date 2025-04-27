@@ -203,12 +203,14 @@ const GoldenCircle: React.FC = () => {
         </div>
       </div>
       
-      <StepNavBar
-        title="Golden Circle"
-        nextStep="opportunities-challenges" 
-        nextButtonLabel="Complete & Continue"
-        onNext={handleComplete}
-      />
+      <div className="mt-8 flex justify-end">
+        <Button
+          onClick={handleComplete}
+          className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
+        >
+          Complete & Continue
+        </Button>
+      </div>
     </div>
   );
 };

@@ -26,8 +26,7 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
     setWordCount(countWords(text));
   };
   
-  // Removed word count restrictions
-  const isButtonDisabled = false;
+  // Removed word count restrictions and button disabled state
   
   const handleComplete = () => {
     if (onComplete) {
@@ -78,7 +77,7 @@ const BriefIntake: React.FC<BriefIntakeProps> = ({ onComplete, isValid = false }
       <div className="mt-6 text-right">
         <Button
           onClick={handleComplete}
-          className="bg-white text-black border border-gray-300 hover:bg-gray-50 transition-colors dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700"
+          className="bg-white text-black border border-gray-300 hover:bg-gray-50 shadow-sm transition-colors"
         >
           Complete & Continue
         </Button>

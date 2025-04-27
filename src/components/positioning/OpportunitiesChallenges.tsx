@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 import StickyNote from "./StickyNote";
 import { Button } from "@/components/ui/button";
 import { PositioningContext } from "@/contexts/PositioningContext";
@@ -147,8 +146,6 @@ const OpportunitiesChallenges: React.FC<OpportunitiesChallengesProps> = ({ onCom
   };
   
   const handleComplete = () => {
-    if (!validateSelection()) return;
-    
     if (onComplete) {
       onComplete();
     } else if (completeStep) {
