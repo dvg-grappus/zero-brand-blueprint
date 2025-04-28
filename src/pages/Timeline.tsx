@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,7 +16,7 @@ interface Step {
 const Timeline: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0); // Default to 0 (no current step)
+  const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
   
@@ -41,7 +40,6 @@ const Timeline: React.FC = () => {
   useEffect(() => {
     console.log("Location state:", location.state);
     
-    // Check for completion flags from different modules
     const fromPositioning = location.state && location.state.fromPositioning;
     const fromAudience = location.state && location.state.fromAudience;
     const fromCompetition = location.state && location.state.fromCompetition;
@@ -49,87 +47,66 @@ const Timeline: React.FC = () => {
     const fromPersonality = location.state && location.state.fromPersonality;
     const fromMoodboards = location.state && location.state.fromMoodboards;
     
-    // Mark steps as completed based on navigation state
     if (fromPositioning) {
-      // Mark positioning (step 1) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(1)) {
           return [...prev, 1]; 
         }
         return prev;
       });
-      
-      // Set current step to Audience (step 2)
       setCurrentStep(2);
     }
     
     if (fromAudience) {
-      // Mark audience (step 2) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(2)) {
           return [...prev, 2];
         }
         return prev;
       });
-      
-      // Set current step to Competition (step 3)
       setCurrentStep(3);
     }
     
     if (fromCompetition) {
-      // Mark competition (step 3) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(3)) {
           return [...prev, 3];
         }
         return prev;
       });
-      
-      // Set current step to Market (step 4)
       setCurrentStep(4);
     }
     
     if (fromMarket) {
-      // Mark market (step 4) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(4)) {
           return [...prev, 4];
         }
         return prev;
       });
-      
-      // Set current step to Personality (step 5)
       setCurrentStep(5);
     }
     
     if (fromPersonality) {
-      // Mark personality (step 5) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(5)) {
           return [...prev, 5];
         }
         return prev;
       });
-      
-      // Set current step to Moodboards (step 6)
       setCurrentStep(6);
     }
     
     if (fromMoodboards) {
-      // Mark moodboards (step 6) as completed
       setCompletedSteps(prev => {
         if (!prev.includes(6)) {
           return [...prev, 6];
         }
         return prev;
       });
-      
-      // Set current step to Stylescapes (step 7)
       setCurrentStep(7);
     }
     
-    // If not coming from any completion, set first step as current
-    // Only when there are no completed steps yet
     if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket && !fromPersonality && !fromMoodboards) {
       setCurrentStep(1);
     }
@@ -165,21 +142,19 @@ const Timeline: React.FC = () => {
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
     
-    // Navigate to the appropriate module based on step ID
     if (stepId === 1) {
-      navigate("/step/1"); // Positioning module route
+      navigate("/step/1");
     } else if (stepId === 2) {
-      navigate("/step/2"); // Updated to use the base audience route which will redirect
+      navigate("/step/2");
     } else if (stepId === 3) {
-      navigate("/step/3"); // Competition module route
+      navigate("/step/3");
     } else if (stepId === 4) {
-      navigate("/step/4"); // Market module route
+      navigate("/step/4");
     } else if (stepId === 5) {
-      navigate("/step/4/archetype"); // Personality module route - first sub-page
+      navigate("/step/4/archetype");
     } else if (stepId === 6) {
-      navigate("/step/5/attributes"); // Moodboards module route - first sub-page
+      navigate("/step/5/attributes");
     }
-    // Add other module routes as they're implemented
   };
   
   const getStepStatus = (stepId: number): "todo" | "current" | "done" => {

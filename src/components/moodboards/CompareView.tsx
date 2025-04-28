@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useMoodboards } from '@/contexts/MoodboardsContext';
+import { useMoodboards, MoodboardTile } from '@/contexts/MoodboardsContext';
 import { TalkToAIButton } from './FloatingAIPanel';
 import {
   Sheet,
@@ -16,12 +16,46 @@ import {
 interface MoodboardPreviewProps {
   id: string;
   title: string;
-  tiles: any[];
+  tiles: MoodboardTile[];
   isSelected: boolean;
   onSelect: () => void;
   onMagnify: () => void;
   onOpenAI: () => void;
 }
+
+const MoodboardPreviewTile: React.FC<{ category: string, tileIndex: number }> = ({ category, tileIndex }) => {
+  // Get a real image URL based on category
+  const getRealImageUrl = (): string => {
+    const imageMap: Record<string, string> = {
+      'BACKGROUND STYLE': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=110&h=70&auto=format&fit=crop',
+      'TYPOGRAPHY': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=110&h=70&auto=format&fit=crop',
+      'LAYOUT': 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=110&h=70&auto=format&fit=crop',
+      'ICON/ILLUSTRATION': 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=110&h=70&auto=format&fit=crop',
+      'PHOTO TREATMENT': 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=110&h=70&auto=format&fit=crop',
+      'TEXTURE': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=110&h=70&auto=format&fit=crop',
+      'COLOR SWATCH': 'https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=110&h=70&auto=format&fit=crop',
+      'MOTION REF': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=110&h=70&auto=format&fit=crop',
+      'PRINT COLLATERAL': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?q=80&w=110&h=70&auto=format&fit=crop',
+      'ENVIRONMENT': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=110&h=70&auto=format&fit=crop',
+      'WILD CARD': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=110&h=70&auto=format&fit=crop',
+    };
+    
+    return imageMap[category] || 'https://source.unsplash.com/random/110x70/?tech';
+  };
+  
+  return (
+    <div className="w-full aspect-square bg-card/30 rounded overflow-hidden text-[8px] text-center">
+      <img 
+        src={getRealImageUrl()}
+        alt={category}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.currentTarget.src = "https://source.unsplash.com/random/110x70/?tech";
+        }}
+      />
+    </div>
+  );
+};
 
 const MoodboardPreview: React.FC<MoodboardPreviewProps> = ({
   id,
@@ -42,18 +76,16 @@ const MoodboardPreview: React.FC<MoodboardPreviewProps> = ({
       <h3 className="font-medium mb-5">{title}</h3>
       
       <div 
-        className="w-[340px] h-[510px] overflow-hidden bg-muted/30 border border-border/20 rounded-lg relative group"
+        className="w-[340px] h-[510px] overflow-hidden bg-muted/30 border border-border/20 rounded-lg relative group cursor-pointer"
         onClick={onSelect}
       >
-        <div className="w-full h-full p-4 grid grid-cols-3 gap-2 content-start">
+        <div className="w-full h-full p-4 grid grid-cols-3 gap-3 content-start">
           {tiles.slice(0, 9).map((tile, idx) => (
-            <div 
+            <MoodboardPreviewTile 
               key={idx} 
-              className="w-full aspect-square bg-card/30 rounded overflow-hidden text-[8px] text-center flex items-center justify-center p-1"
-              style={{ aspectRatio: idx % 2 === 0 ? "1" : "3/4" }}
-            >
-              {tile.category}
-            </div>
+              category={tile.category}
+              tileIndex={idx}
+            />
           ))}
         </div>
         
@@ -75,6 +107,48 @@ const MoodboardPreview: React.FC<MoodboardPreviewProps> = ({
           <TalkToAIButton onClick={onOpenAI} />
         </div>
       </div>
+    </div>
+  );
+};
+
+interface ZoomedImageProps {
+  category: string;
+  index: number;
+}
+
+const ZoomedImage: React.FC<ZoomedImageProps> = ({ category, index }) => {
+  // Get a real image URL based on category
+  const getRealImageUrl = (): string => {
+    const imageMap: Record<string, string> = {
+      'BACKGROUND STYLE': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=300&h=300&auto=format&fit=crop',
+      'TYPOGRAPHY': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=300&h=300&auto=format&fit=crop',
+      'LAYOUT': 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=300&h=300&auto=format&fit=crop',
+      'ICON/ILLUSTRATION': 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=300&h=300&auto=format&fit=crop',
+      'PHOTO TREATMENT': 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=300&h=300&auto=format&fit=crop',
+      'TEXTURE': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=300&h=300&auto=format&fit=crop',
+      'COLOR SWATCH': 'https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=300&h=300&auto=format&fit=crop',
+      'MOTION REF': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=300&h=300&auto=format&fit=crop',
+      'PRINT COLLATERAL': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?q=80&w=300&h=300&auto=format&fit=crop',
+      'ENVIRONMENT': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=300&h=300&auto=format&fit=crop',
+      'WILD CARD': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=300&h=300&auto=format&fit=crop',
+    };
+    
+    return imageMap[category] || 'https://source.unsplash.com/random/300x300/?tech';
+  };
+  
+  return (
+    <div className="aspect-square bg-card/30 rounded-lg overflow-hidden relative">
+      <div className="absolute top-2 left-2 bg-[#262626]/80 backdrop-blur-sm text-[10px] uppercase px-2 py-1 rounded font-medium">
+        {category}
+      </div>
+      <img 
+        src={getRealImageUrl()} 
+        alt={category}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.currentTarget.src = "https://source.unsplash.com/random/300x300/?tech";
+        }}
+      />
     </div>
   );
 };
@@ -171,17 +245,11 @@ const CompareView: React.FC<CompareViewProps> = ({ onOpenAI }) => {
           
           <div className="grid grid-cols-4 gap-4 overflow-y-auto max-h-[calc(90vh-100px)]">
             {zoomedBoard?.tiles.map((tile, idx) => (
-              <div
+              <ZoomedImage
                 key={idx}
-                className="aspect-square bg-card/30 rounded-lg overflow-hidden relative"
-              >
-                <div className="absolute top-2 left-2 bg-[#262626]/80 backdrop-blur-sm text-[10px] uppercase px-2 py-1 rounded font-medium">
-                  {tile.category}
-                </div>
-                <div className="w-full h-full flex items-center justify-center p-4 text-sm text-center">
-                  {tile.imageUrl}
-                </div>
-              </div>
+                category={tile.category}
+                index={idx}
+              />
             ))}
           </div>
         </SheetContent>

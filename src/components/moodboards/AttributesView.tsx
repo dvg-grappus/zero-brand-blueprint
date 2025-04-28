@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +7,10 @@ import {
   useSensor, 
   useSensors, 
   PointerSensor,
-  DragEndEvent
+  DragEndEvent,
+  DraggableAttributes,
+  useDraggable,
+  useDroppable
 } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { 
@@ -32,24 +34,39 @@ import { TalkToAIButton } from './FloatingAIPanel';
 interface KeywordItemProps {
   keyword: Keyword;
   onRemove: (id: string) => void;
-  onDropToCategory?: (keywordId: string, targetCategory: KeywordCategory) => void;
 }
 
 const KeywordItem: React.FC<KeywordItemProps> = ({ keyword, onRemove }) => {
   const [showDelete, setShowDelete] = useState(false);
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: keyword.id,
+    data: {
+      keyword,
+    },
+  });
+  
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    zIndex: isDragging ? 1000 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  } : undefined;
   
   return (
     <motion.div
-      className="group flex items-center gap-1 p-1.5 px-3 rounded-full bg-[#303030] hover:bg-opacity-80 cursor-grab active:cursor-grabbing select-none"
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="group flex items-center gap-1 p-2.5 px-3 mb-2 rounded-md bg-[#303030] hover:bg-opacity-80 cursor-grab active:cursor-grabbing select-none w-full"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.02 }}
       onClick={() => setShowDelete(!showDelete)}
     >
-      <span className="text-xs uppercase">{keyword.text}</span>
+      <span className="text-xs uppercase font-medium">{keyword.text}</span>
       {showDelete && (
         <button 
-          className="ml-1 h-4 w-4 rounded-full flex items-center justify-center hover:bg-red-500/20"
+          className="ml-auto h-5 w-5 rounded-full flex items-center justify-center hover:bg-red-500/20"
           onClick={(e) => {
             e.stopPropagation();
             onRemove(keyword.id);
@@ -75,13 +92,20 @@ const KeywordColumn: React.FC<KeywordColumnProps> = ({
   onRemoveKeyword,
   onDropKeyword
 }) => {
+  const { setNodeRef } = useDroppable({
+    id: title,
+    data: {
+      category: title,
+    },
+  });
+  
   return (
     <div 
+      ref={setNodeRef}
       className="flex-shrink-0 w-[200px] min-w-[200px] overflow-hidden flex flex-col"
-      data-category={title}
     >
-      <h3 className="text-base font-bold mb-3">{title}</h3>
-      <div className="flex flex-wrap gap-2 content-start">
+      <h3 className="text-base font-bold mb-3 px-1">{title}</h3>
+      <div className="flex flex-col bg-[#222222] rounded-md p-2 min-h-[300px]">
         {keywords.map(keyword => (
           <KeywordItem 
             key={keyword.id} 
@@ -136,7 +160,6 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
   };
   
   const handleAddKeyword = () => {
-    // Check if the keyword already exists in any category
     const isDuplicate = Object.values(keywords).flat().some(
       k => k.text.toLowerCase() === newKeyword.toLowerCase()
     );
@@ -167,7 +190,6 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="min-h-[calc(100vh-88px)] flex flex-col p-8">
-        {/* Header */}
         <div className="flex justify-between items-start mb-12 px-10">
           <motion.h1 
             className="text-[32px] font-bold text-foreground"
@@ -200,12 +222,11 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
           </div>
         </div>
         
-        {/* Scrollable columns area */}
         <div
           ref={scrollContainerRef}
           className="flex-1 overflow-x-auto py-4 pl-10 pr-10 mb-6"
         >
-          <div className="flex gap-8 min-w-max">
+          <div className="flex gap-6 min-w-max">
             {(Object.keys(keywords) as KeywordCategory[]).map(category => (
               <KeywordColumn 
                 key={category}
@@ -218,7 +239,6 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
           </div>
         </div>
         
-        {/* Progress button */}
         <div className="flex justify-end pr-10">
           <Button 
             onClick={handleNavigateToDirections}
@@ -228,7 +248,6 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
           </Button>
         </div>
         
-        {/* Add keyword dialog */}
         <Dialog open={isAddKeywordOpen} onOpenChange={setIsAddKeywordOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
