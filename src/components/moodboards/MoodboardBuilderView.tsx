@@ -30,6 +30,7 @@ const MasonryTile: React.FC<MasonryTileProps> = ({ tile, onSwap, onDelete, onOpe
   
   const getRealImageUrl = (): string => {
     const getRandomImage = (category: string): string => {
+      // Make sure we have valid image maps here with fallbacks
       const imageMap: Record<string, string[]> = {
         'BACKGROUND STYLE': [
           'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
@@ -89,9 +90,17 @@ const MasonryTile: React.FC<MasonryTileProps> = ({ tile, onSwap, onDelete, onOpe
         ]
       };
 
-      const images = imageMap[category] || ['https://source.unsplash.com/random/300x300/?tech'];
+      // Default images as fallback
+      const defaultImages = [
+        'https://images.unsplash.com/photo-1518770660439-4636190af475',
+        'https://images.unsplash.com/photo-1494891848038-7bd202a2afeb',
+        'https://images.unsplash.com/photo-1518791841217-8f162f1e1131'
+      ];
+
+      const images = imageMap[category] || defaultImages;
       const randomIndex = Math.floor(Math.random() * images.length);
       const baseUrl = images[randomIndex];
+      
       // Add a unique identifier to prevent caching issues and ensure different images load
       return `${baseUrl}?q=80&w=${width}&h=${height}&auto=format&fit=crop&unique=${tile.id}-${Math.random().toString(36).substring(7)}`;
     };

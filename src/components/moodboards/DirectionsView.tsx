@@ -173,8 +173,10 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
                 ]
               ];
               
-              // Get the correct direction images
-              const dirImages = imageUrls[parseInt(id.replace('dir', '')) % imageUrls.length];
+              // Get the correct direction images - with better error handling
+              const dirIndex = parseInt(id.replace('dir', '')) % imageUrls.length;
+              // Safely access images or use fallbacks
+              const dirImages = imageUrls[dirIndex] || imageUrls[0];
               const imageUrl = dirImages[idx % dirImages.length];
               
               return (
