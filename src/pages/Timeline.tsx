@@ -46,6 +46,7 @@ const Timeline: React.FC = () => {
     const fromMarket = location.state && location.state.fromMarket;
     const fromPersonality = location.state && location.state.fromPersonality;
     const fromMoodboards = location.state && location.state.fromMoodboards;
+    const fromStylescapes = location.state && location.state.fromStylescapes;
     
     if (fromPositioning) {
       setCompletedSteps(prev => {
@@ -107,7 +108,17 @@ const Timeline: React.FC = () => {
       setCurrentStep(7);
     }
     
-    if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket && !fromPersonality && !fromMoodboards) {
+    if (fromStylescapes) {
+      setCompletedSteps(prev => {
+        if (!prev.includes(7)) {
+          return [...prev, 7];
+        }
+        return prev;
+      });
+      setCurrentStep(8);
+    }
+    
+    if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket && !fromPersonality && !fromMoodboards && !fromStylescapes) {
       setCurrentStep(1);
     }
   }, [location, completedSteps.length]);
@@ -154,6 +165,8 @@ const Timeline: React.FC = () => {
       navigate("/step/4/archetype");
     } else if (stepId === 6) {
       navigate("/step/5/attributes");
+    } else if (stepId === 7) {
+      navigate("/step/6");
     }
   };
   

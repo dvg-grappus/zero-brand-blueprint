@@ -104,8 +104,8 @@ interface MasonryTileProps {
   onSwap: () => void;
   onDelete: () => void;
   onOpenAI: () => void;
-  boardIndex: number; // Add board index to ensure unique images per board
-  tileIndex: number;  // Add tile index to ensure unique images
+  boardIndex: number;
+  tileIndex: number;
 }
 
 const MasonryTile: React.FC<MasonryTileProps> = ({ 
@@ -255,6 +255,29 @@ const MoodboardBuilderView: React.FC<MoodboardBuilderViewProps> = ({ onOpenAI })
     return parseInt(moodboardId.replace(/\D/g, '')) || 0;
   };
   
+  // Enhanced title formatting to ensure we don't show "Direction X" directly
+  const formatMoodboardTitle = (title: string): string => {
+    // If the title starts with "Direction " followed by a number, replace it with something better
+    if (/^Direction \d+$/.test(title)) {
+      const directionNames = [
+        "Digital Horizon", 
+        "Refined Elegance",
+        "Future Forward",
+        "Bold Frontiers",
+        "Cosmic Vision",
+        "Pristine Clarity",
+        "Living Innovation",
+        "Vibrant Impact"
+      ];
+      
+      // Extract the direction number and map to a name
+      const dirNum = parseInt(title.replace("Direction ", "")) || 0;
+      return directionNames[(dirNum - 1) % directionNames.length];
+    }
+    
+    return title;
+  };
+  
   return (
     <div className="min-h-[calc(100vh-88px)] flex flex-col p-8">
       <div className="flex justify-between items-center mb-8 px-10">
@@ -270,7 +293,7 @@ const MoodboardBuilderView: React.FC<MoodboardBuilderViewProps> = ({ onOpenAI })
                 value={board.id}
                 className="px-5 data-[state=active]:bg-cyan data-[state=active]:text-black"
               >
-                {board.direction.title}
+                {formatMoodboardTitle(board.direction.title)}
               </TabsTrigger>
             ))}
           </TabsList>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, ChevronLeft } from 'lucide-react';
@@ -13,7 +12,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-// Create a large repository of unique images
 const imageRepository = {
   'BACKGROUND STYLE': [
     'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
@@ -109,17 +107,14 @@ const MoodboardPreviewTile: React.FC<{ category: string, tileIndex: number, boar
   tileIndex,
   boardIndex 
 }) => {
-  // Use the boardIndex to ensure different boards get different images
   const getImageUrl = (): string => {
     const images = imageRepository[category as keyof typeof imageRepository] || [
       'https://source.unsplash.com/random/110x70/?tech'
     ];
     
-    // Get a deterministic but different image for each board and tile
     const imageIndex = (boardIndex + tileIndex) % images.length;
     const baseUrl = images[imageIndex];
     
-    // Add unique parameter to prevent caching
     return `${baseUrl}?q=80&w=110&h=70&auto=format&fit=crop&unique=board${boardIndex}-tile${tileIndex}`;
   };
   
@@ -146,8 +141,26 @@ const MoodboardPreview: React.FC<MoodboardPreviewProps> = ({
   onMagnify,
   onOpenAI
 }) => {
-  // Extract board index from ID for image variety
   const boardIndex = parseInt(id.replace(/\D/g, '')) || 0;
+  
+  const formatTitle = (title: string): string => {
+    if (/^Direction \d+$/.test(title)) {
+      const directionNames = [
+        "Digital Horizon", 
+        "Refined Elegance",
+        "Future Forward",
+        "Bold Frontiers",
+        "Cosmic Vision",
+        "Pristine Clarity",
+        "Living Innovation",
+        "Vibrant Impact"
+      ];
+      
+      const dirNum = parseInt(title.replace("Direction ", "")) || 0;
+      return directionNames[(dirNum - 1) % directionNames.length];
+    }
+    return title;
+  };
   
   return (
     <div className="flex flex-col items-center">
@@ -156,7 +169,7 @@ const MoodboardPreview: React.FC<MoodboardPreviewProps> = ({
         id={id}
         className="mb-3 h-6 w-6 data-[state=checked]:bg-cyan data-[state=checked]:text-black"
       />
-      <h3 className="font-medium mb-5">{title}</h3>
+      <h3 className="font-medium mb-5">{formatTitle(title)}</h3>
       
       <div 
         className="w-[340px] h-[510px] overflow-hidden bg-muted/30 border border-border/20 rounded-lg relative group cursor-pointer"
@@ -206,11 +219,9 @@ const ZoomedImage: React.FC<ZoomedImageProps> = ({ category, index, boardIndex }
       'https://source.unsplash.com/random/300x300/?tech'
     ];
     
-    // Use a combination of board index and tile index to get a unique image
     const imageIndex = (boardIndex * 10 + index) % images.length;
     const baseUrl = images[imageIndex];
     
-    // Add unique parameters to prevent caching
     return `${baseUrl}?q=80&w=300&h=300&auto=format&fit=crop&unique=zoom-board${boardIndex}-tile${index}`;
   };
 
@@ -261,6 +272,25 @@ const CompareView: React.FC<CompareViewProps> = ({ onOpenAI }) => {
   const zoomedBoard = moodboards.find(board => board.id === zoomedMoodboard);
   const zoomedBoardIndex = zoomedMoodboard ? 
     parseInt(zoomedMoodboard.replace(/\D/g, '')) || 0 : 0;
+  
+  const formatTitle = (title: string): string => {
+    if (/^Direction \d+$/.test(title)) {
+      const directionNames = [
+        "Digital Horizon", 
+        "Refined Elegance",
+        "Future Forward",
+        "Bold Frontiers",
+        "Cosmic Vision",
+        "Pristine Clarity",
+        "Living Innovation",
+        "Vibrant Impact"
+      ];
+      
+      const dirNum = parseInt(title.replace("Direction ", "")) || 0;
+      return directionNames[(dirNum - 1) % directionNames.length];
+    }
+    return title;
+  };
   
   return (
     <div className="min-h-[calc(100vh-88px)] flex flex-col p-8">
@@ -315,7 +345,7 @@ const CompareView: React.FC<CompareViewProps> = ({ onOpenAI }) => {
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <SheetTitle className="text-xl font-bold">
-              {zoomedBoard?.direction.title}
+              {zoomedBoard ? formatTitle(zoomedBoard.direction.title) : ''}
             </SheetTitle>
             <div className="w-8" />
           </SheetHeader>

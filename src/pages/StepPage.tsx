@@ -7,6 +7,7 @@ import CompetitionPage from "@/pages/CompetitionPage";
 import MarketPage from "@/pages/MarketPage";
 import PersonalityPage from "@/pages/PersonalityPage";
 import MoodboardsPage from "@/pages/MoodboardsPage";
+import StylescapesPage from "@/pages/StylescapesPage";
 
 interface Props {}
 
@@ -29,6 +30,8 @@ const StepPage: React.FC<Props> = () => {
         return <PersonalityPage />;
       case "5":
         return <MoodboardsPage />;
+      case "6":
+        return <StylescapesPage />;
       default:
         return <Navigate to="/not-found" replace />;
     }
