@@ -11,7 +11,8 @@ import StepPage from "./pages/StepPage";
 import AudiencePage from "./pages/AudiencePage";
 import CompetitionPage from "./pages/CompetitionPage";
 import MarketPage from "./pages/MarketPage";
-import PersonalityPage from "./pages/PersonalityPage"; // Added this import
+import PersonalityPage from "./pages/PersonalityPage";
+import MoodboardsPage from "./pages/MoodboardsPage"; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -33,7 +34,7 @@ const App = () => (
             <Route path="/step/1/:substep" element={<StepPage />} />
             
             {/* Audience module routes */}
-            <Route path="/step/2" element={<Navigate to="/step/2/cohort-canvas" replace />} /> {/* Add redirect for base audience path */}
+            <Route path="/step/2" element={<Navigate to="/step/2/cohort-canvas" replace />} /> 
             <Route path="/step/2/:substep" element={<AudiencePage />} />
             <Route path="/step/2/persona/:personaId" element={<AudiencePage />} />
             
@@ -50,6 +51,12 @@ const App = () => (
             <Route path="/step/4/sliders" element={<PersonalityPage />} />
             <Route path="/step/4/x-meets-y" element={<PersonalityPage />} />
             <Route path="/step/4/dichotomy" element={<PersonalityPage />} />
+            
+            {/* Moodboards module routes */}
+            <Route path="/step/5/attributes" element={<MoodboardsPage />} />
+            <Route path="/step/5/directions" element={<MoodboardsPage />} />
+            <Route path="/step/5/moodboards" element={<MoodboardsPage />} />
+            <Route path="/step/5/compare" element={<MoodboardsPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

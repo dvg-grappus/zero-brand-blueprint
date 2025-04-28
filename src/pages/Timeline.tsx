@@ -46,6 +46,8 @@ const Timeline: React.FC = () => {
     const fromAudience = location.state && location.state.fromAudience;
     const fromCompetition = location.state && location.state.fromCompetition;
     const fromMarket = location.state && location.state.fromMarket;
+    const fromPersonality = location.state && location.state.fromPersonality;
+    const fromMoodboards = location.state && location.state.fromMoodboards;
     
     // Mark steps as completed based on navigation state
     if (fromPositioning) {
@@ -100,9 +102,35 @@ const Timeline: React.FC = () => {
       setCurrentStep(5);
     }
     
+    if (fromPersonality) {
+      // Mark personality (step 5) as completed
+      setCompletedSteps(prev => {
+        if (!prev.includes(5)) {
+          return [...prev, 5];
+        }
+        return prev;
+      });
+      
+      // Set current step to Moodboards (step 6)
+      setCurrentStep(6);
+    }
+    
+    if (fromMoodboards) {
+      // Mark moodboards (step 6) as completed
+      setCompletedSteps(prev => {
+        if (!prev.includes(6)) {
+          return [...prev, 6];
+        }
+        return prev;
+      });
+      
+      // Set current step to Stylescapes (step 7)
+      setCurrentStep(7);
+    }
+    
     // If not coming from any completion, set first step as current
     // Only when there are no completed steps yet
-    if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket) {
+    if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket && !fromPersonality && !fromMoodboards) {
       setCurrentStep(1);
     }
   }, [location, completedSteps.length]);
@@ -148,6 +176,8 @@ const Timeline: React.FC = () => {
       navigate("/step/4"); // Market module route
     } else if (stepId === 5) {
       navigate("/step/4/archetype"); // Personality module route - first sub-page
+    } else if (stepId === 6) {
+      navigate("/step/5/attributes"); // Moodboards module route - first sub-page
     }
     // Add other module routes as they're implemented
   };
