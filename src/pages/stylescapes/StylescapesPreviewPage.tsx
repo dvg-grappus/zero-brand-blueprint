@@ -47,6 +47,8 @@ const StylescapesPreviewPage: React.FC = () => {
     }
   };
 
+  console.log("StylescapesPreviewPage rendering with rows:", rows);
+  
   return (
     <div className="min-h-screen bg-[#1B1B1B] text-white">
       <TimelineTopBar currentStep={7} completedSteps={[1, 2, 3, 4, 5, 6]} />
@@ -69,9 +71,8 @@ const StylescapesPreviewPage: React.FC = () => {
           className="space-y-12"
         >
           {rows.map(row => {
-            // In a real implementation, this would be a single stitched image
-            // Here we're simulating it by showing the first image from each row
-            const previewImageUrl = row.panels[0].img;
+            // Use the panel that represents this row in the preview
+            const previewPanel = row.panels[0];
             
             return (
               <div key={row.id} className="flex items-start gap-4">
@@ -104,7 +105,7 @@ const StylescapesPreviewPage: React.FC = () => {
                     onClick={() => openLightbox(row.id)}
                   >
                     <img 
-                      src={previewImageUrl} 
+                      src={previewPanel.img} 
                       alt={`${row.theme} stylescape`}
                       className="w-full h-full object-cover"
                     />
@@ -166,16 +167,21 @@ const StylescapesPreviewPage: React.FC = () => {
               className="w-full max-w-[90vw] overflow-x-auto scrollbar-none"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* In a real implementation, this would be a single 9600×1080px stitched image */}
-              {/* Here we're simulating it by showing the images side by side */}
+              {/* Display all panels in a row for the lightbox view */}
               <div className="flex">
                 {rows.find(r => r.id === activeLightboxRow)?.panels.map((panel) => (
-                  <img 
-                    key={panel.id}
-                    src={panel.img}
-                    alt={panel.role}
-                    className="h-[80vh] max-h-[720px] object-cover"
-                  />
+                  <div key={panel.id} className="relative flex-shrink-0">
+                    <img 
+                      src={panel.img}
+                      alt={panel.role}
+                      className="h-[80vh] max-h-[720px] object-cover"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <Badge className="uppercase text-xs bg-[#303030] text-white py-1.5 px-4 rounded-full">
+                        {panel.role}
+                      </Badge>
+                    </div>
+                  </div>
                 ))}
               </div>
               
