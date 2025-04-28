@@ -14,7 +14,7 @@ interface Props {}
 const StepPage: React.FC<Props> = () => {
   const { stepId } = useParams<{ stepId: string }>();
   
-  // Add console logging to help debug the 404 issue
+  // Add console logging to help debug routing issues
   console.log("StepPage rendered with stepId:", stepId);
 
   if (!stepId) {
@@ -37,7 +37,8 @@ const StepPage: React.FC<Props> = () => {
       case "5":
         return <MoodboardsPage />;
       case "6":
-        return <StylescapesPage />; // Explicitly handle step 6
+        console.log("Rendering StylescapesPage for step 6");
+        return <StylescapesPage />;
       default:
         console.error(`No matching step found for stepId: ${stepId}`);
         return <Navigate to="/not-found" replace />;
@@ -47,6 +48,7 @@ const StepPage: React.FC<Props> = () => {
   return (
     <Routes>
       <Route path="/" element={renderStepContent()} />
+      
       {/* Add routes for step 5 */}
       <Route path="attributes" element={<MoodboardsPage />} />
       <Route path="directions" element={<MoodboardsPage />} />
@@ -54,9 +56,8 @@ const StepPage: React.FC<Props> = () => {
       <Route path="compare" element={<MoodboardsPage />} />
       
       {/* Add specific routes for step 6 */}
-      <Route path="canvas" element={<StylescapesPage />} />
+      <Route path="craft" element={<StylescapesPage />} />
       <Route path="preview" element={<StylescapesPage />} />
-      <Route path="export" element={<StylescapesPage />} />
       
       <Route path="*" element={renderStepContent()} />
     </Routes>

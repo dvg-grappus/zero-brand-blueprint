@@ -14,6 +14,8 @@ import MarketPage from "./pages/MarketPage";
 import PersonalityPage from "./pages/PersonalityPage";
 import MoodboardsPage from "./pages/MoodboardsPage"; 
 import StylescapesPage from "./pages/StylescapesPage";
+import StylescapesCraftPage from "./pages/stylescapes/StylescapesCraftPage";
+import StylescapesPreviewPage from "./pages/stylescapes/StylescapesPreviewPage";
 
 const queryClient = new QueryClient();
 
@@ -60,8 +62,12 @@ const App = () => (
             <Route path="/step/5/compare" element={<MoodboardsPage />} />
             
             {/* Stylescapes module routes - ensure proper handling for step 6 */}
-            <Route path="/step/6" element={<StepPage />} />
+            <Route path="/step/6" element={<Navigate to="/step/6/craft" replace />} />
             <Route path="/step/6/:substep" element={<StepPage />} />
+            
+            {/* Direct routes to the Stylescapes pages for better debugging */}
+            <Route path="/step/6/craft" element={<StylescapesCraftPage />} />
+            <Route path="/step/6/preview" element={<StylescapesPreviewPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,0 +1,193 @@
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Search, MessageCircle } from 'lucide-react';
+import { useStylescapes } from '@/contexts/StylescapesContext';
+import TimelineTopBar from '@/components/TimelineTopBar';
+import FloatingAIPanel from '@/components/moodboards/FloatingAIPanel';
+import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
+
+const StylescapesPreviewPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { 
+    rows, 
+    winner, 
+    setWinner,
+    onAIApply,
+    onWinnerChoose,
+    onModuleComplete
+  } = useStylescapes();
+  
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeLightboxRow, setActiveLightboxRow] = useState<string | null>(null);
+  
+  const handleTalkToAI = (rowId: string) => {
+    const row = rows.find(r => r.id === rowId);
+    if (row) {
+      setAiContext(`Final board: ${row.theme}`);
+      setShowAIPanel(true);
+    }
+  };
+  
+  const openLightbox = (rowId: string) => {
+    setActiveLightboxRow(rowId);
+    setLightboxOpen(true);
+  };
+  
+  const handleSelectWinner = () => {
+    if (winner) {
+      onWinnerChoose(winner);
+      onModuleComplete('stylescapes', winner);
+      navigate("/timeline", { state: { fromStylescapes: true } });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#1B1B1B] text-white">
+      <TimelineTopBar currentStep={7} completedSteps={[1, 2, 3, 4, 5, 6]} />
+      
+      <div className="pt-[88px] px-[120px] pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h1 className="text-3xl font-bold mb-2">Pick the vision.</h1>
+          <p className="text-lg text-[#9A9A9A] mb-10">
+            Review final stitched boards; choose one to lead visual design.
+          </p>
+        </motion.div>
+        
+        <RadioGroup 
+          value={winner || ""} 
+          onValueChange={setWinner} 
+          className="space-y-12"
+        >
+          {rows.map(row => {
+            // In a real implementation, this would be a single stitched image
+            // Here we're simulating it by showing the first image from each row
+            const previewImageUrl = row.panels[0].img;
+            
+            return (
+              <div key={row.id} className="flex items-start gap-4">
+                <RadioGroupItem 
+                  value={row.id} 
+                  id={row.id}
+                  className="mt-16 scale-150"
+                />
+                
+                <div className="flex-1">
+                  <div className="mb-2 flex justify-between">
+                    <h3 className="text-lg font-medium">
+                      {row.theme} <span>{row.themeEmoji}</span>
+                    </h3>
+                    
+                    <button
+                      className="text-[#9A9A9A] hover:text-[#7DF9FF]"
+                      onClick={() => handleTalkToAI(row.id)}
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+                  
+                  <div 
+                    className={cn(
+                      "relative w-full h-[140px] overflow-hidden rounded-md cursor-pointer",
+                      "group border border-[#444] hover:border-[#7DF9FF]",
+                      winner === row.id ? "border-[#7DF9FF] ring-1 ring-[#7DF9FF]" : ""
+                    )}
+                    onClick={() => openLightbox(row.id)}
+                  >
+                    <img 
+                      src={previewImageUrl} 
+                      alt={`${row.theme} stylescape`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Search className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </RadioGroup>
+        
+        {/* Footer navigation */}
+        <div className="flex justify-end mt-12">
+          <Button
+            onClick={handleSelectWinner}
+            disabled={!winner}
+            className="bg-[#7DF9FF] text-black hover:bg-[#7DF9FF]/90 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Select winner →
+          </Button>
+        </div>
+      </div>
+      
+      {/* Floating AI Panel */}
+      <FloatingAIPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        context={aiContext || "Stylescape Assistant"}
+        suggestedPrompts={["Balance warm/cool", "Introduce human faces", "Mute saturation"]}
+        onSuggestionSelect={(suggestion) => {
+          console.log(`AI suggestion selected: ${suggestion}`);
+          onAIApply(aiContext);
+        }}
+      />
+      
+      {/* Full-screen lightbox */}
+      <AnimatePresence>
+        {lightboxOpen && activeLightboxRow && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              className="absolute top-4 right-4 p-2 rounded-full bg-[#262626]/80 backdrop-blur-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxOpen(false);
+              }}
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            
+            <div 
+              className="w-full max-w-[90vw] overflow-x-auto scrollbar-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* In a real implementation, this would be a single 9600×1080px stitched image */}
+              {/* Here we're simulating it by showing the images side by side */}
+              <div className="flex">
+                {rows.find(r => r.id === activeLightboxRow)?.panels.map((panel) => (
+                  <img 
+                    key={panel.id}
+                    src={panel.img}
+                    alt={panel.role}
+                    className="h-[80vh] max-h-[720px] object-cover"
+                  />
+                ))}
+              </div>
+              
+              <div className="text-center text-sm text-[#9A9A9A] mt-4">
+                Shift + Mouse wheel to pan horizontally
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default StylescapesPreviewPage;

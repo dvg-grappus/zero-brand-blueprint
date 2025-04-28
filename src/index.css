@@ -97,6 +97,15 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+  
+  /* Stylescape panel feather blend */
+  .panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #1B1B1B 0, transparent 40px, transparent calc(100% - 40px), #1B1B1B 100%);
+    pointer-events: none;
+  }
 }
 
 @keyframes ripple {
@@ -143,5 +152,15 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

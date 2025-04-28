@@ -1,36 +1,33 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import TimelineTopBar from '@/components/TimelineTopBar';
-import { Button } from '@/components/ui/button';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import StylescapesCraftPage from './stylescapes/StylescapesCraftPage';
+import StylescapesPreviewPage from './stylescapes/StylescapesPreviewPage';
+import StylescapesProvider from '@/providers/StylescapesProvider';
 
 const StylescapesPage: React.FC = () => {
-  const navigate = useNavigate();
-
+  const params = useParams();
+  console.log("StylescapesPage rendered with substep:", params.substep);
+  
+  const renderStylescapeContent = () => {
+    switch (params.substep) {
+      case "craft":
+        return <StylescapesCraftPage />;
+      case "preview":
+        return <StylescapesPreviewPage />;
+      default:
+        // Default to craft page if no substep specified
+        return <Navigate to="/step/6/craft" replace />;
+    }
+  };
+  
   return (
-    <div className="min-h-screen bg-[#1B1B1B] text-foreground">
-      <TimelineTopBar currentStep={6} completedSteps={[1, 2, 3, 4, 5]} />
-      
-      <div className="pt-[88px] min-h-[calc(100vh-88px)] flex flex-col items-center justify-center p-8">
-        <h1 className="text-4xl font-bold mb-8">Stylescape Builder</h1>
-        <p className="text-xl mb-12 max-w-2xl text-center">
-          Build your stylescapes by combining elements from your selected moodboard.
-        </p>
-        
-        <div className="w-[800px] h-[500px] bg-muted/30 rounded-lg border border-border/20 flex items-center justify-center mb-8">
-          <p className="text-muted-foreground text-center">
-            Coming soon! Stylescape builder functionality will be available in the next update.
-          </p>
-        </div>
-        
-        <Button 
-          onClick={() => navigate('/timeline')}
-          className="bg-cyan text-black hover:bg-cyan/90"
-        >
-          Back to Timeline
-        </Button>
-      </div>
-    </div>
+    <StylescapesProvider>
+      <Routes>
+        <Route path="/" element={renderStylescapeContent()} />
+        <Route path="*" element={<Navigate to="/step/6/craft" replace />} />
+      </Routes>
+    </StylescapesProvider>
   );
 };
 

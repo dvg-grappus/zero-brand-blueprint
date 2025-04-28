@@ -73,7 +73,8 @@ const StepCard: React.FC<StepCardProps> = ({
       } else if (id === 5) {
         navigate(`/step/4/archetype`);
       } else if (id === 7) {
-        navigate(`/step/6`);
+        console.log('Navigating to stylescapes: /step/6/craft');
+        navigate(`/step/6/craft`);
       } else {
         navigate(`/step/${id}`);
       }

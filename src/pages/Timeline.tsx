@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -167,7 +168,8 @@ const Timeline: React.FC = () => {
     } else if (stepId === 5) {
       navigate("/step/4/archetype");
     } else if (stepId === 7) {
-      navigate("/step/6");
+      console.log('Timeline: Navigating to stylescapes /step/6/craft');
+      navigate("/step/6/craft");
     }
   };
 
