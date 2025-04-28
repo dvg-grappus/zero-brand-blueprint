@@ -9,6 +9,7 @@ import FloatingAIPanel from '@/components/moodboards/FloatingAIPanel';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const StylescapesPreviewPage: React.FC = () => {
   const navigate = useNavigate();

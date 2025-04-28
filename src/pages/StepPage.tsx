@@ -9,13 +9,11 @@ import PersonalityPage from "@/pages/PersonalityPage";
 import MoodboardsPage from "@/pages/MoodboardsPage";
 import StylescapesPage from "@/pages/StylescapesPage";
 
-interface Props {}
-
-const StepPage: React.FC<Props> = () => {
-  const { stepId } = useParams<{ stepId: string }>();
+const StepPage: React.FC = () => {
+  const { stepId, substep } = useParams<{ stepId: string; substep: string }>();
   
   // Add console logging to help debug routing issues
-  console.log("StepPage rendered with stepId:", stepId);
+  console.log("StepPage rendered with stepId:", stepId, "and substep:", substep);
 
   if (!stepId) {
     console.error("No stepId found in params, redirecting to Not Found");
@@ -33,7 +31,7 @@ const StepPage: React.FC<Props> = () => {
       case "3":
         return <CompetitionPage />;
       case "4":
-        return <PersonalityPage />;
+        return <MarketPage />;
       case "5":
         return <MoodboardsPage />;
       case "6":

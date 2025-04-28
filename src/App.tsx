@@ -16,6 +16,7 @@ import MoodboardsPage from "./pages/MoodboardsPage";
 import StylescapesPage from "./pages/StylescapesPage";
 import StylescapesCraftPage from "./pages/stylescapes/StylescapesCraftPage";
 import StylescapesPreviewPage from "./pages/stylescapes/StylescapesPreviewPage";
+import PositioningPage from "./pages/PositioningPage";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const App = () => (
             <Route path="/timeline" element={<Timeline />} />
             
             {/* Positioning module routes */}
-            <Route path="/step/1" element={<StepPage />} /> 
+            <Route path="/step/1" element={<PositioningPage />} /> 
             <Route path="/step/all" element={<StepPage />} />
             <Route path="/step/1/:substep" element={<StepPage />} />
             

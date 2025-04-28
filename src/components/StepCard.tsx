@@ -67,7 +67,11 @@ const StepCard: React.FC<StepCardProps> = ({
       console.log(`Navigating from step ${id} button click`);
       
       // Navigation logic for each step
-      if (id === 6) {
+      if (id === 1) {
+        // Direct navigation for positioning
+        console.log('Navigating to positioning: /step/1');
+        navigate('/step/1');
+      } else if (id === 6) {
         console.log('Navigating to moodboards: /step/5/attributes');
         navigate('/step/5/attributes');
       } else if (id === 5) {
