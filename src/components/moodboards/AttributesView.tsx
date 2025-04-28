@@ -2,9 +2,14 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { X, Plus, Move } from 'lucide-react';
-import { useDrag, useDrop, DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { X, Plus } from 'lucide-react';
+import { 
+  DndContext, 
+  useSensor, 
+  useSensors, 
+  PointerSensor,
+  DragEndEvent
+} from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { 
   Dialog, 
@@ -27,28 +32,18 @@ import { TalkToAIButton } from './FloatingAIPanel';
 interface KeywordItemProps {
   keyword: Keyword;
   onRemove: (id: string) => void;
-  onDropToCategory: (keywordId: string, targetCategory: KeywordCategory) => void;
+  onDropToCategory?: (keywordId: string, targetCategory: KeywordCategory) => void;
 }
 
-const KeywordItem: React.FC<KeywordItemProps> = ({ keyword, onRemove, onDropToCategory }) => {
+const KeywordItem: React.FC<KeywordItemProps> = ({ keyword, onRemove }) => {
   const [showDelete, setShowDelete] = useState(false);
-  
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'KEYWORD',
-    item: { id: keyword.id, category: keyword.category },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging()
-    })
-  }));
   
   return (
     <motion.div
-      ref={drag}
       className="group flex items-center gap-1 p-1.5 px-3 rounded-full bg-[#303030] hover:bg-opacity-80 cursor-grab active:cursor-grabbing select-none"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.03 }}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
       onClick={() => setShowDelete(!showDelete)}
     >
       <span className="text-xs uppercase">{keyword.text}</span>
@@ -80,22 +75,10 @@ const KeywordColumn: React.FC<KeywordColumnProps> = ({
   onRemoveKeyword,
   onDropKeyword
 }) => {
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: 'KEYWORD',
-    drop: (item: { id: string, category: KeywordCategory }) => {
-      if (item.category !== title) {
-        onDropKeyword(item.id, title);
-      }
-    },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver()
-    })
-  }));
-  
   return (
     <div 
-      ref={drop}
-      className={`flex-shrink-0 w-[200px] min-w-[200px] overflow-hidden flex flex-col ${isOver ? 'bg-muted/10' : ''}`}
+      className="flex-shrink-0 w-[200px] min-w-[200px] overflow-hidden flex flex-col"
+      data-category={title}
     >
       <h3 className="text-base font-bold mb-3">{title}</h3>
       <div className="flex flex-wrap gap-2 content-start">
@@ -104,7 +87,6 @@ const KeywordColumn: React.FC<KeywordColumnProps> = ({
             key={keyword.id} 
             keyword={keyword} 
             onRemove={onRemoveKeyword}
-            onDropToCategory={onDropKeyword}
           />
         ))}
       </div>
@@ -131,6 +113,27 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
   const [duplicateError, setDuplicateError] = useState(false);
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+  
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const keywordId = active.id as string;
+      const targetCategory = (over.data?.current as any)?.category || over.id as KeywordCategory;
+      
+      if (Object.keys(keywords).includes(targetCategory)) {
+        moveKeyword(keywordId, targetCategory);
+      }
+    }
+  };
   
   const handleAddKeyword = () => {
     // Check if the keyword already exists in any category
@@ -162,7 +165,7 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="min-h-[calc(100vh-88px)] flex flex-col p-8">
         {/* Header */}
         <div className="flex justify-between items-start mb-12 px-10">
@@ -274,7 +277,7 @@ const AttributesView: React.FC<AttributesViewProps> = ({ onOpenAI }) => {
           </DialogContent>
         </Dialog>
       </div>
-    </DndProvider>
+    </DndContext>
   );
 };
 
