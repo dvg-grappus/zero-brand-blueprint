@@ -2,7 +2,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { PersonalityProvider } from '@/providers/PersonalityProvider';
-import AIAssistantPanel from '@/components/personality/AIAssistantPanel';
 import BrandArchetype from '@/components/personality/BrandArchetype';
 import CharacterKeywords from '@/components/personality/CharacterKeywords';
 import PersonalitySliders from '@/components/personality/PersonalitySliders';
@@ -37,13 +36,9 @@ const PersonalityPage: React.FC = () => {
       <div className="min-h-screen bg-[#1B1B1B] text-foreground">
         <TimelineTopBar currentStep={4} completedSteps={[1, 2, 3]} />
         
-        <div className="pt-[88px] flex min-h-[calc(100vh-88px)]">
-          <div className="flex-1 pb-10">
+        <div className="pt-[88px] min-h-[calc(100vh-88px)]">
+          <div className="w-full pb-10">
             {renderContent()}
-          </div>
-          
-          <div className="w-[320px]">
-            <AIAssistantPanel />
           </div>
         </div>
       </div>

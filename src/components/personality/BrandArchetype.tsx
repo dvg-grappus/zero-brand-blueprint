@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
 import PersonalityNavigation from './PersonalityNavigation';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, RefreshCw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 interface ArchetypeWheelProps {
@@ -57,7 +57,8 @@ const ArchetypeWheel: React.FC<ArchetypeWheelProps> = ({ archetypes, onArchetype
     <div className="relative w-[720px] h-[720px]">
       <svg width="720" height="720" viewBox="-360 -360 720 720">
         {/* Wheel background */}
-        <circle cx="0" cy="0" r="360" fill="#262626" stroke="#444" strokeWidth="1" />
+        <circle cx="0" cy="0" r="360" fill="#262626" stroke="#fff" strokeWidth="1" />
+        <circle cx="0" cy="0" r="280" fill="none" stroke="#fff" strokeOpacity="0.3" strokeWidth="1" />
         
         {/* Archetype slices */}
         {archetypes.map((archetype, index) => {
@@ -81,21 +82,47 @@ const ArchetypeWheel: React.FC<ArchetypeWheelProps> = ({ archetypes, onArchetype
           `;
           
           return (
-            <path
-              key={archetype.name}
-              d={path}
-              fill={getSliceFill(archetype.name)}
-              opacity={archetype.selected || blendedArchetypes.some(a => a.name === archetype.name) ? 0.7 : 0.3}
-              stroke="#333"
-              strokeWidth="1"
-              onClick={() => onArchetypeClick(archetype.name)}
-              className="cursor-pointer hover:opacity-60 transition-opacity"
-            />
+            <g key={archetype.name}>
+              <path
+                d={path}
+                fill={getSliceFill(archetype.name)}
+                opacity={archetype.selected || blendedArchetypes.some(a => a.name === name) ? 0.7 : 0.3}
+                stroke="#fff"
+                strokeWidth="1"
+                onClick={() => onArchetypeClick(archetype.name)}
+                className="cursor-pointer hover:opacity-60 transition-opacity"
+              />
+              
+              {/* Percentage tag */}
+              <g transform={`translate(${getPosition(index, radius - 100).x}, ${getPosition(index, radius - 100).y})`}>
+                <rect
+                  x="-24"
+                  y="-12"
+                  width="48"
+                  height="24"
+                  rx="12"
+                  fill="#333"
+                  stroke="#444"
+                  strokeWidth="1"
+                />
+                <text
+                  x="0"
+                  y="5"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="#fff"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  {archetype.match}%
+                </text>
+              </g>
+            </g>
           );
         })}
         
         {/* Center circle with percentage */}
-        <circle cx="0" cy="0" r="80" fill="#262626" stroke="#444" strokeWidth="1" />
+        <circle cx="0" cy="0" r="80" fill="#262626" stroke="#fff" strokeWidth="1" />
         <text x="0" y="0" textAnchor="middle" dominantBaseline="middle" fill="#fff" fontSize="28" fontWeight="bold">
           {centerText()}
         </text>

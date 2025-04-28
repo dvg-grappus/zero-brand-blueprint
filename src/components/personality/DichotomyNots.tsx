@@ -27,10 +27,10 @@ const WordField: React.FC<WordFieldProps> = ({ value, label, onChange }) => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-[240px] h-[56px] px-4 rounded-full flex items-center justify-between bg-[#262626] border border-border/50 hover:border-cyan/40 transition-colors"
+        className="w-[240px] h-[56px] px-4 py-2 rounded-full flex items-center justify-between bg-[#262626] border border-border/50 hover:border-cyan/40 transition-colors overflow-hidden"
       >
-        <span className="text-sm text-muted-foreground mr-2">{label}</span>
-        <span>{value || "Select"}</span>
+        <span className="text-sm text-muted-foreground whitespace-nowrap mr-2">{label}</span>
+        <span className="text-lg whitespace-nowrap truncate">{value || "Select"}</span>
       </button>
       
       {isOpen && (
@@ -108,11 +108,11 @@ const DichotomyNots: React.FC = () => {
           <Button 
             variant="outline"
             size="sm"
-            className="mr-2"
+            className="flex items-center gap-2"
             onClick={handleGenerateCombo}
           >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Generate
+            <RefreshCw className="h-4 w-4" />
+            Generate combinations
           </Button>
         </div>
       </motion.div>

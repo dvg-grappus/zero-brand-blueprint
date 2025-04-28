@@ -1,26 +1,60 @@
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
 import PersonalityNavigation from './PersonalityNavigation';
 import { Button } from '@/components/ui/button';
-import { Shuffle, Save } from 'lucide-react';
+import { X, Shuffle, Check } from 'lucide-react';
 
-interface BrandLogoProps {
-  brand: any;
-  onClick?: () => void;
-}
-
-const BrandLogo: React.FC<BrandLogoProps> = ({ brand, onClick }) => {
+const BrandGrid = ({ brands, onSelectBrand }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="w-[120px] h-[120px] bg-[#262626] rounded-md flex items-center justify-center cursor-pointer border border-border/30 hover:border-cyan/50"
-      onClick={onClick}
+    <div className="grid grid-cols-3 gap-4">
+      {brands.map((brand) => (
+        <button
+          key={brand.name}
+          className="h-[120px] w-[120px] bg-[#262626] rounded-lg flex flex-col items-center justify-center hover:bg-[#333] transition-colors"
+          onClick={() => onSelectBrand(brand)}
+        >
+          <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-xl font-bold">
+            {brand.logo}
+          </div>
+          <span className="mt-2 text-sm font-medium">{brand.name}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const BrandSlot = ({ brand, onChange, slotName }) => {
+  return (
+    <div
+      className={`h-[80px] w-[240px] ${
+        brand ? 'bg-[#262626] border border-cyan' : 'bg-[#333] border border-[#444] hover:border-muted-foreground'
+      } rounded-lg flex items-center justify-center cursor-pointer transition-colors relative`}
+      onClick={() => !brand && onChange(null)}
     >
-      <span className="text-3xl font-bold">{brand.logo}</span>
-    </motion.div>
+      {brand ? (
+        <>
+          <div className="flex flex-col items-center">
+            <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center text-lg font-bold">
+              {brand.logo}
+            </div>
+            <span className="mt-1 text-sm font-medium">{brand.name}</span>
+          </div>
+          <button
+            className="absolute top-2 right-2 h-6 w-6 bg-[#444] rounded-full flex items-center justify-center hover:bg-[#555]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange(null);
+            }}
+          >
+            <X size={12} />
+          </button>
+        </>
+      ) : (
+        <span className="text-muted-foreground text-sm">{slotName}</span>
+      )}
+    </div>
   );
 };
 
@@ -30,16 +64,14 @@ const XMeetsY: React.FC = () => {
     combination, 
     setBrandA, 
     setBrandB, 
+    generateCombinationSummary,
     saveCombination
   } = usePersonality();
   
   const [selectingSlot, setSelectingSlot] = useState<'A' | 'B' | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   
-  const handleSlotClick = (slot: 'A' | 'B') => {
-    setSelectingSlot(slot);
-  };
-  
-  const handleBrandSelect = (brand: any) => {
+  const handleSelectBrand = (brand) => {
     if (selectingSlot === 'A') {
       setBrandA(brand);
     } else if (selectingSlot === 'B') {
@@ -48,154 +80,137 @@ const XMeetsY: React.FC = () => {
     setSelectingSlot(null);
   };
   
-  const handleRandomSelect = () => {
-    const randomA = brands[Math.floor(Math.random() * brands.length)];
-    let randomB = brands[Math.floor(Math.random() * brands.length)];
-    // Make sure we don't pick the same brand twice
-    while (randomB === randomA) {
-      randomB = brands[Math.floor(Math.random() * brands.length)];
-    }
-    
-    setBrandA(randomA);
-    setBrandB(randomB);
+  const handleSlotClick = (slot: 'A' | 'B') => {
+    setSelectingSlot(slot);
   };
   
+  const filteredBrands = searchTerm 
+    ? brands.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+    : brands;
+    
+  const handleShuffleBrands = () => {
+    const randomBrandA = brands[Math.floor(Math.random() * brands.length)];
+    let randomBrandB = brands[Math.floor(Math.random() * brands.length)];
+    
+    // Make sure brands are different
+    while (randomBrandB.name === randomBrandA.name) {
+      randomBrandB = brands[Math.floor(Math.random() * brands.length)];
+    }
+    
+    setBrandA(randomBrandA);
+    setBrandB(randomBrandB);
+  };
+
   return (
     <div className="container mx-auto px-[120px] pt-8 pb-20">
       <PersonalityNavigation type="top" />
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-6"
-      >
-        <h1 className="text-4xl font-bold mb-4">X meets Y formula.</h1>
-        <p className="text-lg text-muted-foreground">
-          Select two brands to create a unique hybrid identity concept.
-        </p>
-      </motion.div>
-      
-      {/* Brand combination banner */}
-      <motion.div 
-        className="w-full bg-[#262626] rounded-xl p-8 mb-8 flex justify-center items-center relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="absolute top-4 right-4"
-          onClick={handleRandomSelect}
-        >
-          <Shuffle className="mr-1 h-4 w-4" />
-          Shuffle
-        </Button>
-        
-        {/* Slot A */}
-        <div 
-          onClick={() => handleSlotClick('A')}
-          className={`
-            w-[140px] h-[60px] rounded-md flex items-center justify-center mx-2
-            ${combination.brandA ? 'bg-transparent border-2 border-cyan' : 'bg-[#333] cursor-pointer hover:bg-[#444]'}
-          `}
-        >
-          {combination.brandA ? (
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold">{combination.brandA.logo}</span>
-              <span className="text-xs mt-1">{combination.brandA.name}</span>
-            </div>
-          ) : (
-            <span className="text-sm text-muted-foreground">Select brand</span>
-          )}
-        </div>
-        
-        <div className="mx-4 text-xl font-semibold">meets</div>
-        
-        {/* Slot B */}
-        <div 
-          onClick={() => handleSlotClick('B')}
-          className={`
-            w-[140px] h-[60px] rounded-md flex items-center justify-center mx-2
-            ${combination.brandB ? 'bg-transparent border-2 border-cyan' : 'bg-[#333] cursor-pointer hover:bg-[#444]'}
-          `}
-        >
-          {combination.brandB ? (
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold">{combination.brandB.logo}</span>
-              <span className="text-xs mt-1">{combination.brandB.name}</span>
-            </div>
-          ) : (
-            <span className="text-sm text-muted-foreground">Select brand</span>
-          )}
-        </div>
-      </motion.div>
-      
-      {/* Generated summary - shown when both brands are selected */}
-      <AnimatePresence>
-        {combination.brandA && combination.brandB && (
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-12">
           <motion.div
-            className="w-[560px] h-[280px] bg-[#262626] rounded-xl p-6 mx-auto mb-10"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.4 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-10"
           >
-            <h3 className="text-xl font-semibold mb-3">
-              What {combination.brandA.name} × {combination.brandB.name} means
-            </h3>
-            
-            <p className="text-sm mb-4 text-muted-foreground">
-              {combination.brandA.name} × {combination.brandB.name} represents a fusion of {combination.brandA.name}'s innovation with {combination.brandB.name}'s approach. This combination creates a brand identity that balances technical excellence with user-friendly design, appealing to customers who value both cutting-edge solutions and seamless experiences.
-            </p>
-            
-            <div className="space-y-2 mb-4">
-              <p className="text-xs text-cyan font-medium">IMPLICATIONS</p>
-              <ul className="text-xs space-y-1 list-inside list-disc">
-                <li>Voice: Adopt {combination.brandA.name}'s clarity with {combination.brandB.name}'s approachability.</li>
-                <li>Visual: Blend {combination.brandA.name}'s minimalism with {combination.brandB.name}'s vibrant aesthetic.</li>
-                <li>Behavior: Balance {combination.brandA.name}'s precision with {combination.brandB.name}'s customer focus.</li>
-              </ul>
+            <div className="flex justify-between items-center">
+              <h1 className="text-4xl font-bold">Mix influential brands.</h1>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={handleShuffleBrands}
+              >
+                <Shuffle size={14} />
+                Shuffle brands
+              </Button>
             </div>
-            
-            <Button 
-              onClick={saveCombination}
-              className="mt-2"
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save combination
-            </Button>
+            <p className="text-lg text-muted-foreground mt-2">
+              Create a unique identity by blending two brand personalities.
+            </p>
           </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Brand grid - grayed out when selecting a brand */}
-      <div className={`${selectingSlot ? 'opacity-100' : 'opacity-100'}`}>
-        {selectingSlot && (
-          <motion.div 
-            className="mb-4 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p className="text-lg">Select a brand for slot {selectingSlot}</p>
-          </motion.div>
-        )}
+        </div>
         
-        <div className="grid grid-cols-6 gap-4">
-          {brands.map((brand, index) => (
+        {/* Brand combination area */}
+        <div className="col-span-12">
+          <div className="flex justify-center items-center mb-8">
+            <BrandSlot 
+              brand={combination.brandA} 
+              onChange={() => handleSlotClick('A')} 
+              slotName="Select Brand A"
+            />
+            
+            <div className="mx-4 text-2xl font-light">meets</div>
+            
+            <BrandSlot 
+              brand={combination.brandB} 
+              onChange={() => handleSlotClick('B')} 
+              slotName="Select Brand B"
+            />
+          </div>
+        </div>
+        
+        {/* Summary card or brand grid */}
+        <div className="col-span-12">
+          {selectingSlot ? (
             <motion.div
-              key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.02 }}
             >
-              <BrandLogo 
-                brand={brand} 
-                onClick={() => selectingSlot ? handleBrandSelect(brand) : null}
-              />
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search brands..."
+                  className="w-full p-3 bg-[#262626] border border-[#444] rounded-lg text-white"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <BrandGrid brands={filteredBrands} onSelectBrand={handleSelectBrand} />
             </motion.div>
-          ))}
+          ) : (
+            combination.brandA && combination.brandB ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-[#262626] p-6 rounded-lg max-w-[560px] mx-auto"
+              >
+                <h3 className="text-xl font-semibold mb-4">What {combination.brandA.name} × {combination.brandB.name} means</h3>
+                
+                <p className="text-muted-foreground mb-6">
+                  {combination.summary || `${combination.brandA.name} × ${combination.brandB.name} represents a fusion of ${combination.brandA.name}'s innovation with ${combination.brandB.name}'s approach. This combination creates a brand identity that balances technological prowess with emotional connection.`}
+                </p>
+                
+                <h4 className="text-sm font-medium mb-2">Implications</h4>
+                <ul className="space-y-2 mb-6">
+                  {combination.implications.length > 0 ? 
+                    combination.implications.map((imp, idx) => (
+                      <li key={idx} className="text-sm text-muted-foreground">{imp}</li>
+                    )) : (
+                      <>
+                        <li className="text-sm text-muted-foreground">Voice: Adopt {combination.brandA.name}'s directness with {combination.brandB.name}'s friendliness.</li>
+                        <li className="text-sm text-muted-foreground">Visual: Blend {combination.brandA.name}'s color palette with {combination.brandB.name}'s typography.</li>
+                        <li className="text-sm text-muted-foreground">Behavior: Balance {combination.brandA.name}'s innovation with {combination.brandB.name}'s reliability.</li>
+                      </>
+                    )
+                  }
+                </ul>
+                
+                <Button 
+                  className="w-full bg-cyan text-black hover:bg-cyan/80"
+                  onClick={saveCombination}
+                >
+                  <Check size={16} className="mr-2" />
+                  Save this combination
+                </Button>
+              </motion.div>
+            ) : (
+              <div className="text-center text-muted-foreground">
+                Select two brands to see how they can blend together
+              </div>
+            )
+          )}
         </div>
       </div>
       
