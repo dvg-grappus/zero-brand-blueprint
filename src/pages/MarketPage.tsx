@@ -19,8 +19,8 @@ import { CheckCircle } from "lucide-react";
 const MarketPage: React.FC = () => {
   const [showInsightPool, setShowInsightPool] = useState(false);
   const [showInsightDigest, setShowInsightDigest] = useState(false);
-  const [openSections, setOpenSections] = useState<number[]>([1]); // Start with the first section open
-  const [completedSections, setCompletedSections] = useState<number[]>([]);
+  const [openSections, setOpenSections] = useState<number[]>([1, 2, 3]); // Start with all sections open
+  const [completedSections, setCompletedSections] = useState<number[]>([1, 2, 3]); // Start with all sections completed
   const navigate = useNavigate();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +44,7 @@ const MarketPage: React.FC = () => {
     );
   };
 
+  // Always mark section as complete
   const completeSection = (sectionNumber: number) => {
     if (!completedSections.includes(sectionNumber)) {
       setCompletedSections(prev => [...prev, sectionNumber]);
@@ -81,7 +82,7 @@ const MarketPage: React.FC = () => {
                 className="mb-6"
               >
                 <Card 
-                  className={`border p-4 ${completedSections.includes(1) ? 'border-cyan' : 'border-border'}`}
+                  className="border p-4 border-cyan"
                 >
                   <Collapsible open={openSections.includes(1)} onOpenChange={() => toggleSection(1)}>
                     <CollapsibleTrigger className="flex items-center justify-between w-full p-2">
@@ -92,11 +93,9 @@ const MarketPage: React.FC = () => {
                         <h2 className="text-lg font-semibold">Statistics Harvest</h2>
                       </div>
                       <div className="flex items-center">
-                        {completedSections.includes(1) && (
-                          <CheckCircle className="w-5 h-5 text-cyan mr-2" />
-                        )}
+                        <CheckCircle className="w-5 h-5 text-cyan mr-2" />
                         <span className="text-xs text-muted-foreground">
-                          0 / 8 accepted
+                          Complete
                         </span>
                       </div>
                     </CollapsibleTrigger>
@@ -115,7 +114,7 @@ const MarketPage: React.FC = () => {
                 className="mb-6"
               >
                 <Card 
-                  className={`border p-4 ${completedSections.includes(2) ? 'border-cyan' : 'border-border'}`}
+                  className="border p-4 border-cyan"
                 >
                   <Collapsible open={openSections.includes(2)} onOpenChange={() => toggleSection(2)}>
                     <CollapsibleTrigger className="flex items-center justify-between w-full p-2">
@@ -126,11 +125,9 @@ const MarketPage: React.FC = () => {
                         <h2 className="text-lg font-semibold">Social Chatter Wall</h2>
                       </div>
                       <div className="flex items-center">
-                        {completedSections.includes(2) && (
-                          <CheckCircle className="w-5 h-5 text-cyan mr-2" />
-                        )}
+                        <CheckCircle className="w-5 h-5 text-cyan mr-2" />
                         <span className="text-xs text-muted-foreground">
-                          0 / 6 saved
+                          Complete
                         </span>
                       </div>
                     </CollapsibleTrigger>
@@ -141,7 +138,7 @@ const MarketPage: React.FC = () => {
                 </Card>
               </motion.div>
 
-              {/* Simple Library Section (previously Deep Dive Library) */}
+              {/* Simple Library Section */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -149,7 +146,7 @@ const MarketPage: React.FC = () => {
                 className="mb-6"
               >
                 <Card 
-                  className={`border p-4 ${completedSections.includes(3) ? 'border-cyan' : 'border-border'}`}
+                  className="border p-4 border-cyan"
                 >
                   <Collapsible open={openSections.includes(3)} onOpenChange={() => toggleSection(3)}>
                     <CollapsibleTrigger className="flex items-center justify-between w-full p-2">
@@ -160,11 +157,9 @@ const MarketPage: React.FC = () => {
                         <h2 className="text-lg font-semibold">Market Library</h2>
                       </div>
                       <div className="flex items-center">
-                        {completedSections.includes(3) && (
-                          <CheckCircle className="w-5 h-5 text-cyan mr-2" />
-                        )}
+                        <CheckCircle className="w-5 h-5 text-cyan mr-2" />
                         <span className="text-xs text-muted-foreground">
-                          0 / 4 saved, 0 / 1 viewed
+                          Complete
                         </span>
                       </div>
                     </CollapsibleTrigger>

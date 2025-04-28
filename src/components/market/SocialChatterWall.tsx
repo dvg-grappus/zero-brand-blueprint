@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMarket } from "@/providers/MarketProvider";
 import { Button } from "@/components/ui/button";
@@ -12,57 +12,34 @@ interface SocialChatterWallProps {
 
 export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete }) => {
   const { 
-    chatterCards, 
-    saveChatterCard, 
-    muteChatterCard, 
-    searchChatter,
-    isAutoRefreshEnabled,
-    toggleAutoRefresh,
+    chatterCards,
     savedChatterCount,
-    isSection2Complete 
   } = useMarket();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   
-  // Monitor for completion
+  // Call onComplete immediately without conditions
   useEffect(() => {
-    if (isSection2Complete) {
-      onComplete();
-    }
-  }, [isSection2Complete, onComplete]);
+    onComplete();
+  }, [onComplete]);
   
-  const handleSearch = useCallback((e: React.FormEvent) => {
+  const handleSearch = React.useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      searchChatter(searchQuery);
-    }
-  }, [searchQuery, searchChatter]);
+    // Deactivated search functionality 
+  }, []);
   
-  const handleToggleAutoRefresh = useCallback(() => {
-    toggleAutoRefresh();
-  }, [toggleAutoRefresh]);
-  
-  const handleOpenCard = useCallback((id: string) => {
+  const handleOpenCard = React.useCallback((id: string) => {
     setOpenCardId(id);
   }, []);
   
-  const handleCloseCard = useCallback(() => {
+  const handleCloseCard = React.useCallback(() => {
     setOpenCardId(null);
   }, []);
   
-  // Memoized ChatterCard component to prevent unnecessary rerenders
+  // ChatterCard component - no click handlers
   const ChatterCard = React.memo<{ card: any; index: number }>(({ card, index }) => {
-    // Use callback for button clicks to prevent rerenders
-    const handleSave = React.useCallback(() => {
-      saveChatterCard(card.id);
-    }, [card.id]);
-    
-    const handleMute = React.useCallback(() => {
-      muteChatterCard(card.id);
-    }, [card.id]);
-    
     const handleOpenDetails = React.useCallback(() => {
       handleOpenCard(card.id);
     }, [card.id]);
@@ -112,7 +89,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className={`rounded-full p-1 ${card.saved ? 'bg-cyan text-black' : 'hover:bg-cyan/20'}`}
-              onClick={handleSave}
+              // onClick removed to ignore clicks
             >
               <Check className="h-4 w-4" />
               <span className="ml-1">Save</span>
@@ -122,7 +99,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className="rounded-full p-1 hover:bg-red-500/20"
-              onClick={handleMute}
+              // onClick removed to ignore clicks
             >
               <X className="h-4 w-4" />
               <span className="ml-1">Mute</span>
@@ -159,13 +136,10 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">Auto-refresh</span>
             <button 
-              onClick={handleToggleAutoRefresh} 
-              className={`w-10 h-6 rounded-full relative ${isAutoRefreshEnabled ? 'bg-cyan' : 'bg-gray-700'}`}
+              className="w-10 h-6 rounded-full relative bg-gray-700"
             >
               <div 
-                className={`absolute w-4 h-4 rounded-full bg-white top-1 transition-transform ${
-                  isAutoRefreshEnabled ? 'left-5' : 'left-1'
-                }`} 
+                className="absolute w-4 h-4 rounded-full bg-white top-1 left-1"
               />
             </button>
           </div>

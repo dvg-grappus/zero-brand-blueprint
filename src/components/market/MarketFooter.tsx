@@ -16,8 +16,6 @@ export const MarketFooter: React.FC<MarketFooterProps> = ({
   onShowInsightDigest,
   onModuleComplete
 }) => {
-  const { isModuleComplete } = useMarket();
-  
   // Calculate progress percentage
   const progressPercentage = (completedSections.length / 3) * 100;
   
@@ -35,14 +33,12 @@ export const MarketFooter: React.FC<MarketFooterProps> = ({
         <Progress 
           value={progressPercentage} 
           className="h-2 w-[200px] bg-background"
-          indicatorClassName="bg-cyan"
         />
       </div>
       
       <Button
         onClick={onShowInsightDigest}
-        disabled={!isModuleComplete}
-        className={isModuleComplete ? "bg-cyan hover:bg-cyan/90 text-black" : ""}
+        className="bg-cyan hover:bg-cyan/90 text-black"
       >
         Publish market insights →
       </Button>

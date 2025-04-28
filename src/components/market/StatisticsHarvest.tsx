@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMarket } from "@/providers/MarketProvider";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,8 @@ interface StatisticsHarvestProps {
 
 export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete }) => {
   const { 
-    stats, 
-    acceptStat, 
-    discardStat, 
-    loadMoreStats, 
-    acceptedStatsCount,
-    isSection1Complete 
+    stats,
+    acceptedStatsCount
   } = useMarket();
   
   const [activeFilters, setActiveFilters] = useState({
@@ -24,30 +20,19 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
     year: '',
     metric: ''
   });
-  
-  // Monitor for completion
+
+  // Call onComplete immediately without conditions
   useEffect(() => {
-    if (isSection1Complete) {
-      onComplete();
-    }
-  }, [isSection1Complete, onComplete]);
+    onComplete();
+  }, [onComplete]);
   
   // Filter options
   const regionOptions = ['Global', 'North America', 'APAC', 'Europe'];
   const yearOptions = ['2022', '2023', '2024'];
   const metricOptions = ['Spend', 'CAGR', 'Adoption', 'ROI', 'Efficiency'];
   
-  // Memoized StatCard component to prevent unnecessary rerenders
+  // StatCard component - no click handlers
   const StatCard = React.memo<{ stat: any, index: number }>(({ stat, index }) => {
-    // Use callback for button clicks to prevent rerenders
-    const handleAccept = React.useCallback(() => {
-      acceptStat(stat.id);
-    }, [stat.id]);
-    
-    const handleDiscard = React.useCallback(() => {
-      discardStat(stat.id);
-    }, [stat.id]);
-    
     return (
       <motion.div
         className={`bg-[#262626] rounded-lg p-5 h-[220px] flex flex-col justify-between border ${stat.accepted ? 'border-cyan' : 'border-transparent'}`}
@@ -72,7 +57,7 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className={`rounded-full p-1 ${stat.accepted ? 'bg-cyan text-black' : 'hover:bg-cyan/20'}`}
-              onClick={handleAccept}
+              // onClick is removed to ignore clicks
             >
               <Check className="h-4 w-4" />
             </Button>
@@ -81,7 +66,7 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className="rounded-full p-1 hover:bg-red-500/20"
-              onClick={handleDiscard}
+              // onClick is removed to ignore clicks
             >
               <X className="h-4 w-4" />
             </Button>
@@ -93,8 +78,8 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
   
   StatCard.displayName = "StatCard";
   
-  const applyFilter = useCallback((type: 'region' | 'year' | 'metric', value: string) => {
-    // Toggle filter - memoized to prevent rerenders
+  const applyFilter = React.useCallback((type: 'region' | 'year' | 'metric', value: string) => {
+    // Toggle filter
     setActiveFilters(prev => {
       const newFilters = { ...prev };
       
@@ -109,17 +94,13 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
     });
   }, []);
   
-  // Filter stats based on activeFilters - memoized calculation
+  // Filter stats based on activeFilters
   const filteredStats = React.useMemo(() => stats.filter(stat => {
     if (activeFilters.region && stat.region !== activeFilters.region) return false;
     if (activeFilters.year && !stat.year?.includes(activeFilters.year)) return false;
     if (activeFilters.metric && !stat.metric?.includes(activeFilters.metric)) return false;
     return true;
   }), [stats, activeFilters]);
-  
-  const handleLoadMore = React.useCallback(() => {
-    loadMoreStats();
-  }, [loadMoreStats]);
 
   return (
     <div className="p-4">
@@ -185,14 +166,6 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
           <div className="col-span-3 text-center py-10 text-muted-foreground">
             No stats match your filters. Try adjusting or clearing filters.
           </div>
-        )}
-      </div>
-      
-      <div className="mt-6">
-        {stats.length < 12 && (
-          <Button variant="outline" size="sm" onClick={handleLoadMore}>
-            Load more stats
-          </Button>
         )}
       </div>
     </div>
