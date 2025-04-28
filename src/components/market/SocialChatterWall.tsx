@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMarket } from "@/providers/MarketProvider";
 import { Button } from "@/components/ui/button";
@@ -33,14 +33,40 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
     }
   }, [isSection2Complete, onComplete]);
   
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       searchChatter(searchQuery);
     }
-  };
+  }, [searchQuery, searchChatter]);
   
-  const ChatterCard: React.FC<{ card: any; index: number }> = ({ card, index }) => {
+  const handleToggleAutoRefresh = useCallback(() => {
+    toggleAutoRefresh();
+  }, [toggleAutoRefresh]);
+  
+  const handleOpenCard = useCallback((id: string) => {
+    setOpenCardId(id);
+  }, []);
+  
+  const handleCloseCard = useCallback(() => {
+    setOpenCardId(null);
+  }, []);
+  
+  // Memoized ChatterCard component to prevent unnecessary rerenders
+  const ChatterCard = React.memo<{ card: any; index: number }>(({ card, index }) => {
+    // Use callback for button clicks to prevent rerenders
+    const handleSave = React.useCallback(() => {
+      saveChatterCard(card.id);
+    }, [card.id]);
+    
+    const handleMute = React.useCallback(() => {
+      muteChatterCard(card.id);
+    }, [card.id]);
+    
+    const handleOpenDetails = React.useCallback(() => {
+      handleOpenCard(card.id);
+    }, [card.id]);
+    
     return (
       <motion.div
         className={`bg-[#262626] rounded-lg p-4 w-full h-[260px] flex flex-col justify-between ${
@@ -66,7 +92,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className="p-0 h-6 w-6"
-              onClick={() => setOpenCardId(card.id)}
+              onClick={handleOpenDetails}
             >
               <ExternalLink className="h-4 w-4" />
             </Button>
@@ -86,7 +112,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className={`rounded-full p-1 ${card.saved ? 'bg-cyan text-black' : 'hover:bg-cyan/20'}`}
-              onClick={() => saveChatterCard(card.id)}
+              onClick={handleSave}
             >
               <Check className="h-4 w-4" />
               <span className="ml-1">Save</span>
@@ -96,7 +122,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className="rounded-full p-1 hover:bg-red-500/20"
-              onClick={() => muteChatterCard(card.id)}
+              onClick={handleMute}
             >
               <X className="h-4 w-4" />
               <span className="ml-1">Mute</span>
@@ -105,7 +131,9 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
         </div>
       </motion.div>
     );
-  };
+  });
+  
+  ChatterCard.displayName = "ChatterCard";
   
   return (
     <div className="p-4">
@@ -131,7 +159,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">Auto-refresh</span>
             <button 
-              onClick={toggleAutoRefresh} 
+              onClick={handleToggleAutoRefresh} 
               className={`w-10 h-6 rounded-full relative ${isAutoRefreshEnabled ? 'bg-cyan' : 'bg-gray-700'}`}
             >
               <div 
@@ -159,7 +187,7 @@ export const SocialChatterWall: React.FC<SocialChatterWallProps> = ({ onComplete
       </div>
       
       {/* Original Content Viewer */}
-      <Sheet open={!!openCardId} onOpenChange={() => setOpenCardId(null)}>
+      <Sheet open={!!openCardId} onOpenChange={handleCloseCard}>
         <SheetContent side="bottom" className="h-[400px]">
           <SheetHeader>
             <SheetTitle>Original Content</SheetTitle>

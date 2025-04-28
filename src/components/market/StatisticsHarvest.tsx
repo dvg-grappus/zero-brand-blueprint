@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useMarket } from "@/providers/MarketProvider";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,17 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
   const yearOptions = ['2022', '2023', '2024'];
   const metricOptions = ['Spend', 'CAGR', 'Adoption', 'ROI', 'Efficiency'];
   
-  const StatCard: React.FC<{ stat: any, index: number }> = ({ stat, index }) => {
+  // Memoized StatCard component to prevent unnecessary rerenders
+  const StatCard = React.memo<{ stat: any, index: number }>(({ stat, index }) => {
+    // Use callback for button clicks to prevent rerenders
+    const handleAccept = React.useCallback(() => {
+      acceptStat(stat.id);
+    }, [stat.id]);
+    
+    const handleDiscard = React.useCallback(() => {
+      discardStat(stat.id);
+    }, [stat.id]);
+    
     return (
       <motion.div
         className={`bg-[#262626] rounded-lg p-5 h-[220px] flex flex-col justify-between border ${stat.accepted ? 'border-cyan' : 'border-transparent'}`}
@@ -62,7 +72,7 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className={`rounded-full p-1 ${stat.accepted ? 'bg-cyan text-black' : 'hover:bg-cyan/20'}`}
-              onClick={() => acceptStat(stat.id)}
+              onClick={handleAccept}
             >
               <Check className="h-4 w-4" />
             </Button>
@@ -71,7 +81,7 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
               variant="ghost" 
               size="sm" 
               className="rounded-full p-1 hover:bg-red-500/20"
-              onClick={() => discardStat(stat.id)}
+              onClick={handleDiscard}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -79,29 +89,37 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
         </div>
       </motion.div>
     );
-  };
+  });
   
-  const applyFilter = (type: 'region' | 'year' | 'metric', value: string) => {
-    // Toggle filter
-    const newFilters = { ...activeFilters };
-    
-    if (newFilters[type] === value) {
-      // If clicking the same filter value, turn it off
-      newFilters[type] = '';
-    } else {
-      newFilters[type] = value;
-    }
-    
-    setActiveFilters(newFilters);
-  };
+  StatCard.displayName = "StatCard";
   
-  // Filter stats based on activeFilters
-  const filteredStats = stats.filter(stat => {
+  const applyFilter = useCallback((type: 'region' | 'year' | 'metric', value: string) => {
+    // Toggle filter - memoized to prevent rerenders
+    setActiveFilters(prev => {
+      const newFilters = { ...prev };
+      
+      if (newFilters[type] === value) {
+        // If clicking the same filter value, turn it off
+        newFilters[type] = '';
+      } else {
+        newFilters[type] = value;
+      }
+      
+      return newFilters;
+    });
+  }, []);
+  
+  // Filter stats based on activeFilters - memoized calculation
+  const filteredStats = React.useMemo(() => stats.filter(stat => {
     if (activeFilters.region && stat.region !== activeFilters.region) return false;
     if (activeFilters.year && !stat.year?.includes(activeFilters.year)) return false;
     if (activeFilters.metric && !stat.metric?.includes(activeFilters.metric)) return false;
     return true;
-  });
+  }), [stats, activeFilters]);
+  
+  const handleLoadMore = React.useCallback(() => {
+    loadMoreStats();
+  }, [loadMoreStats]);
 
   return (
     <div className="p-4">
@@ -172,7 +190,7 @@ export const StatisticsHarvest: React.FC<StatisticsHarvestProps> = ({ onComplete
       
       <div className="mt-6">
         {stats.length < 12 && (
-          <Button variant="outline" size="sm" onClick={loadMoreStats}>
+          <Button variant="outline" size="sm" onClick={handleLoadMore}>
             Load more stats
           </Button>
         )}

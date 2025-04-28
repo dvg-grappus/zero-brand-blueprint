@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 // Define the types for our data
@@ -45,6 +44,7 @@ export interface MarketInsight {
   type: 'stat' | 'social' | 'library' | 'merged';
   starred: boolean;
   column?: 'primary' | 'secondary' | 'market';
+  originalId?: string; // Reference to original item
 }
 
 interface MarketContextProps {
@@ -98,7 +98,7 @@ interface MarketContextProps {
 
 const MarketContext = createContext<MarketContextProps | undefined>(undefined);
 
-// Mock data
+// Mock data for stats, chatter cards, and library items
 const mockStats: Stat[] = [
   {
     id: "stat1",
@@ -557,7 +557,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Chatter state
   const [chatterCards, setChatterCards] = useState<ChatterCard[]>(mockChatterCards);
-  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(true);
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false); // Changed to false by default to stop periodic reloads
 
   // Library state
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>(mockLibraryItems);
@@ -567,20 +567,27 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [marketInsights, setMarketInsights] = useState<MarketInsight[]>([]);
   const [headline, setHeadline] = useState("Market Research Insights");
 
-  // Setup auto-refresh for chatter
+  // Setup auto-refresh for chatter - modified to use reference for stability
   useEffect(() => {
     let refreshInterval: NodeJS.Timeout | null = null;
 
     if (isAutoRefreshEnabled) {
       refreshInterval = setInterval(() => {
-        // Rotate chatter cards to simulate new entries
+        // Instead of rotating cards (which causes a full rerender), just update a single card
         setChatterCards(prev => {
-          const rotated = [...prev];
-          const first = rotated.shift();
-          if (first) rotated.push(first);
-          return rotated;
+          const newCards = [...prev];
+          // Only update if there are cards
+          if (newCards.length > 0) {
+            const randomIndex = Math.floor(Math.random() * newCards.length);
+            // Just update the likes count instead of moving cards around
+            newCards[randomIndex] = {
+              ...newCards[randomIndex],
+              likes: newCards[randomIndex].likes + Math.floor(Math.random() * 10)
+            };
+          }
+          return newCards;
         });
-      }, 15000); // Every 15 seconds
+      }, 30000); // Reduced frequency to 30 seconds
     }
 
     return () => {
@@ -588,37 +595,50 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [isAutoRefreshEnabled]);
 
-  // Stats section functions
+  // Stats section functions - using useCallback to prevent unnecessary rerenders
   const acceptStat = useCallback((id: string) => {
-    setStats(prev => prev.map(stat => 
-      stat.id === id ? { ...stat, accepted: true } : stat
-    ));
+    setStats(prev => {
+      // Check if the stat is already accepted to prevent unnecessary updates
+      const stat = prev.find(s => s.id === id);
+      if (stat && stat.accepted) return prev;
+      
+      return prev.map(stat => 
+        stat.id === id ? { ...stat, accepted: true } : stat
+      );
+    });
     
     // Add to market insights when accepted
     const acceptedStat = stats.find(stat => stat.id === id);
-    if (acceptedStat) {
+    if (acceptedStat && !acceptedStat.accepted) {
       const newInsight: MarketInsight = {
         id: `insight-stat-${acceptedStat.id}`,
         text: `${acceptedStat.value} – ${acceptedStat.description}`,
         source: acceptedStat.source,
         type: 'stat',
         starred: false,
-        column: 'market'
+        column: 'market',
+        originalId: acceptedStat.id
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
+      
+      // Event tracking
+      console.log("onStatAccept", id);
+      toast.success("Stat accepted");
     }
-    
-    // Event tracking
-    console.log("onStatAccept", id);
-    toast.success("Stat accepted");
   }, [stats]);
 
   const discardStat = useCallback((id: string) => {
-    // Don't remove, just mark as not accepted
-    setStats(prev => prev.map(stat => 
-      stat.id === id ? { ...stat, accepted: false } : stat
-    ));
+    // Don't remove, just mark as not accepted - use memoized function
+    setStats(prev => {
+      // Check if the stat is already not accepted to prevent unnecessary updates
+      const stat = prev.find(s => s.id === id);
+      if (stat && !stat.accepted) return prev;
+      
+      return prev.map(stat => 
+        stat.id === id ? { ...stat, accepted: false } : stat
+      );
+    });
   }, []);
 
   const loadMoreStats = useCallback(() => {
@@ -628,43 +648,57 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setFilteredStats(mockStats.slice(0, newCount));
   }, [displayedStatsCount]);
 
-  // Chatter section functions
+  // Chatter section functions - using useCallback for performance
   const saveChatterCard = useCallback((id: string) => {
-    setChatterCards(prev => prev.map(card => 
-      card.id === id ? { ...card, saved: true } : card
-    ));
+    setChatterCards(prev => {
+      // Check if the card is already saved to prevent unnecessary updates
+      const card = prev.find(c => c.id === id);
+      if (card && card.saved) return prev;
+      
+      return prev.map(card => 
+        card.id === id ? { ...card, saved: true } : card
+      );
+    });
     
     // Add to market insights when saved
     const savedCard = chatterCards.find(card => card.id === id);
-    if (savedCard) {
+    if (savedCard && !savedCard.saved) {
       const newInsight: MarketInsight = {
         id: `insight-chatter-${savedCard.id}`,
         text: savedCard.content,
         source: savedCard.source === 'twitter' ? 'Twitter' : savedCard.source === 'linkedin' ? 'LinkedIn' : 'Medium',
         type: 'social',
         starred: false,
-        column: 'market'
+        column: 'market',
+        originalId: savedCard.id
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
+      
+      // Event tracking
+      console.log("onChatterSave", id);
+      toast.success("Social snippet saved");
     }
-    
-    // Event tracking
-    console.log("onChatterSave", id);
-    toast.success("Social snippet saved");
   }, [chatterCards]);
 
   const muteChatterCard = useCallback((id: string) => {
-    setChatterCards(prev => prev.map(card => 
-      card.id === id ? { ...card, muted: true } : card
-    ));
+    setChatterCards(prev => {
+      // Check if the card is already muted to prevent unnecessary updates
+      const card = prev.find(c => c.id === id);
+      if (card && card.muted) return prev;
+      
+      return prev.map(card => 
+        card.id === id ? { ...card, muted: true } : card
+      );
+    });
     
-    // Simulate removing muted cards after delay
+    // Simulate removing muted cards after delay - using setTimeout outside of render
     setTimeout(() => {
       setChatterCards(prev => prev.filter(card => card.id !== id));
     }, 500);
   }, []);
 
+  // Other functions
   const searchChatter = useCallback((query: string) => {
     // Simulate search function - in reality would fetch from API
     toast.info(`Searching for "${query}"`);
@@ -771,21 +805,22 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     toast.success("Headline generated");
   }, [marketInsights]);
   
-  // Validation counters
-  const acceptedStatsCount = stats.filter(s => s.accepted).length;
-  const savedChatterCount = chatterCards.filter(c => c.saved).length;
-  const savedLibraryCount = libraryItems.filter(i => i.saved).length;
-  const viewedGraphCount = libraryItems.filter(i => i.viewed && i.type === 'graph').length;
-  const starredMarketInsightsCount = marketInsights.filter(i => i.starred && i.column === 'market').length;
+  // Validation counters - memoized calculations to prevent unnecessary rerenders
+  const acceptedStatsCount = React.useMemo(() => stats.filter(s => s.accepted).length, [stats]);
+  const savedChatterCount = React.useMemo(() => chatterCards.filter(c => c.saved).length, [chatterCards]);
+  const savedLibraryCount = React.useMemo(() => libraryItems.filter(i => i.saved).length, [libraryItems]);
+  const viewedGraphCount = React.useMemo(() => libraryItems.filter(i => i.viewed && i.type === 'graph').length, [libraryItems]);
+  const starredMarketInsightsCount = React.useMemo(() => marketInsights.filter(i => i.starred && i.column === 'market').length, [marketInsights]);
   
-  // Validation checks
-  const isSection1Complete = acceptedStatsCount >= 8;
-  const isSection2Complete = savedChatterCount >= 6;
-  const isSection3Complete = savedLibraryCount >= 4 && viewedGraphCount >= 1;
-  const isSection4Complete = starredMarketInsightsCount >= 10;
-  const isModuleComplete = isSection1Complete && isSection2Complete && isSection3Complete;
+  // Validation checks - memoized calculations
+  const isSection1Complete = React.useMemo(() => acceptedStatsCount >= 8, [acceptedStatsCount]);
+  const isSection2Complete = React.useMemo(() => savedChatterCount >= 6, [savedChatterCount]);
+  const isSection3Complete = React.useMemo(() => savedLibraryCount >= 4 && viewedGraphCount >= 1, [savedLibraryCount, viewedGraphCount]);
+  const isSection4Complete = React.useMemo(() => starredMarketInsightsCount >= 10, [starredMarketInsightsCount]);
+  const isModuleComplete = React.useMemo(() => isSection1Complete && isSection2Complete && isSection3Complete, [isSection1Complete, isSection2Complete, isSection3Complete]);
   
-  const value = {
+  // Create the context value object with memoization to prevent unnecessary rerenders
+  const value = React.useMemo(() => ({
     // Stats section
     stats,
     acceptStat,
@@ -811,7 +846,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     selectedLibraryItem,
     setSelectedLibraryItem,
     
-    // Synthesis canvas
+    // Market insights
     marketInsights,
     starInsight,
     mergeInsights,
@@ -832,7 +867,14 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     savedLibraryCount,
     viewedGraphCount,
     starredMarketInsightsCount
-  };
+  }), [
+    stats, acceptStat, discardStat, loadMoreStats, filteredStats, filters,
+    chatterCards, saveChatterCard, muteChatterCard, isAutoRefreshEnabled,
+    libraryItems, saveLibraryItem, viewLibraryItem, selectedLibraryItem,
+    marketInsights, headline, 
+    isSection1Complete, isSection2Complete, isSection3Complete, isSection4Complete, isModuleComplete,
+    acceptedStatsCount, savedChatterCount, savedLibraryCount, viewedGraphCount, starredMarketInsightsCount
+  ]);
   
   return (
     <MarketContext.Provider value={value}>
