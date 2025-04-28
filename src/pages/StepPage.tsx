@@ -47,6 +47,15 @@ const StepPage: React.FC = () => {
     <Routes>
       <Route path="/" element={renderStepContent()} />
       
+      {/* Add routes for step 1 and its substeps */}
+      <Route path="brief" element={<PositioningPage />} />
+      <Route path="golden-circle" element={<PositioningPage />} />
+      <Route path="opportunities-challenges" element={<PositioningPage />} />
+      <Route path="values" element={<PositioningPage />} />
+      <Route path="roadmap" element={<PositioningPage />} />
+      <Route path="differentiators" element={<PositioningPage />} />
+      <Route path="statements" element={<PositioningPage />} />
+      
       {/* Add routes for step 5 */}
       <Route path="attributes" element={<MoodboardsPage />} />
       <Route path="directions" element={<MoodboardsPage />} />
