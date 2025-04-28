@@ -153,7 +153,10 @@ const Timeline: React.FC = () => {
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
     
-    if (stepId === 1) {
+    if (stepId === 6) {
+      console.log('Timeline: Navigating to moodboards /step/5/attributes');
+      navigate("/step/5/attributes");
+    } else if (stepId === 1) {
       navigate("/step/1");
     } else if (stepId === 2) {
       navigate("/step/2");
@@ -163,17 +166,9 @@ const Timeline: React.FC = () => {
       navigate("/step/4");
     } else if (stepId === 5) {
       navigate("/step/4/archetype");
-    } else if (stepId === 6) {
-      navigate("/step/5/attributes");
     } else if (stepId === 7) {
       navigate("/step/6");
     }
-  };
-  
-  const getStepStatus = (stepId: number): "todo" | "current" | "done" => {
-    if (completedSteps.includes(stepId)) return "done";
-    if (stepId === currentStep) return "current";
-    return "todo";
   };
 
   return (
@@ -203,7 +198,6 @@ const Timeline: React.FC = () => {
                 title={step.title}
                 description={step.description}
                 duration={step.duration}
-                status={getStepStatus(step.id)}
                 index={index}
                 onView={handleStepView}
                 onBegin={handleStepBegin}

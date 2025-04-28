@@ -63,9 +63,17 @@ const StepCard: React.FC<StepCardProps> = ({
     });
     
     setTimeout(() => {
+      // Add debug logs to help track navigation
+      console.log(`Navigating from step ${id} button click`);
+      
       // Navigation logic for each step
-      if (id === 5) {
+      if (id === 6) {
+        console.log('Navigating to moodboards: /step/5/attributes');
+        navigate('/step/5/attributes');
+      } else if (id === 5) {
         navigate(`/step/4/archetype`);
+      } else if (id === 7) {
+        navigate(`/step/6`);
       } else {
         navigate(`/step/${id}`);
       }
