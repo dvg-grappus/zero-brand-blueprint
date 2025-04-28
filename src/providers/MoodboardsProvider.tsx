@@ -20,7 +20,7 @@ const seedDirections: Partial<DirectionCard>[] = [
     id: "dir1",
     title: "Spark of Innovation",
     tags: ["FUTURISTIC", "TECHNICAL", "PROGRESSIVE", "ASPIRATIONAL"],
-    description: "This direction emphasizes limitless possibilities and creative thinking at Neo's core.",
+    description: "Think limitless possibilities. Think fluid interactions. Where digital meets physical, each touchpoint creates moments of delight and discovery.",
     relevance: 86,
     thumbnails: [
       "Neon-edged mobile dashboard in dark UI",
@@ -33,7 +33,7 @@ const seedDirections: Partial<DirectionCard>[] = [
     id: "dir2",
     title: "Intentional Minimalism",
     tags: ["REGAL", "UNDERSTATED", "EXPERT", "CONFIDENT"],
-    description: "This direction showcases refined elegance, appealing directly to Neo's client base.",
+    description: "Envision a space where minimalism isn't just aesthetic—it's transformative. Clean lines and thoughtful design create breathing room for ideas to flourish.",
     relevance: 92,
     thumbnails: [
       "Stationery set on grey linen",
