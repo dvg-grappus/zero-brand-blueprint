@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Star, FileText, FileImage } from "lucide-react";
@@ -21,7 +20,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
   const [activeTab, setActiveTab] = React.useState('list');
   const [activeFilter, setActiveFilter] = React.useState<string | null>(null);
   
-  // Filter to only show starred insights
   const starredInsights = marketInsights.filter(insight => insight.starred);
   const starredMarketInsightsCount = starredInsights.length;
   
@@ -35,15 +33,12 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
     onComplete();
   };
   
-  // Get unique sources for filters
   const sources = Array.from(new Set(starredInsights.map(insight => insight.source)));
   
-  // Filter insights based on activeFilter
   const filteredInsights = activeFilter
     ? starredInsights.filter(insight => insight.source === activeFilter)
     : starredInsights;
   
-  // Data for charts
   const sourceDistributionData = React.useMemo(() => {
     const sourceCounts: Record<string, number> = {};
     starredInsights.forEach(insight => {
@@ -56,7 +51,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
     }));
   }, [starredInsights]);
   
-  // Time-based distribution (mock data for demonstration)
   const timeDistributionData = [
     { month: 'Jan', count: 3 },
     { month: 'Feb', count: 5 },
@@ -66,7 +60,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
     { month: 'Jun', count: 12 }
   ];
   
-  // Insight type distribution
   const typeDistributionData = React.useMemo(() => {
     const typeCounts = {
       stat: 0,
@@ -178,7 +171,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
           
           <TabsContent value="charts" className="max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Source Distribution Chart */}
               <div className="bg-[#262626] p-4 rounded-lg">
                 <h3 className="text-sm font-medium mb-4">Insight Source Distribution</h3>
                 <div className="h-64">
@@ -201,7 +193,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
                 </div>
               </div>
               
-              {/* Insight Type Distribution */}
               <div className="bg-[#262626] p-4 rounded-lg">
                 <h3 className="text-sm font-medium mb-4">Insight Type Distribution</h3>
                 <div className="h-64">
@@ -224,7 +215,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
                 </div>
               </div>
               
-              {/* Time-based Distribution */}
               <div className="bg-[#262626] p-4 rounded-lg">
                 <h3 className="text-sm font-medium mb-4">Time-based Distribution</h3>
                 <div className="h-64">
@@ -249,7 +239,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
                 </div>
               </div>
               
-              {/* Top Starred Insights */}
               <div className="bg-[#262626] p-4 rounded-lg">
                 <h3 className="text-sm font-medium mb-4">Top Market Insights</h3>
                 <div className="space-y-3 max-h-56 overflow-y-auto pr-2">
@@ -271,7 +260,6 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
           <Button 
             onClick={handleComplete} 
             className="bg-cyan text-black hover:bg-cyan/90"
-            disabled={starredMarketInsightsCount < 3}
           >
             Finish and return to timeline
           </Button>

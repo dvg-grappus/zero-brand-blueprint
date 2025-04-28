@@ -548,6 +548,49 @@ const mockLibraryItems: LibraryItem[] = [
   }
 ];
 
+const mockMarketInsights: MarketInsight[] = [
+  {
+    id: "mi1",
+    text: "68% of enterprise HR departments now use AI screening tools",
+    source: "McKinsey Research",
+    type: "stat",
+    starred: true,
+    column: "market"
+  },
+  {
+    id: "mi2",
+    text: "AI-driven recruitment shows 3.2× ROI compared to traditional methods",
+    source: "Industry Report",
+    type: "stat",
+    starred: true,
+    column: "market"
+  },
+  {
+    id: "mi3",
+    text: "Remote hiring practices have increased talent pool diversity by 47%",
+    source: "LinkedIn Insights",
+    type: "social",
+    starred: true,
+    column: "market"
+  },
+  {
+    id: "mi4",
+    text: "Talent marketplace adoption grew 58% YoY in tech sector",
+    source: "Market Analysis",
+    type: "library",
+    starred: true,
+    column: "market"
+  },
+  {
+    id: "mi5",
+    text: "AI screening reduces time-to-hire by average of 42%",
+    source: "Research Report",
+    type: "stat",
+    starred: true,
+    column: "market"
+  }
+];
+
 export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Stats state
   const [stats, setStats] = useState<Stat[]>(mockStats.slice(0, 6)); // Initial 6 stats
@@ -563,8 +606,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>(mockLibraryItems);
   const [selectedLibraryItem, setSelectedLibraryItem] = useState<LibraryItem | null>(null);
 
-  // Market insights state - simplified
-  const [marketInsights, setMarketInsights] = useState<MarketInsight[]>([]);
+  // Market insights state
+  const [marketInsights, setMarketInsights] = useState<MarketInsight[]>(mockMarketInsights);
   const [headline, setHeadline] = useState("Market Research Insights");
 
   // Setup auto-refresh for chatter - modified to use reference for stability

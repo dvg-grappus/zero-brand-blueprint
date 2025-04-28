@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,9 +16,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { CheckCircle } from "lucide-react";
 
 const MarketPage: React.FC = () => {
+  // Only keep section 1 (Statistics Harvest) open by default
+  const [openSections, setOpenSections] = useState<number[]>([1]);
   const [showInsightPool, setShowInsightPool] = useState(false);
   const [showInsightDigest, setShowInsightDigest] = useState(false);
-  const [openSections, setOpenSections] = useState<number[]>([1, 2, 3]); // Start with all sections open
   const [completedSections, setCompletedSections] = useState<number[]>([1, 2, 3]); // Start with all sections completed
   const navigate = useNavigate();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -55,8 +55,8 @@ const MarketPage: React.FC = () => {
     setShowInsightPool(prev => !prev);
   };
 
+  // Remove completion requirements - always allow completion
   const handleModuleComplete = () => {
-    // Navigate to timeline and update the competition module status
     navigate("/timeline", { state: { fromMarket: true } });
   };
 
