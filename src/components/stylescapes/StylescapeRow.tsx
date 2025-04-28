@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Edit, MessageCircle } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import StylescapePanel from './StylescapePanel';
 import { StylescapeRow as RowType } from '@/contexts/StylescapesContext';
+import { cn } from '@/lib/utils';
 
 interface StylescapeRowProps {
   row: RowType;
