@@ -11,6 +11,7 @@ import StepPage from "./pages/StepPage";
 import AudiencePage from "./pages/AudiencePage";
 import CompetitionPage from "./pages/CompetitionPage";
 import MarketPage from "./pages/MarketPage";
+import PersonalityPage from "./pages/PersonalityPage"; // Added this import
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,13 @@ const App = () => (
             
             {/* Market module routes */}
             <Route path="/step/4" element={<MarketPage />} />
+            
+            {/* Personality module routes */}
+            <Route path="/step/4/archetype" element={<PersonalityPage />} />
+            <Route path="/step/4/keywords" element={<PersonalityPage />} />
+            <Route path="/step/4/sliders" element={<PersonalityPage />} />
+            <Route path="/step/4/x-meets-y" element={<PersonalityPage />} />
+            <Route path="/step/4/dichotomy" element={<PersonalityPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
