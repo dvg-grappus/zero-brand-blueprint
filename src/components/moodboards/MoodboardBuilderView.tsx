@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -41,24 +42,61 @@ const MasonryTile: React.FC<MasonryTileProps> = ({ tile, onSwap, onDelete, onOpe
           'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
           'https://images.unsplash.com/photo-1498936178812-4b2e558d2937'
         ],
-        'LAYOUT': 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=300&h=300&auto=format&fit=crop',
-        'ICON/ILLUSTRATION': 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=200&h=200&auto=format&fit=crop',
-        'PHOTO TREATMENT': 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=300&h=400&auto=format&fit=crop',
-        'TEXTURE': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=200&h=200&auto=format&fit=crop',
-        'COLOR SWATCH': 'https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=200&h=120&auto=format&fit=crop',
-        'MOTION REF': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=260&h=260&auto=format&fit=crop',
-        'PRINT COLLATERAL': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?q=80&w=300&h=200&auto=format&fit=crop',
-        'ENVIRONMENT': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=440&h=300&auto=format&fit=crop',
-        'WILD CARD': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=320&h=240&auto=format&fit=crop',
+        'LAYOUT': [
+          'https://images.unsplash.com/photo-1481487196290-c152efe083f5',
+          'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2',
+          'https://images.unsplash.com/photo-1512295767273-ac109ac3acfa'
+        ],
+        'ICON/ILLUSTRATION': [
+          'https://images.unsplash.com/photo-1613665813446-82a78c468a1d',
+          'https://images.unsplash.com/photo-1558655146-d09347e92766',
+          'https://images.unsplash.com/photo-1611162616475-46b635cb6868'
+        ],
+        'PHOTO TREATMENT': [
+          'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
+          'https://images.unsplash.com/photo-1549388604-817d15aa0110',
+          'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e'
+        ],
+        'TEXTURE': [
+          'https://images.unsplash.com/photo-1493397212122-2b85dda8106b',
+          'https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1',
+          'https://images.unsplash.com/photo-1520333789090-1afc82db536a'
+        ],
+        'COLOR SWATCH': [
+          'https://images.unsplash.com/photo-1589365278144-c9e705f843ba',
+          'https://images.unsplash.com/photo-1541140134513-85a161dc4a00',
+          'https://images.unsplash.com/photo-1513346940221-6f673d962e97'
+        ],
+        'MOTION REF': [
+          'https://images.unsplash.com/photo-1500673922987-e212871fec22',
+          'https://images.unsplash.com/photo-1543857778-c4a1a9e0615f',
+          'https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb'
+        ],
+        'PRINT COLLATERAL': [
+          'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3',
+          'https://images.unsplash.com/photo-1544516229-5150a1bbc973',
+          'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111'
+        ],
+        'ENVIRONMENT': [
+          'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+          'https://images.unsplash.com/photo-1511884642898-4c92249e20b6',
+          'https://images.unsplash.com/photo-1506259091721-347e791bab0f'
+        ],
+        'WILD CARD': [
+          'https://images.unsplash.com/photo-1531297484001-80022131f5a1',
+          'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e',
+          'https://images.unsplash.com/photo-1550745165-9bc0b252726f'
+        ]
       };
 
       const images = imageMap[category] || ['https://source.unsplash.com/random/300x300/?tech'];
       const randomIndex = Math.floor(Math.random() * images.length);
       const baseUrl = images[randomIndex];
-      return `${baseUrl}?q=80&w=${width}&h=${height}&auto=format&fit=crop&unique=${tile.id}`;
+      // Add a unique identifier to prevent caching issues and ensure different images load
+      return `${baseUrl}?q=80&w=${width}&h=${height}&auto=format&fit=crop&unique=${tile.id}-${Math.random().toString(36).substring(7)}`;
     };
 
-    return getRandomImage(tile.category);
+    return imageUrl || getRandomImage(tile.category);
   };
 
   return (

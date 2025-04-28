@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -34,10 +35,31 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
   onDelete,
   onOpenAI
 }) => {
+  // Generate a unique hash for each card to ensure images are unique
+  const uniqueHash = id + Math.random().toString(36).substring(2, 8);
+  
   return (
-    <div className={`w-full h-[300px] rounded-lg relative overflow-hidden mb-6 ${
-      selected ? 'border-2 border-cyan' : 'border border-border/30'
-    }`}>
+    <div 
+      className={`w-full h-[300px] rounded-lg relative overflow-hidden mb-6 cursor-pointer ${
+        selected ? 'border-2 border-cyan' : 'border border-border/30'
+      }`}
+      onClick={() => onSelect(id)}
+    >
+      {/* Selection checkbox */}
+      <div className="absolute top-4 left-4 z-30">
+        <div 
+          className={`h-6 w-6 rounded-full flex items-center justify-center ${
+            selected ? 'bg-cyan' : 'bg-background/80 border border-border'
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(id);
+          }}
+        >
+          {selected && <Check className="h-4 w-4 text-background" />}
+        </div>
+      </div>
+      
       {/* Percentage badge - fixed positioning */}
       <div className="absolute top-4 right-4 bg-[#262626]/80 px-3 py-1 rounded text-sm backdrop-blur-sm z-20">
         Relevance {relevance}%
@@ -45,7 +67,7 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
       
       {/* Title and content with proper spacing */}
       <div className="p-6 flex flex-col h-full">
-        <div className="mb-4">
+        <div className="mb-4 mt-4">
           <h2 className="text-[32px] leading-[1.1] font-bold">{title}</h2>
         </div>
         
@@ -76,39 +98,102 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
               variant="ghost" 
               size="sm" 
               className="flex items-center gap-1 text-xs"
-              onClick={() => onReplace(id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onReplace(id);
+              }}
             >
               <RefreshCw className="h-3.5 w-3.5" /> Replace
             </Button>
             
-            <TalkToAIButton onClick={() => onOpenAI(`Direction: ${title}`)} />
+            <div onClick={(e) => e.stopPropagation()}>
+              <TalkToAIButton onClick={() => onOpenAI(`Direction: ${title}`)} />
+            </div>
             
             <Button 
               variant="ghost" 
               size="sm" 
               className="flex items-center gap-1 text-xs text-destructive hover:text-destructive"
-              onClick={() => onDelete(id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(id);
+              }}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
             </Button>
           </div>
           
           <div className="flex space-x-2">
-            {thumbnails.slice(0, 3).map((thumbnail, idx) => (
-              <div 
-                key={idx}
-                className="h-[120px] w-[180px] bg-muted rounded overflow-hidden"
-              >
-                <img 
-                  src={thumbnail}
-                  alt={thumbnail}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "https://source.unsplash.com/random/180x120/?technology";
-                  }}
-                />
-              </div>
-            ))}
+            {thumbnails.slice(0, 3).map((thumbnail, idx) => {
+              const imageUrls = [
+                // First direction images
+                [
+                  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+                  'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
+                  'https://images.unsplash.com/photo-1531297484001-80022131f5a1'
+                ],
+                // Second direction images
+                [
+                  'https://images.unsplash.com/photo-1493397212122-2b85dda8106b',
+                  'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
+                  'https://images.unsplash.com/photo-1500673922987-e212871fec22'
+                ],
+                // Third direction images
+                [
+                  'https://images.unsplash.com/photo-1481487196290-c152efe083f5',
+                  'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+                  'https://images.unsplash.com/photo-1613665813446-82a78c468a1d'
+                ],
+                // Fourth direction images
+                [
+                  'https://images.unsplash.com/photo-1589365278144-c9e705f843ba',
+                  'https://images.unsplash.com/photo-1615729947596-a598e5de0ab3',
+                  'https://images.unsplash.com/photo-1527576539890-dfa815648363'
+                ],
+                // Additional directions images
+                [
+                  'https://images.unsplash.com/photo-1498936178812-4b2e558d2937',
+                  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
+                  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158'
+                ],
+                [
+                  'https://images.unsplash.com/photo-1439886183900-e79ec0057170',
+                  'https://images.unsplash.com/photo-1486718448742-163732cd1544',
+                  'https://images.unsplash.com/photo-1473177104440-ffee2f376098'
+                ],
+                [
+                  'https://images.unsplash.com/photo-1494891848038-7bd202a2afeb',
+                  'https://images.unsplash.com/photo-1551038247-3d9af20df552',
+                  'https://images.unsplash.com/photo-1524230572899-a752b3835840'
+                ],
+                [
+                  'https://images.unsplash.com/photo-1433832597046-4f10e10ac764',
+                  'https://images.unsplash.com/photo-1466442929976-97f336a657be',
+                  'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e'
+                ]
+              ];
+              
+              // Get the correct direction images
+              const dirImages = imageUrls[parseInt(id.replace('dir', '')) % imageUrls.length];
+              const imageUrl = dirImages[idx % dirImages.length];
+              
+              return (
+                <div 
+                  key={idx}
+                  className="h-[120px] w-[180px] bg-muted rounded overflow-hidden"
+                >
+                  <img 
+                    src={`${imageUrl}?q=80&w=180&h=120&auto=format&fit=crop&unique=${id}-${idx}-${uniqueHash}`}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=180&h=120&auto=format&fit=crop";
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -140,7 +225,9 @@ const DirectionsView: React.FC<DirectionsViewProps> = ({ onOpenAI }) => {
           "Future Forward",
           "Bold Frontiers",
           "Cosmic Vision",
-          "Pristine Clarity"
+          "Pristine Clarity",
+          "Living Innovation",
+          "Vibrant Impact"
         ];
         
         const richDescriptions = [
@@ -149,7 +236,9 @@ const DirectionsView: React.FC<DirectionsViewProps> = ({ onOpenAI }) => {
           "The future isn't static; it's dynamic. This direction embraces motion, transformation, and the constant evolution of technology and human experience.",
           "Here, boldness isn't just about visuals—it's about vision. This direction speaks with authority through deliberate choices and powerful contrasts.",
           "Imagine depth beyond the ordinary. Like a perfect galaxy viewed through the clearest lens, every element aligns with cosmic precision.",
-          "True clarity comes from purposeful restraint. This direction strips away the unnecessary to reveal what truly matters."
+          "True clarity comes from purposeful restraint. This direction strips away the unnecessary to reveal what truly matters.",
+          "Technology that breathes. Visual language that feels alive. This direction creates interfaces that feel responsive and organic, mirroring how we interact naturally.",
+          "In a world of sameness, stand apart. This direction uses vivid contrasts and unexpected moments to create lasting brand impressions that resonate."
         ];
         
         const getThumbnailsForDirection = (dirIndex: number) => {
