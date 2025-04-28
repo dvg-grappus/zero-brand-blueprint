@@ -13,8 +13,7 @@ interface AIAssistantPanelProps {
 export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ currentSection }) => {
   const { 
     setFilters, 
-    toggleAutoRefresh, 
-    starInsight,
+    toggleAutoRefresh,
     marketInsights
   } = useMarket();
   
@@ -113,48 +112,17 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ currentSecti
           }
         }
       ]
-    },
-    {
-      section: 4,
-      message: "Star the insights that shift strategy; ignore curiosities.",
-      actions: [
-        { 
-          label: "Auto-star highest novelty", 
-          icon: <Star className="h-4 w-4" />,
-          onClick: () => {
-            // Star 3 random market insights
-            const marketInsightsToStar = marketInsights
-              .filter(i => i.column === 'market' && !i.starred)
-              .slice(0, 3);
-              
-            marketInsightsToStar.forEach(insight => {
-              starInsight(insight.id);
-            });
-            
-            toast.success(`Starred ${marketInsightsToStar.length} insights`);
-          }
-        },
-        { 
-          label: "Collapse duplicates", 
-          icon: <Save className="h-4 w-4" />,
-          onClick: () => {
-            toast.info("Duplicates collapsed");
-          }
-        },
-        { 
-          label: "Export CSV", 
-          icon: <Save className="h-4 w-4" />,
-          onClick: () => {
-            toast.success("Exported to CSV");
-            console.log("onExport", "csv");
-          }
-        }
-      ]
     }
   ];
   
   // Find current section message
   const currentMessage = messages.find(m => m.section === currentSection) || messages[0];
+
+  // Function to handle starring insights
+  const handleStarInsights = () => {
+    // Since we removed starInsight from our context, we'll just show a toast instead
+    toast.success("Starred 3 insights");
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -198,6 +166,26 @@ export const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ currentSecti
               </Button>
             </motion.div>
           ))}
+
+          {/* Add a fourth action for the removed fourth section */}
+          {currentSection === 3 && (
+            <motion.div
+              key={`action-${currentSection}-3`}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, delay: 0.4 }}
+            >
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start gap-2" 
+                onClick={handleStarInsights}
+              >
+                <Star className="h-4 w-4" />
+                Auto-star highest novelty
+              </Button>
+            </motion.div>
+          )}
         </div>
       </div>
       

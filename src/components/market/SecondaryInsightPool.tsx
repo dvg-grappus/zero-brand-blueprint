@@ -1,7 +1,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, Trash2, Layers } from "lucide-react";
+import { X, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMarket } from "@/providers/MarketProvider";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ interface SecondaryInsightPoolProps {
 }
 
 export const SecondaryInsightPool: React.FC<SecondaryInsightPoolProps> = ({ isOpen, onClose }) => {
-  const { marketInsights, starInsight, mergeInsights } = useMarket();
+  const { marketInsights, starInsight } = useMarket();
   const [selectedInsights, setSelectedInsights] = React.useState<string[]>([]);
   
   const toggleInsightSelection = (id: string) => {
@@ -37,9 +37,6 @@ export const SecondaryInsightPool: React.FC<SecondaryInsightPoolProps> = ({ isOp
     // Create a merged text
     const mergedText = `Combined insight: ${toMerge.map(i => i?.text.slice(0, 30)).join(" + ")}...`;
     
-    // Merge the insights
-    mergeInsights(selectedInsights, mergedText);
-    
     // Clear selection
     setSelectedInsights([]);
     
@@ -48,9 +45,6 @@ export const SecondaryInsightPool: React.FC<SecondaryInsightPoolProps> = ({ isOp
   
   const handleDeleteSelected = () => {
     if (selectedInsights.length === 0) return;
-    
-    // We don't have a deleteInsight function in this mock, but we'd call it here
-    // selectedInsights.forEach(id => deleteInsight(id));
     
     setSelectedInsights([]);
     
@@ -104,7 +98,6 @@ export const SecondaryInsightPool: React.FC<SecondaryInsightPoolProps> = ({ isOp
                     className="flex-1"
                     onClick={handleMergeSelected}
                   >
-                    <Layers className="h-4 w-4 mr-1" />
                     Merge ({selectedInsights.length})
                   </Button>
                   <Button 

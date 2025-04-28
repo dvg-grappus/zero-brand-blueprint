@@ -17,12 +17,13 @@ interface InsightDigestProps {
 }
 
 export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, onComplete }) => {
-  const { marketInsights, starredMarketInsightsCount } = useMarket();
+  const { marketInsights } = useMarket();
   const [activeTab, setActiveTab] = React.useState('list');
   const [activeFilter, setActiveFilter] = React.useState<string | null>(null);
   
   // Filter to only show starred insights
   const starredInsights = marketInsights.filter(insight => insight.starred);
+  const starredMarketInsightsCount = starredInsights.length;
   
   const handleExport = (type: 'pdf' | 'csv' | 'png') => {
     toast.success(`Exporting as ${type.toUpperCase()}`);
@@ -168,7 +169,7 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
                   <div className="text-center py-8 text-muted-foreground col-span-3">
                     {activeFilter 
                       ? "No starred insights match this filter."
-                      : "No starred insights yet. Star insights in the Synthesis Canvas."}
+                      : "No starred insights yet. Star insights in the Market workflow."}
                   </div>
                 )}
               </AnimatePresence>
@@ -267,7 +268,11 @@ export const InsightDigest: React.FC<InsightDigestProps> = ({ isOpen, onClose, o
         </Tabs>
         
         <div className="mt-6 flex justify-end">
-          <Button onClick={handleComplete} className="bg-cyan text-black hover:bg-cyan/90">
+          <Button 
+            onClick={handleComplete} 
+            className="bg-cyan text-black hover:bg-cyan/90"
+            disabled={starredMarketInsightsCount < 3}
+          >
             Finish and return to timeline
           </Button>
         </div>

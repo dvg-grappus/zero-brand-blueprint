@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -43,6 +44,7 @@ export interface MarketInsight {
   source: string;
   type: 'stat' | 'social' | 'library' | 'merged';
   starred: boolean;
+  column?: 'primary' | 'secondary' | 'market';
 }
 
 interface MarketContextProps {
@@ -73,12 +75,17 @@ interface MarketContextProps {
   
   // Market insights
   marketInsights: MarketInsight[];
+  starInsight: (id: string) => void;
+  mergeInsights: (ids: string[], mergedText: string) => void;
+  moveInsight: (id: string, column: 'primary' | 'secondary' | 'market') => void;
+  generateHeadline: () => void;
   headline: string;
   
   // Validation
   isSection1Complete: boolean;
   isSection2Complete: boolean;
   isSection3Complete: boolean;
+  isSection4Complete: boolean;
   isModuleComplete: boolean;
   
   // Counters
@@ -86,6 +93,7 @@ interface MarketContextProps {
   savedChatterCount: number;
   savedLibraryCount: number;
   viewedGraphCount: number;
+  starredMarketInsightsCount: number;
 }
 
 const MarketContext = createContext<MarketContextProps | undefined>(undefined);
@@ -594,7 +602,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         text: `${acceptedStat.value} – ${acceptedStat.description}`,
         source: acceptedStat.source,
         type: 'stat',
-        starred: false
+        starred: false,
+        column: 'market'
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -633,7 +642,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         text: savedCard.content,
         source: savedCard.source === 'twitter' ? 'Twitter' : savedCard.source === 'linkedin' ? 'LinkedIn' : 'Medium',
         type: 'social',
-        starred: false
+        starred: false,
+        column: 'market'
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -681,7 +691,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         source: savedItem.type === 'report' ? 'Research Report' : 
                 savedItem.type === 'case-study' ? 'Case Study' : 'Data Graph',
         type: 'library',
-        starred: false
+        starred: false,
+        column: 'market'
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -711,16 +722,67 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [libraryItems]);
   
+  // Synthesis canvas functions
+  const starInsight = useCallback((id: string) => {
+    setMarketInsights(prev => prev.map(insight => 
+      insight.id === id ? { ...insight, starred: !insight.starred } : insight
+    ));
+    
+    // Event tracking
+    console.log("onInsightStar", id);
+  }, []);
+
+  const mergeInsights = useCallback((ids: string[], mergedText: string) => {
+    // Create a new merged insight
+    const insightsToMerge = marketInsights.filter(i => ids.includes(i.id));
+    const sourcesList = [...new Set(insightsToMerge.map(i => i.source))];
+    
+    const newInsight: MarketInsight = {
+      id: `insight-merged-${Date.now()}`,
+      text: mergedText,
+      source: sourcesList.join(', '),
+      type: 'merged',
+      starred: false,
+      column: insightsToMerge[0]?.column || 'market'
+    };
+    
+    // Add merged insight and remove originals
+    setMarketInsights(prev => [
+      ...prev.filter(i => !ids.includes(i.id)),
+      newInsight
+    ]);
+    
+    // Event tracking
+    console.log("onInsightMerge", ids);
+    toast.success("Insights merged");
+  }, [marketInsights]);
+
+  const moveInsight = useCallback((id: string, column: 'primary' | 'secondary' | 'market') => {
+    setMarketInsights(prev => prev.map(insight => 
+      insight.id === id ? { ...insight, column } : insight
+    ));
+  }, []);
+
+  const generateHeadline = useCallback(() => {
+    // In a real app, this would use an API call to generate text
+    const starredInsights = marketInsights.filter(i => i.starred);
+    const headline = `Market Analysis: ${starredInsights.length} Key Insights Reveal Shifting HR Technology Landscape`;
+    setHeadline(headline);
+    toast.success("Headline generated");
+  }, [marketInsights]);
+  
   // Validation counters
   const acceptedStatsCount = stats.filter(s => s.accepted).length;
   const savedChatterCount = chatterCards.filter(c => c.saved).length;
   const savedLibraryCount = libraryItems.filter(i => i.saved).length;
   const viewedGraphCount = libraryItems.filter(i => i.viewed && i.type === 'graph').length;
+  const starredMarketInsightsCount = marketInsights.filter(i => i.starred && i.column === 'market').length;
   
   // Validation checks
   const isSection1Complete = acceptedStatsCount >= 8;
   const isSection2Complete = savedChatterCount >= 6;
   const isSection3Complete = savedLibraryCount >= 4 && viewedGraphCount >= 1;
+  const isSection4Complete = starredMarketInsightsCount >= 10;
   const isModuleComplete = isSection1Complete && isSection2Complete && isSection3Complete;
   
   const value = {
@@ -749,21 +811,27 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     selectedLibraryItem,
     setSelectedLibraryItem,
     
-    // Market insights
+    // Synthesis canvas
     marketInsights,
+    starInsight,
+    mergeInsights,
+    moveInsight,
+    generateHeadline,
     headline,
     
     // Validation
     isSection1Complete,
     isSection2Complete,
     isSection3Complete,
+    isSection4Complete,
     isModuleComplete,
     
     // Counters
     acceptedStatsCount,
     savedChatterCount,
     savedLibraryCount,
-    viewedGraphCount
+    viewedGraphCount,
+    starredMarketInsightsCount
   };
   
   return (
