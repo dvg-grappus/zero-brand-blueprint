@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import StepPage from "./pages/StepPage";
 import AudiencePage from "./pages/AudiencePage";
 import CompetitionPage from "./pages/CompetitionPage";
+import MarketPage from "./pages/MarketPage";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,9 @@ const App = () => (
             {/* Competition module routes */}
             <Route path="/step/3/:substep" element={<CompetitionPage />} />
             <Route path="/step/3" element={<CompetitionPage />} /> 
+            
+            {/* Market module routes */}
+            <Route path="/step/4" element={<MarketPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

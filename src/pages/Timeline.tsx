@@ -44,6 +44,8 @@ const Timeline: React.FC = () => {
     // Check for completion flags from different modules
     const fromPositioning = location.state && location.state.fromPositioning;
     const fromAudience = location.state && location.state.fromAudience;
+    const fromCompetition = location.state && location.state.fromCompetition;
+    const fromMarket = location.state && location.state.fromMarket;
     
     // Mark steps as completed based on navigation state
     if (fromPositioning) {
@@ -72,9 +74,35 @@ const Timeline: React.FC = () => {
       setCurrentStep(3);
     }
     
+    if (fromCompetition) {
+      // Mark competition (step 3) as completed
+      setCompletedSteps(prev => {
+        if (!prev.includes(3)) {
+          return [...prev, 3];
+        }
+        return prev;
+      });
+      
+      // Set current step to Market (step 4)
+      setCurrentStep(4);
+    }
+    
+    if (fromMarket) {
+      // Mark market (step 4) as completed
+      setCompletedSteps(prev => {
+        if (!prev.includes(4)) {
+          return [...prev, 4];
+        }
+        return prev;
+      });
+      
+      // Set current step to Personality (step 5)
+      setCurrentStep(5);
+    }
+    
     // If not coming from any completion, set first step as current
     // Only when there are no completed steps yet
-    if (completedSteps.length === 0 && !fromPositioning && !fromAudience) {
+    if (completedSteps.length === 0 && !fromPositioning && !fromAudience && !fromCompetition && !fromMarket) {
       setCurrentStep(1);
     }
   }, [location, completedSteps.length]);
@@ -116,6 +144,8 @@ const Timeline: React.FC = () => {
       navigate("/step/2"); // Updated to use the base audience route which will redirect
     } else if (stepId === 3) {
       navigate("/step/3"); // Competition module route
+    } else if (stepId === 4) {
+      navigate("/step/4"); // Market module route
     }
     // Add other module routes as they're implemented
   };
