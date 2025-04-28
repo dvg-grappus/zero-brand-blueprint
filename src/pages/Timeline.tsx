@@ -146,6 +146,8 @@ const Timeline: React.FC = () => {
       navigate("/step/3"); // Competition module route
     } else if (stepId === 4) {
       navigate("/step/4"); // Market module route
+    } else if (stepId === 5) {
+      navigate("/step/4/archetype"); // Personality module route - first sub-page
     }
     // Add other module routes as they're implemented
   };

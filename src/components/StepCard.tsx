@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
@@ -59,8 +60,8 @@ const StepCard: React.FC<StepCardProps> = ({
   const handleButtonClick = () => {
     onBegin(id);
     
-    // If it's done, current, or first step, navigate directly
-    if (status === "done" || status === "current" || isFirstCard) {
+    // If it's done, current, first step, market (4), or personality (5), navigate directly
+    if (status === "done" || status === "current" || isFirstCard || id <= 5) {
       // Add blur to other cards
       document.querySelectorAll('.step-card:not(.step-card-' + id + ')').forEach(card => {
         (card as HTMLElement).style.opacity = '0.3';
@@ -69,11 +70,16 @@ const StepCard: React.FC<StepCardProps> = ({
       
       // Navigate after delay
       setTimeout(() => {
-        // Direct navigation to the module without substep for cleaner URLs
-        navigate(`/step/${id}`);
+        if (id === 5) {
+          // For Personality module, navigate to first sub-page
+          navigate(`/step/4/archetype`);
+        } else {
+          // Direct navigation to the module without substep for cleaner URLs
+          navigate(`/step/${id}`);
+        }
       }, 300);
     } else {
-      // If it's not the current step or first, just toggle preview
+      // If it's not a navigable step, just toggle preview
       setShowPreview(!showPreview);
     }
   };
@@ -92,8 +98,8 @@ const StepCard: React.FC<StepCardProps> = ({
     if (status === "done") {
       return "Review";
     } 
-    // Always show "Begin" for current step or developed modules (1-3)
-    if (status === "current" || id <= 3) {
+    // Always show "Begin" for current step, developed modules (1-3), market (4), or personality (5)
+    if (status === "current" || id <= 5) {
       return "Begin";
     }
     return showPreview ? "Close" : "Preview";
