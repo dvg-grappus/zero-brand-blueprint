@@ -1,13 +1,12 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MarketHeader } from "@/components/market/MarketHeader";
 import { MarketFooter } from "@/components/market/MarketFooter";
 import { StatisticsHarvest } from "@/components/market/StatisticsHarvest";
 import { SocialChatterWall } from "@/components/market/SocialChatterWall";
-import { DeepDiveLibrary } from "@/components/market/DeepDiveLibrary";
-import { SynthesisCanvas } from "@/components/market/SynthesisCanvas";
+import { SimpleLibrary } from "@/components/market/SimpleLibrary";
 import { InsightDigest } from "@/components/market/InsightDigest";
 import { AIAssistantPanel } from "@/components/market/AIAssistantPanel";
 import { SecondaryInsightPool } from "@/components/market/SecondaryInsightPool";
@@ -36,18 +35,6 @@ const MarketPage: React.FC = () => {
       }
     }, 50);
   }, []);
-
-  // Automatically open section 4 when sections 1, 2, and 3 are completed
-  useEffect(() => {
-    if (
-      completedSections.includes(1) &&
-      completedSections.includes(2) &&
-      completedSections.includes(3) &&
-      !openSections.includes(4)
-    ) {
-      setOpenSections(prev => [...prev, 4]);
-    }
-  }, [completedSections, openSections]);
 
   const toggleSection = (sectionNumber: number) => {
     setOpenSections(prev => 
@@ -154,7 +141,7 @@ const MarketPage: React.FC = () => {
                 </Card>
               </motion.div>
 
-              {/* Deep Dive Library Section */}
+              {/* Simple Library Section (previously Deep Dive Library) */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -170,7 +157,7 @@ const MarketPage: React.FC = () => {
                         <div className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center mr-3 font-semibold">
                           3
                         </div>
-                        <h2 className="text-lg font-semibold">Deep-Dive Library</h2>
+                        <h2 className="text-lg font-semibold">Market Library</h2>
                       </div>
                       <div className="flex items-center">
                         {completedSections.includes(3) && (
@@ -182,41 +169,7 @@ const MarketPage: React.FC = () => {
                       </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="pt-4">
-                      <DeepDiveLibrary onComplete={() => completeSection(3)} />
-                    </CollapsibleContent>
-                  </Collapsible>
-                </Card>
-              </motion.div>
-
-              {/* Synthesis Canvas Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.16 }}
-                className="mb-6"
-              >
-                <Card 
-                  className={`border p-4 ${completedSections.includes(4) ? 'border-cyan' : 'border-border'}`}
-                >
-                  <Collapsible open={openSections.includes(4)} onOpenChange={() => toggleSection(4)}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-2">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center mr-3 font-semibold">
-                          4
-                        </div>
-                        <h2 className="text-lg font-semibold">Synthesis Canvas</h2>
-                      </div>
-                      <div className="flex items-center">
-                        {completedSections.includes(4) && (
-                          <CheckCircle className="w-5 h-5 text-cyan mr-2" />
-                        )}
-                        <span className="text-xs text-muted-foreground">
-                          0 / 10 starred
-                        </span>
-                      </div>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-4">
-                      <SynthesisCanvas onComplete={() => completeSection(4)} />
+                      <SimpleLibrary onComplete={() => completeSection(3)} />
                     </CollapsibleContent>
                   </Collapsible>
                 </Card>
@@ -231,8 +184,8 @@ const MarketPage: React.FC = () => {
           />
         </div>
         
-        {/* AI Assistant Panel */}
-        <div className="w-[320px] border-l border-border/40 h-screen sticky top-0">
+        {/* AI Assistant Panel - Fixed position with correct height */}
+        <div className="w-[320px] border-l border-border/40 h-screen sticky top-0 overflow-hidden">
           <AIAssistantPanel 
             currentSection={openSections[openSections.length - 1] || 1} 
           />

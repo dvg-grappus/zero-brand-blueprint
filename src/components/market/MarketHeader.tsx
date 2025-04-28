@@ -15,12 +15,12 @@ export const MarketHeader: React.FC<MarketHeaderProps> = ({
 }) => {
   return (
     <motion.div 
-      className="sticky top-0 z-10 h-20 bg-background/80 backdrop-blur-sm border-b border-border/40 px-[120px] flex items-center justify-between"
-      initial={{ y: -88 }}
+      className="sticky top-0 z-10 h-16 bg-background/90 backdrop-blur-md border-b border-border/40 px-[120px] flex items-center justify-between"
+      initial={{ y: -64 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-xl font-semibold">Market</h1>
+      <h1 className="text-xl font-semibold">Market Research</h1>
       
       <div className="flex items-center gap-6">
         <Button 
@@ -34,7 +34,7 @@ export const MarketHeader: React.FC<MarketHeaderProps> = ({
         </Button>
         
         <div className="flex gap-2">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3].map((step) => (
             <motion.div
               key={step}
               className={`w-3 h-3 rounded-full transition-colors ${

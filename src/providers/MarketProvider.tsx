@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 // Define the types for our data
@@ -43,8 +43,6 @@ export interface MarketInsight {
   source: string;
   type: 'stat' | 'social' | 'library' | 'merged';
   starred: boolean;
-  column?: 'primary' | 'secondary' | 'market';
-  originalId?: string; // Reference to original item
 }
 
 interface MarketContextProps {
@@ -73,19 +71,14 @@ interface MarketContextProps {
   selectedLibraryItem: LibraryItem | null;
   setSelectedLibraryItem: React.Dispatch<React.SetStateAction<LibraryItem | null>>;
   
-  // Synthesis canvas
+  // Market insights
   marketInsights: MarketInsight[];
-  starInsight: (id: string) => void;
-  mergeInsights: (ids: string[], mergedText: string) => void;
-  moveInsight: (id: string, column: 'primary' | 'secondary' | 'market') => void;
-  generateHeadline: () => void;
   headline: string;
   
   // Validation
   isSection1Complete: boolean;
   isSection2Complete: boolean;
   isSection3Complete: boolean;
-  isSection4Complete: boolean;
   isModuleComplete: boolean;
   
   // Counters
@@ -93,7 +86,6 @@ interface MarketContextProps {
   savedChatterCount: number;
   savedLibraryCount: number;
   viewedGraphCount: number;
-  starredMarketInsightsCount: number;
 }
 
 const MarketContext = createContext<MarketContextProps | undefined>(undefined);
@@ -166,7 +158,6 @@ const mockStats: Stat[] = [
     year: "2023",
     metric: "Investment"
   },
-  // Additional stats for "load more"
   {
     id: "stat7",
     value: "$122 M",
@@ -564,9 +555,9 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>(mockLibraryItems);
   const [selectedLibraryItem, setSelectedLibraryItem] = useState<LibraryItem | null>(null);
 
-  // Market insights state
+  // Market insights state - simplified
   const [marketInsights, setMarketInsights] = useState<MarketInsight[]>([]);
-  const [headline, setHeadline] = useState("");
+  const [headline, setHeadline] = useState("Market Research Insights");
 
   // Setup auto-refresh for chatter
   useEffect(() => {
@@ -590,7 +581,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [isAutoRefreshEnabled]);
 
   // Stats section functions
-  const acceptStat = (id: string) => {
+  const acceptStat = useCallback((id: string) => {
     setStats(prev => prev.map(stat => 
       stat.id === id ? { ...stat, accepted: true } : stat
     ));
@@ -603,9 +594,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         text: `${acceptedStat.value} – ${acceptedStat.description}`,
         source: acceptedStat.source,
         type: 'stat',
-        starred: false,
-        column: 'market',
-        originalId: acceptedStat.id
+        starred: false
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -614,24 +603,24 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Event tracking
     console.log("onStatAccept", id);
     toast.success("Stat accepted");
-  };
+  }, [stats]);
 
-  const discardStat = (id: string) => {
+  const discardStat = useCallback((id: string) => {
     // Don't remove, just mark as not accepted
     setStats(prev => prev.map(stat => 
       stat.id === id ? { ...stat, accepted: false } : stat
     ));
-  };
+  }, []);
 
-  const loadMoreStats = () => {
+  const loadMoreStats = useCallback(() => {
     const newCount = Math.min(displayedStatsCount + 6, mockStats.length);
     setDisplayedStatsCount(newCount);
     setStats(mockStats.slice(0, newCount));
     setFilteredStats(mockStats.slice(0, newCount));
-  };
+  }, [displayedStatsCount]);
 
   // Chatter section functions
-  const saveChatterCard = (id: string) => {
+  const saveChatterCard = useCallback((id: string) => {
     setChatterCards(prev => prev.map(card => 
       card.id === id ? { ...card, saved: true } : card
     ));
@@ -644,9 +633,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         text: savedCard.content,
         source: savedCard.source === 'twitter' ? 'Twitter' : savedCard.source === 'linkedin' ? 'LinkedIn' : 'Medium',
         type: 'social',
-        starred: false,
-        column: 'market',
-        originalId: savedCard.id
+        starred: false
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -655,9 +642,9 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Event tracking
     console.log("onChatterSave", id);
     toast.success("Social snippet saved");
-  };
+  }, [chatterCards]);
 
-  const muteChatterCard = (id: string) => {
+  const muteChatterCard = useCallback((id: string) => {
     setChatterCards(prev => prev.map(card => 
       card.id === id ? { ...card, muted: true } : card
     ));
@@ -666,21 +653,21 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setTimeout(() => {
       setChatterCards(prev => prev.filter(card => card.id !== id));
     }, 500);
-  };
+  }, []);
 
-  const searchChatter = (query: string) => {
+  const searchChatter = useCallback((query: string) => {
     // Simulate search function - in reality would fetch from API
     toast.info(`Searching for "${query}"`);
     // Shuffle the chatter cards to simulate new results
     setChatterCards([...mockChatterCards].sort(() => Math.random() - 0.5));
-  };
+  }, []);
 
-  const toggleAutoRefresh = () => {
+  const toggleAutoRefresh = useCallback(() => {
     setIsAutoRefreshEnabled(prev => !prev);
-  };
+  }, []);
 
   // Library section functions
-  const saveLibraryItem = (id: string) => {
+  const saveLibraryItem = useCallback((id: string) => {
     setLibraryItems(prev => prev.map(item => 
       item.id === id ? { ...item, saved: true } : item
     ));
@@ -694,9 +681,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         source: savedItem.type === 'report' ? 'Research Report' : 
                 savedItem.type === 'case-study' ? 'Case Study' : 'Data Graph',
         type: 'library',
-        starred: false,
-        column: 'market',
-        originalId: savedItem.id
+        starred: false
       };
       
       setMarketInsights(prev => [...prev, newInsight]);
@@ -705,9 +690,9 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Event tracking
     console.log("onLibrarySave", id);
     toast.success("Library item saved");
-  };
+  }, [libraryItems]);
 
-  const viewLibraryItem = (id: string) => {
+  const viewLibraryItem = useCallback((id: string) => {
     // Mark as viewed
     setLibraryItems(prev => prev.map(item => 
       item.id === id ? { ...item, viewed: true } : item
@@ -724,70 +709,19 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (item?.type === 'graph') {
       console.log("onGraphView", id);
     }
-  };
-
-  // Synthesis canvas functions
-  const starInsight = (id: string) => {
-    setMarketInsights(prev => prev.map(insight => 
-      insight.id === id ? { ...insight, starred: !insight.starred } : insight
-    ));
-    
-    // Event tracking
-    console.log("onInsightStar", id);
-  };
-
-  const mergeInsights = (ids: string[], mergedText: string) => {
-    // Create a new merged insight
-    const insightsToMerge = marketInsights.filter(i => ids.includes(i.id));
-    const sourcesList = [...new Set(insightsToMerge.map(i => i.source))];
-    
-    const newInsight: MarketInsight = {
-      id: `insight-merged-${Date.now()}`,
-      text: mergedText,
-      source: sourcesList.join(', '),
-      type: 'merged',
-      starred: false,
-      column: insightsToMerge[0]?.column || 'market'
-    };
-    
-    // Add merged insight and remove originals
-    setMarketInsights(prev => [
-      ...prev.filter(i => !ids.includes(i.id)),
-      newInsight
-    ]);
-    
-    // Event tracking
-    console.log("onInsightMerge", ids);
-    toast.success("Insights merged");
-  };
-
-  const moveInsight = (id: string, column: 'primary' | 'secondary' | 'market') => {
-    setMarketInsights(prev => prev.map(insight => 
-      insight.id === id ? { ...insight, column } : insight
-    ));
-  };
-
-  const generateHeadline = () => {
-    // In a real app, this would use an API call to generate text
-    const starredInsights = marketInsights.filter(i => i.starred);
-    const headline = `Market Analysis: ${starredInsights.length} Key Insights Reveal Shifting HR Technology Landscape`;
-    setHeadline(headline);
-    toast.success("Headline generated");
-  };
+  }, [libraryItems]);
   
   // Validation counters
   const acceptedStatsCount = stats.filter(s => s.accepted).length;
   const savedChatterCount = chatterCards.filter(c => c.saved).length;
   const savedLibraryCount = libraryItems.filter(i => i.saved).length;
   const viewedGraphCount = libraryItems.filter(i => i.viewed && i.type === 'graph').length;
-  const starredMarketInsightsCount = marketInsights.filter(i => i.starred && i.column === 'market').length;
   
   // Validation checks
   const isSection1Complete = acceptedStatsCount >= 8;
   const isSection2Complete = savedChatterCount >= 6;
   const isSection3Complete = savedLibraryCount >= 4 && viewedGraphCount >= 1;
-  const isSection4Complete = starredMarketInsightsCount >= 10;
-  const isModuleComplete = isSection1Complete && isSection2Complete && isSection3Complete && isSection4Complete;
+  const isModuleComplete = isSection1Complete && isSection2Complete && isSection3Complete;
   
   const value = {
     // Stats section
@@ -815,27 +749,21 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     selectedLibraryItem,
     setSelectedLibraryItem,
     
-    // Synthesis canvas
+    // Market insights
     marketInsights,
-    starInsight,
-    mergeInsights,
-    moveInsight,
-    generateHeadline,
     headline,
     
     // Validation
     isSection1Complete,
     isSection2Complete,
     isSection3Complete,
-    isSection4Complete,
     isModuleComplete,
     
     // Counters
     acceptedStatsCount,
     savedChatterCount,
     savedLibraryCount,
-    viewedGraphCount,
-    starredMarketInsightsCount
+    viewedGraphCount
   };
   
   return (
