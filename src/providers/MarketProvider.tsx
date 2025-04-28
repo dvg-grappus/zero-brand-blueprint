@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -300,7 +299,7 @@ const mockChatterCards: ChatterCard[] = [
   {
     id: "chat7",
     source: "twitter",
-    content: "Diverse candidates still getting filtered by "AI" that's trained on biased data. Not progress.",
+    content: "Diverse candidates still getting filtered by \"AI\" that's trained on biased data. Not progress.",
     likes: 3200,
     reposts: 788,
     saved: false,
