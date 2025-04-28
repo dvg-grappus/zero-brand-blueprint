@@ -31,6 +31,15 @@ import { Input } from '@/components/ui/input';
 import { useMoodboards, KeywordCategory, Keyword } from '@/contexts/MoodboardsContext';
 import { TalkToAIButton } from './FloatingAIPanel';
 
+const defaultKeywords: Record<KeywordCategory, string[]> = {
+  'Culture': ['Ambitious', 'Pure', 'Redefining', 'Simplify', 'Optimistic', 'Forward-thinking', 'Minimalist', 'Modern'],
+  'Customer': ['Result-seeking', 'Youthful', 'Anxious', 'Curious', 'Goal-oriented', 'Tech-savvy', 'Innovative', 'Aspirational'],
+  'Voice': ['Jargon-free', 'Optimistic', 'Engaging', 'Feminine', 'Fun', 'Clear', 'Confident', 'Direct'],
+  'Feel': ['Empowered', 'Comforted', 'Mindful', 'In-control', 'Aware', 'Focused', 'Energized', 'Inspired'],
+  'Impact': ['Wellness', 'Fitness', 'Coaching', 'Self-esteem', 'Growth', 'Success', 'Achievement', 'Progress'],
+  'X-Factor': ['Iterative', 'Algorithmic', 'Intuitive', 'Gamified', 'Innovative', 'Future-proof', 'AI-driven', 'Dynamic']
+};
+
 interface KeywordItemProps {
   keyword: Keyword;
   onRemove: (id: string) => void;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -28,25 +27,40 @@ const MasonryTile: React.FC<MasonryTileProps> = ({ tile, onSwap, onDelete, onOpe
     marginBottom: '16px'
   };
   
-  // Get a real image URL based on category
   const getRealImageUrl = (): string => {
-    const imageMap: Record<string, string> = {
-      'BACKGROUND STYLE': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=440&h=280&auto=format&fit=crop',
-      'TYPOGRAPHY': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=300&h=180&auto=format&fit=crop',
-      'LAYOUT': 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=300&h=300&auto=format&fit=crop',
-      'ICON/ILLUSTRATION': 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=200&h=200&auto=format&fit=crop',
-      'PHOTO TREATMENT': 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=300&h=400&auto=format&fit=crop',
-      'TEXTURE': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=200&h=200&auto=format&fit=crop',
-      'COLOR SWATCH': 'https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=200&h=120&auto=format&fit=crop',
-      'MOTION REF': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=260&h=260&auto=format&fit=crop',
-      'PRINT COLLATERAL': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?q=80&w=300&h=200&auto=format&fit=crop',
-      'ENVIRONMENT': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=440&h=300&auto=format&fit=crop',
-      'WILD CARD': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=320&h=240&auto=format&fit=crop',
+    const getRandomImage = (category: string): string => {
+      const imageMap: Record<string, string[]> = {
+        'BACKGROUND STYLE': [
+          'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+          'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
+          'https://images.unsplash.com/photo-1531297484001-80022131f5a1',
+          'https://images.unsplash.com/photo-1615729947596-a598e5de0ab3'
+        ],
+        'TYPOGRAPHY': [
+          'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+          'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
+          'https://images.unsplash.com/photo-1498936178812-4b2e558d2937'
+        ],
+        'LAYOUT': 'https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=300&h=300&auto=format&fit=crop',
+        'ICON/ILLUSTRATION': 'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=200&h=200&auto=format&fit=crop',
+        'PHOTO TREATMENT': 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=300&h=400&auto=format&fit=crop',
+        'TEXTURE': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=200&h=200&auto=format&fit=crop',
+        'COLOR SWATCH': 'https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=200&h=120&auto=format&fit=crop',
+        'MOTION REF': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=260&h=260&auto=format&fit=crop',
+        'PRINT COLLATERAL': 'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?q=80&w=300&h=200&auto=format&fit=crop',
+        'ENVIRONMENT': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=440&h=300&auto=format&fit=crop',
+        'WILD CARD': 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=320&h=240&auto=format&fit=crop',
+      };
+
+      const images = imageMap[category] || ['https://source.unsplash.com/random/300x300/?tech'];
+      const randomIndex = Math.floor(Math.random() * images.length);
+      const baseUrl = images[randomIndex];
+      return `${baseUrl}?q=80&w=${width}&h=${height}&auto=format&fit=crop&unique=${tile.id}`;
     };
-    
-    return imageMap[category] || 'https://source.unsplash.com/random/300x300/?tech';
+
+    return getRandomImage(tile.category);
   };
-  
+
   return (
     <motion.div
       className="relative group"
@@ -64,12 +78,10 @@ const MasonryTile: React.FC<MasonryTileProps> = ({ tile, onSwap, onDelete, onOpe
         />
       </div>
       
-      {/* Category badge */}
       <div className="absolute top-2 left-2 bg-[#262626]/80 backdrop-blur-sm text-[10px] uppercase px-2 py-1 rounded font-medium">
         {category}
       </div>
       
-      {/* Action overlay */}
       <AnimatePresence>
         {isHovered && (
           <motion.div 
@@ -155,7 +167,6 @@ const MoodboardBuilderView: React.FC<MoodboardBuilderViewProps> = ({ onOpenAI })
   
   return (
     <div className="min-h-[calc(100vh-88px)] flex flex-col p-8">
-      {/* Tabs navigation */}
       <div className="flex justify-between items-center mb-8 px-10">
         <Tabs
           value={activeMoodboard || ''}
@@ -194,7 +205,6 @@ const MoodboardBuilderView: React.FC<MoodboardBuilderViewProps> = ({ onOpenAI })
         </div>
       </div>
       
-      {/* Moodboard masonry grid */}
       <div className="flex-1 overflow-y-auto px-10">
         {currentMoodboard && (
           <Masonry

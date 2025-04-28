@@ -95,11 +95,15 @@ const StepCard: React.FC<StepCardProps> = ({
   };
 
   const getButtonText = () => {
+    // Always show "Begin" for first 5 modules regardless of status
+    if (id <= 5) {
+      return "Begin";
+    }
+    // For other modules
     if (status === "done") {
-      return "Review";
-    } 
-    // Always show "Begin" for current step, developed modules (1-3), market (4), or personality (5)
-    if (status === "current" || id <= 5) {
+      return "Preview";
+    }
+    if (status === "current") {
       return "Begin";
     }
     return showPreview ? "Close" : "Preview";

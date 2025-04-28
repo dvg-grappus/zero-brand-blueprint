@@ -35,30 +35,18 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
   onOpenAI
 }) => {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className={`w-full h-[300px] rounded-lg relative overflow-hidden mb-6 ${
-        selected ? 'border-2 border-cyan' : 'border border-border/30'
-      }`}
-    >
-      <div className="absolute top-4 left-4 bg-[#262626]/80 px-3 py-1 rounded text-sm backdrop-blur-sm z-10">
+    <div className={`w-full h-[300px] rounded-lg relative overflow-hidden mb-6 ${
+      selected ? 'border-2 border-cyan' : 'border border-border/30'
+    }`}>
+      {/* Percentage badge - fixed positioning */}
+      <div className="absolute top-4 right-4 bg-[#262626]/80 px-3 py-1 rounded text-sm backdrop-blur-sm z-20">
         Relevance {relevance}%
       </div>
       
-      <div className="absolute top-4 right-4 z-10">
-        <Checkbox
-          checked={selected}
-          onCheckedChange={() => onSelect(id)}
-          className={`h-6 w-6 ${selected ? 'border-cyan data-[state=checked]:bg-cyan data-[state=checked]:text-black' : 'border-muted-foreground'}`}
-        />
-      </div>
-      
+      {/* Title and content with proper spacing */}
       <div className="p-6 flex flex-col h-full">
-        <div className="mb-2">
-          <h2 className="text-[48px] leading-[1.1] font-bold">{title}</h2>
+        <div className="mb-4">
+          <h2 className="text-[32px] leading-[1.1] font-bold">{title}</h2>
         </div>
         
         <div className="flex flex-wrap gap-1 mb-4">
@@ -112,7 +100,7 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
                 className="h-[120px] w-[180px] bg-muted rounded overflow-hidden"
               >
                 <img 
-                  src={getThumbnailImage(idx)}
+                  src={thumbnail}
                   alt={thumbnail}
                   className="h-full w-full object-cover"
                   onError={(e) => {
@@ -124,21 +112,8 @@ const DirectionCard: React.FC<DirectionCardProps> = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
-};
-
-const getThumbnailImage = (index: number): string => {
-  const thumbnailImages = [
-    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=180&h=120&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=180&h=120&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=180&h=120&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=180&h=120&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=180&h=120&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=180&h=120&auto=format&fit=crop"
-  ];
-  
-  return thumbnailImages[index % thumbnailImages.length];
 };
 
 interface DirectionsViewProps {
@@ -157,32 +132,57 @@ const DirectionsView: React.FC<DirectionsViewProps> = ({ onOpenAI }) => {
   } = useMoodboards();
   
   const enhanceDirectionDescriptions = () => {
-    return directions.map(dir => {
+    return directions.map((dir, index) => {
       if (dir.title.startsWith("Direction ")) {
         const uniqueTitles = [
           "Digital Horizon", 
-          "Refined Elegance", 
-          "Future Forward", 
-          "Cosmic Vision", 
-          "Bold Frontiers", 
+          "Refined Elegance",
+          "Future Forward",
+          "Bold Frontiers",
+          "Cosmic Vision",
           "Pristine Clarity"
         ];
         
         const richDescriptions = [
-          "Think limitless possibilities. Think creative thinking. Picture a world where digital meets physical, where each interaction feels effortless yet profound.",
-          "Envision a space where minimalism isn't just aesthetic—it's purposeful. Clean lines and thoughtful design create breathing room for ideas to flourish.",
+          "Think limitless possibilities. Think fluid interactions. Where digital meets physical, each touchpoint creates moments of delight and discovery.",
+          "Envision a space where minimalism isn't just aesthetic—it's transformative. Clean lines and thoughtful design create breathing room for ideas to flourish.",
           "The future isn't static; it's dynamic. This direction embraces motion, transformation, and the constant evolution of technology and human experience.",
-          "Imagine depth and dimension that transcend the ordinary. Like a perfect galaxy viewed through the clearest lens, every element has meaning and purpose.",
-          "Boldness isn't just about color—it's about conviction. This direction doesn't whisper, it speaks with authority through deliberate choices and contrasts.",
-          "Clarity comes from restraint. This direction strips away the unnecessary to reveal what truly matters, creating moments of perfect understanding."
+          "Here, boldness isn't just about visuals—it's about vision. This direction speaks with authority through deliberate choices and powerful contrasts.",
+          "Imagine depth beyond the ordinary. Like a perfect galaxy viewed through the clearest lens, every element aligns with cosmic precision.",
+          "True clarity comes from purposeful restraint. This direction strips away the unnecessary to reveal what truly matters."
         ];
         
-        const index = parseInt(dir.id.replace("dir-", "")) % uniqueTitles.length;
+        const getThumbnailsForDirection = (dirIndex: number) => {
+          const thumbnails = [
+            [
+              "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=180&h=120&auto=format&fit=crop"
+            ],
+            [
+              "https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=180&h=120&auto=format&fit=crop"
+            ],
+            [
+              "https://images.unsplash.com/photo-1481487196290-c152efe083f5?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=180&h=120&auto=format&fit=crop"
+            ],
+            [
+              "https://images.unsplash.com/photo-1589365278144-c9e705f843ba?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?q=80&w=180&h=120&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1527576539890-dfa815648363?q=80&w=180&h=120&auto=format&fit=crop"
+            ]
+          ];
+          return thumbnails[dirIndex % thumbnails.length];
+        };
         
         return {
           ...dir,
-          title: uniqueTitles[index],
-          description: richDescriptions[index]
+          title: uniqueTitles[index % uniqueTitles.length],
+          description: richDescriptions[index % richDescriptions.length],
+          thumbnails: getThumbnailsForDirection(index)
         };
       }
       return dir;
