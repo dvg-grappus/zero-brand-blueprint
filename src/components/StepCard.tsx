@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, ArrowRight } from "lucide-react";
+import { Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ interface StepCardProps {
   title: string;
   description: string;
   duration: string;
-  status: "todo" | "current" | "done";
   index: number;
   onView: (id: number) => void;
   onBegin: (id: number) => void;
@@ -22,16 +21,13 @@ const StepCard: React.FC<StepCardProps> = ({
   title, 
   description, 
   duration, 
-  status, 
   index,
   onView,
   onBegin
 }) => {
   const navigate = useNavigate();
-  const [showPreview, setShowPreview] = useState(false);
   const [inView, setInView] = useState(false);
-  const isFirstCard = id === 1;
-
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -60,55 +56,22 @@ const StepCard: React.FC<StepCardProps> = ({
   const handleButtonClick = () => {
     onBegin(id);
     
-    // If it's done, current, first step, market (4), or personality (5), navigate directly
-    if (status === "done" || status === "current" || isFirstCard || id <= 5) {
-      // Add blur to other cards
-      document.querySelectorAll('.step-card:not(.step-card-' + id + ')').forEach(card => {
-        (card as HTMLElement).style.opacity = '0.3';
-        (card as HTMLElement).style.filter = 'blur(10px)';
-      });
-      
-      // Navigate after delay
-      setTimeout(() => {
-        if (id === 5) {
-          // For Personality module, navigate to first sub-page
-          navigate(`/step/4/archetype`);
-        } else {
-          // Direct navigation to the module without substep for cleaner URLs
-          navigate(`/step/${id}`);
-        }
-      }, 300);
-    } else {
-      // If it's not a navigable step, just toggle preview
-      setShowPreview(!showPreview);
-    }
+    // All steps now navigate directly without preview state
+    document.querySelectorAll('.step-card:not(.step-card-' + id + ')').forEach(card => {
+      (card as HTMLElement).style.opacity = '0.3';
+      (card as HTMLElement).style.filter = 'blur(10px)';
+    });
+    
+    setTimeout(() => {
+      // Navigation logic for each step
+      if (id === 5) {
+        navigate(`/step/4/archetype`);
+      } else {
+        navigate(`/step/${id}`);
+      }
+    }, 300);
   };
-
-  const getMarkerIcon = () => {
-    if (status === "done") {
-      return <Check className="w-4 h-4 text-black" />; // Black checkmark for better visibility
-    }
-    if (status === "current") {
-      return <ArrowRight className="w-4 h-4 text-background" />;
-    }
-    return null;
-  };
-
-  const getButtonText = () => {
-    // Always show "Begin" for first 5 modules regardless of status
-    if (id <= 5) {
-      return "Begin";
-    }
-    // For other modules
-    if (status === "done") {
-      return "Preview";
-    }
-    if (status === "current") {
-      return "Begin";
-    }
-    return showPreview ? "Close" : "Preview";
-  };
-
+  
   const keyboardShortcut = `⌘ + ${id}`;
 
   return (
@@ -136,18 +99,12 @@ const StepCard: React.FC<StepCardProps> = ({
           <div className="flex justify-between items-start mb-3">
             {/* Title Section */}
             <div className="flex items-start gap-4">
-              {/* Marker Circle */}
+              {/* Marker Circle - Always showing cyan checkmark */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="absolute left-[32px] -translate-x-1/2 top-6 w-6 h-6 rounded-full flex items-center justify-center border border-muted/50 bg-background z-10">
-                    <div 
-                      className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center",
-                        status === "current" && "bg-foreground",
-                        status === "done" && "bg-cyan"
-                      )}
-                    >
-                      {getMarkerIcon()}
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center bg-cyan">
+                      <Check className="w-4 h-4 text-black" />
                     </div>
                   </div>
                 </TooltipTrigger>
@@ -169,32 +126,14 @@ const StepCard: React.FC<StepCardProps> = ({
             </div>
           </div>
           
-          {/* Preview Content */}
-          {showPreview && (
-            <motion.div 
-              className="mt-4 h-[280px] bg-muted/20 rounded-md flex items-center justify-center border border-border/30"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 280, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex gap-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="w-[150px] h-[240px] bg-muted/30 rounded-md flex items-center justify-center text-muted-foreground">
-                    Preview slide {i}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-          
-          {/* Card Footer with Button */}
+          {/* Card Footer with Button - Always "Begin" */}
           <div className="mt-4 flex justify-end">
             <button 
               className="bg-card text-foreground hover:bg-cyan hover:text-background border border-border/70 rounded-full py-2 px-8 font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cyan/40"
               style={{ minWidth: 104, height: 40 }}
               onClick={handleButtonClick}
             >
-              {getButtonText()}
+              Begin
             </button>
           </div>
         </div>
