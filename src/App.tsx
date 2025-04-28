@@ -12,7 +12,8 @@ import AudiencePage from "./pages/AudiencePage";
 import CompetitionPage from "./pages/CompetitionPage";
 import MarketPage from "./pages/MarketPage";
 import PersonalityPage from "./pages/PersonalityPage";
-import MoodboardsPage from "./pages/MoodboardsPage"; // Add this import
+import MoodboardsPage from "./pages/MoodboardsPage"; 
+import StylescapesPage from "./pages/StylescapesPage";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,10 @@ const App = () => (
             <Route path="/step/5/directions" element={<MoodboardsPage />} />
             <Route path="/step/5/moodboards" element={<MoodboardsPage />} />
             <Route path="/step/5/compare" element={<MoodboardsPage />} />
+            
+            {/* Stylescapes module routes - ensure proper handling for step 6 */}
+            <Route path="/step/6" element={<StepPage />} />
+            <Route path="/step/6/:substep" element={<StepPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
