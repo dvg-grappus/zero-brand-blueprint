@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
@@ -109,28 +108,6 @@ const DichotomyNots: React.FC = () => {
         <p className="text-lg text-muted-foreground">
           Complete this statement to clarify what your brand is and isn't.
         </p>
-        
-        <div className="absolute top-8 right-[120px] flex gap-2">
-          <Button 
-            variant="default"
-            size="sm"
-            className="bg-cyan text-black hover:bg-cyan/80 flex items-center gap-2"
-            onClick={handleGenerateCombo}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Auto-Generate
-          </Button>
-          
-          <Button 
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-            onClick={handleGenerateCombo}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Generate combinations
-          </Button>
-        </div>
       </motion.div>
       
       <div className="flex flex-col items-center justify-center">
@@ -173,6 +150,18 @@ const DichotomyNots: React.FC = () => {
             label="Not word 2"
             onChange={(value) => updateDichotomyWord('notWordTwo', value)}
           />
+        </div>
+
+        <div className="mt-8">
+          <Button 
+            variant="default"
+            size="sm"
+            className="bg-cyan text-black hover:bg-cyan/80 flex items-center gap-2"
+            onClick={handleGenerateCombo}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Generate Combination
+          </Button>
         </div>
       </div>
       
