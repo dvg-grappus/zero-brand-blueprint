@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
 import { Button } from '@/components/ui/button';
-import { ArrowUp, RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowUp } from 'lucide-react';
 import PersonalityNavigation from './PersonalityNavigation';
 
 const PersonalitySlider = ({ axis, leftBrand, rightBrand, value, tooltips, onChange }) => {
@@ -45,8 +45,38 @@ const PersonalitySlider = ({ axis, leftBrand, rightBrand, value, tooltips, onCha
           className="absolute top-[-6px] cursor-pointer flex flex-col items-center"
           style={{ left: `calc(${value * 10}% - 8px)` }}
         >
-          <div className="w-4 h-4 bg-background border-2 border-cyan rounded-full" />
-          <ArrowUp className="w-4 h-4 text-cyan mt-[-2px]" />
+          {/* Increased hit area for thumb */}
+          <button 
+            className="w-8 h-8 absolute top-[-8px] left-[-12px] cursor-grab active:cursor-grabbing"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              
+              const track = e.currentTarget.parentElement?.parentElement;
+              if (!track) return;
+              
+              const trackRect = track.getBoundingClientRect();
+              const trackWidth = trackRect.width;
+              
+              const handleDrag = (moveEvent) => {
+                const x = moveEvent.clientX - trackRect.left;
+                const percentage = Math.max(0, Math.min(1, x / trackWidth));
+                const newValue = Math.round(percentage * 10) || 1; // Ensure minimum of 1
+                onChange(newValue);
+              };
+              
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleDrag);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleDrag);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+          
+          {/* Visible thumb */}
+          <div className="w-4 h-4 bg-background border-2 border-cyan rounded-full z-10" />
+          <ArrowUp className="w-4 h-4 text-cyan mt-[-2px] z-10" />
           
           {/* Tooltip */}
           <div className="absolute top-6 bg-[#333] text-white text-xs p-2 rounded min-w-[200px] max-w-[300px] z-10">
@@ -54,7 +84,7 @@ const PersonalitySlider = ({ axis, leftBrand, rightBrand, value, tooltips, onCha
           </div>
         </div>
         
-        {/* Slider dots */}
+        {/* Slider dots - clickable areas enlarged */}
         <div className="absolute top-[-2px] left-0 right-0 flex justify-between">
           {Array.from({length: 10}).map((_, i) => (
             <button 

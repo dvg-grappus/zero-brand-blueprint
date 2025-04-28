@@ -5,21 +5,25 @@ import { usePersonality } from '@/providers/PersonalityProvider';
 import PersonalityNavigation from './PersonalityNavigation';
 import { Button } from '@/components/ui/button';
 import { X, Shuffle, Check } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const BrandGrid = ({ brands, onSelectBrand }) => {
   return (
     <div className="grid grid-cols-3 gap-4">
       {brands.map((brand) => (
-        <button
+        <Card
           key={brand.name}
-          className="h-[120px] w-[120px] bg-[#262626] rounded-lg flex flex-col items-center justify-center hover:bg-[#333] transition-colors"
+          className="bg-[#262626] border-border/30 hover:border-cyan/40 transition-all duration-200 cursor-pointer"
           onClick={() => onSelectBrand(brand)}
         >
-          <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-xl font-bold">
-            {brand.logo}
-          </div>
-          <span className="mt-2 text-sm font-medium">{brand.name}</span>
-        </button>
+          <CardContent className="p-5 flex flex-col items-center">
+            <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center text-xl font-bold mb-3">
+              {brand.logo}
+            </div>
+            <h3 className="font-medium mb-1 text-center">{brand.name}</h3>
+            <p className="text-xs text-muted-foreground text-center">{brand.description || `${brand.name}'s brand identity`}</p>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
@@ -68,7 +72,7 @@ const XMeetsY: React.FC = () => {
     saveCombination
   } = usePersonality();
   
-  const [selectingSlot, setSelectingSlot] = useState<'A' | 'B' | null>(null);
+  const [selectingSlot, setSelectingSlot] = useState<'A' | 'B' | null>('A'); // Start with left slot selected
   const [searchTerm, setSearchTerm] = useState('');
   
   const handleSelectBrand = (brand) => {

@@ -33,6 +33,7 @@ interface SliderData {
 interface BrandData {
   name: string;
   logo: string;
+  description?: string;
 }
 
 // Define a type for the X meets Y combination
@@ -112,21 +113,21 @@ const archetypeData: ArchetypeData[] = [
 
 // Mock brand logo mapping - in a real app, these would be image URLs
 const mockBrands: BrandData[] = [
-  { name: "Nike", logo: "N" },
-  { name: "Tesla", logo: "T" },
-  { name: "Apple", logo: "A" },
-  { name: "Netflix", logo: "N" },
-  { name: "Airbnb", logo: "A" },
-  { name: "Patagonia", logo: "P" },
-  { name: "Lego", logo: "L" },
-  { name: "Adobe", logo: "A" },
-  { name: "Chanel", logo: "C" },
-  { name: "Spotify", logo: "S" },
-  { name: "IKEA", logo: "I" },
-  { name: "Stripe", logo: "S" },
-  { name: "Mercedes", logo: "M" },
-  { name: "Starbucks", logo: "S" },
-  { name: "Disney", logo: "D" },
+  { name: "Nike", logo: "N", description: "Athletic innovation with emotional storytelling" },
+  { name: "Tesla", logo: "T", description: "Future-forward technology with bold design language" },
+  { name: "Apple", logo: "A", description: "Premium simplicity with human-centered experience" },
+  { name: "Netflix", logo: "N", description: "Disruptive storytelling with personalized content" },
+  { name: "Airbnb", logo: "A", description: "Human connection with authentic local experiences" },
+  { name: "Patagonia", logo: "P", description: "Sustainable quality with environmental activism" },
+  { name: "Lego", logo: "L", description: "Creative play with systematic construction" },
+  { name: "Adobe", logo: "A", description: "Creative tools with professional precision" },
+  { name: "Chanel", logo: "C", description: "Timeless luxury with elegant minimalism" },
+  { name: "Spotify", logo: "S", description: "Music discovery with personalized curation" },
+  { name: "IKEA", logo: "I", description: "Democratic design with functional simplicity" },
+  { name: "Stripe", logo: "S", description: "Developer-first with clean infrastructure" },
+  { name: "Mercedes", logo: "M", description: "Engineering excellence with premium craftsmanship" },
+  { name: "Starbucks", logo: "S", description: "Coffee ritual with consistent community space" },
+  { name: "Disney", logo: "D", description: "Magical storytelling with nostalgic emotion" },
 ];
 
 // Mock keywords with default selections
@@ -301,7 +302,7 @@ export const PersonalityProvider: React.FC<{ children: ReactNode }> = ({ childre
   // X meets Y state
   const [brands] = useState<BrandData[]>(mockBrands);
   const [combination, setCombination] = useState<CombinationData>({
-    brandA: null,
+    brandA: mockBrands[0], // Now we preselect Nike
     brandB: null,
     summary: "",
     implications: [],
@@ -333,8 +334,9 @@ export const PersonalityProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const addToBlend = (name: string) => {
-    if (blendedArchetypes.length >= 2 && !blendedArchetypes.some(a => a.name === name)) {
-      return; // Maximum 2 archetypes in blend
+    // Modified to allow up to 3 archetypes in blend
+    if (blendedArchetypes.length >= 3 && !blendedArchetypes.some(a => a.name === name)) {
+      return; // Maximum 3 archetypes in blend
     }
 
     const archetype = archetypes.find(a => a.name === name);
@@ -346,33 +348,73 @@ export const PersonalityProvider: React.FC<{ children: ReactNode }> = ({ childre
       return;
     }
 
-    // Otherwise add it with default 50% blend
-    const newArchetype = { ...archetype, blendAmount: 50 };
+    // Otherwise add it and rebalance blend amounts
+    const newBlendArray = [...blendedArchetypes];
     
-    if (blendedArchetypes.length === 1) {
-      // If adding second archetype, set both to 50%
-      setBlendedArchetypes([
-        { ...blendedArchetypes[0], blendAmount: 50 },
-        newArchetype
-      ]);
-    } else {
-      // If first archetype, set to 100%
-      setBlendedArchetypes([{ ...newArchetype, blendAmount: 100 }]);
+    if (newBlendArray.length === 0) {
+      // First archetype gets 100%
+      newBlendArray.push({ ...archetype, blendAmount: 100 });
+    } 
+    else if (newBlendArray.length === 1) {
+      // Second archetype - split 50/50
+      newBlendArray[0] = { ...newBlendArray[0], blendAmount: 50 };
+      newBlendArray.push({ ...archetype, blendAmount: 50 });
     }
+    else if (newBlendArray.length === 2) {
+      // Third archetype - split 33/33/33
+      const newAmount = Math.floor(100 / 3);
+      newBlendArray[0] = { ...newBlendArray[0], blendAmount: newAmount };
+      newBlendArray[1] = { ...newBlendArray[1], blendAmount: newAmount };
+      newBlendArray.push({ ...archetype, blendAmount: 100 - (newAmount * 2) });
+    }
+    
+    setBlendedArchetypes(newBlendArray);
   };
 
   const updateBlendAmount = (name: string, amount: number) => {
-    if (blendedArchetypes.length !== 2) return;
-
-    // Update one archetype and adjust the other to maintain 100% total
-    const updatedBlend = blendedArchetypes.map(archetype => {
-      if (archetype.name === name) {
-        return { ...archetype, blendAmount: amount };
+    const archetypeIndex = blendedArchetypes.findIndex(a => a.name === name);
+    if (archetypeIndex === -1) return;
+    
+    // Create a copy of the blended archetypes
+    let updatedBlend = [...blendedArchetypes];
+    
+    if (blendedArchetypes.length === 2) {
+      // For 2 archetypes, just adjust the other one to maintain 100%
+      updatedBlend[archetypeIndex] = { ...updatedBlend[archetypeIndex], blendAmount: amount };
+      const otherIndex = archetypeIndex === 0 ? 1 : 0;
+      updatedBlend[otherIndex] = { ...updatedBlend[otherIndex], blendAmount: 100 - amount };
+    } 
+    else if (blendedArchetypes.length === 3) {
+      // For 3 archetypes, distribute the remaining percentage proportionally
+      updatedBlend[archetypeIndex] = { ...updatedBlend[archetypeIndex], blendAmount: amount };
+      
+      // Find the other two archetypes
+      const otherIndices = [0, 1, 2].filter(i => i !== archetypeIndex);
+      
+      // Calculate current sum of the other two archetypes
+      const otherSum = updatedBlend[otherIndices[0]].blendAmount! + updatedBlend[otherIndices[1]].blendAmount!;
+      
+      // Calculate remaining percentage to distribute
+      const remaining = 100 - amount;
+      
+      if (otherSum > 0) {
+        // Distribute proportionally
+        const ratio = remaining / otherSum;
+        updatedBlend[otherIndices[0]] = { 
+          ...updatedBlend[otherIndices[0]], 
+          blendAmount: Math.round(updatedBlend[otherIndices[0]].blendAmount! * ratio) 
+        };
+        updatedBlend[otherIndices[1]] = { 
+          ...updatedBlend[otherIndices[1]], 
+          blendAmount: remaining - updatedBlend[otherIndices[0]].blendAmount! 
+        };
       } else {
-        return { ...archetype, blendAmount: 100 - amount };
+        // If other amounts were 0, split evenly
+        updatedBlend[otherIndices[0]] = { ...updatedBlend[otherIndices[0]], blendAmount: Math.floor(remaining / 2) };
+        updatedBlend[otherIndices[1]] = { ...updatedBlend[otherIndices[1]], blendAmount: Math.ceil(remaining / 2) };
       }
-    });
-
+    }
+    
     setBlendedArchetypes(updatedBlend);
   };
 
@@ -487,7 +529,7 @@ export const PersonalityProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   const generateDichotomyCombos = () => {
-    // Mock generation of 3 dichotomy combinations
+    // Generate 3 dichotomy combinations
     return [
       {
         wordOne: "Innovative",

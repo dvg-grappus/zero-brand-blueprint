@@ -78,14 +78,20 @@ const DichotomyNots: React.FC = () => {
     generateDichotomyCombos
   } = usePersonality();
   
+  const [comboIndex, setComboIndex] = useState(0);
+  
+  // Generate a new combination
   const handleGenerateCombo = () => {
     const combos = generateDichotomyCombos();
     if (combos.length > 0) {
-      const randomCombo = combos[Math.floor(Math.random() * combos.length)];
-      updateDichotomyWord('wordOne', randomCombo.wordOne);
-      updateDichotomyWord('wordTwo', randomCombo.wordTwo);
-      updateDichotomyWord('notWordOne', randomCombo.notWordOne);
-      updateDichotomyWord('notWordTwo', randomCombo.notWordTwo);
+      // Pick a combo based on the current index, then increment the index for next time
+      const combo = combos[comboIndex % combos.length];
+      setComboIndex(prevIndex => prevIndex + 1);
+      
+      updateDichotomyWord('wordOne', combo.wordOne);
+      updateDichotomyWord('wordTwo', combo.wordTwo);
+      updateDichotomyWord('notWordOne', combo.notWordOne);
+      updateDichotomyWord('notWordTwo', combo.notWordTwo);
     }
   };
 
@@ -104,7 +110,17 @@ const DichotomyNots: React.FC = () => {
           Complete this statement to clarify what your brand is and isn't.
         </p>
         
-        <div className="absolute top-8 right-[120px] flex">
+        <div className="absolute top-8 right-[120px] flex gap-2">
+          <Button 
+            variant="default"
+            size="sm"
+            className="bg-cyan text-black hover:bg-cyan/80 flex items-center gap-2"
+            onClick={handleGenerateCombo}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Auto-Generate
+          </Button>
+          
           <Button 
             variant="outline"
             size="sm"

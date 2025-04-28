@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
-import PersonalityNavigation from './PersonalityNavigation';
 import { Button } from '@/components/ui/button';
 import { X, RefreshCw } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import PersonalityNavigation from './PersonalityNavigation';
 
 interface ArchetypeWheelProps {
   archetypes: {
@@ -33,8 +33,12 @@ const ArchetypeWheel: React.FC<ArchetypeWheelProps> = ({ archetypes, onArchetype
 
   // Calculate which archetype is selected or in the blend
   const getSliceFill = (name: string) => {
-    if (blendedArchetypes.some(a => a.name === name)) {
-      return '#7DF9FF'; // Cyan for blended archetypes
+    const archetype = blendedArchetypes.find(a => a.name === name);
+    if (archetype) {
+      // Different colors for primary/secondary/tertiary
+      if (archetype.blendAmount >= 50) return '#7DF9FF'; // Primary - Cyan
+      if (archetype.blendAmount >= 30) return '#5BC8FF'; // Secondary - Light blue
+      return '#4F9EFF'; // Tertiary - Blue
     }
     const arch = archetypes.find(a => a.name === name);
     return arch?.selected ? '#7DF9FF' : '#444';
@@ -81,12 +85,20 @@ const ArchetypeWheel: React.FC<ArchetypeWheelProps> = ({ archetypes, onArchetype
             Z
           `;
           
+          // Find if this archetype is in the blend
+          const blendArchetype = blendedArchetypes.find(a => a.name === archetype.name);
+          // Calculate fill based on blend amount
+          let fillOpacity = archetype.selected ? 0.7 : 0.3;
+          if (blendArchetype) {
+            fillOpacity = 0.3 + (blendArchetype.blendAmount / 100) * 0.4;
+          }
+          
           return (
             <g key={archetype.name}>
               <path
                 d={path}
                 fill={getSliceFill(archetype.name)}
-                opacity={archetype.selected || blendedArchetypes.some(a => a.name === name) ? 0.7 : 0.3}
+                opacity={fillOpacity}
                 stroke="#fff"
                 strokeWidth="1"
                 onClick={() => onArchetypeClick(archetype.name)}
@@ -118,6 +130,27 @@ const ArchetypeWheel: React.FC<ArchetypeWheelProps> = ({ archetypes, onArchetype
                 </text>
               </g>
             </g>
+          );
+        })}
+        
+        {/* White border lines between slices */}
+        {archetypes.map((_, index) => {
+          const angle = index * angleStep;
+          const rad = angle * Math.PI / 180;
+          const x = Math.cos(rad) * radius;
+          const y = Math.sin(rad) * radius;
+          
+          return (
+            <line
+              key={`line-${index}`}
+              x1="0"
+              y1="0"
+              x2={x}
+              y2={y}
+              stroke="#fff"
+              strokeWidth="1"
+              strokeOpacity="0.5"
+            />
           );
         })}
         
@@ -242,7 +275,7 @@ const BlendBar: React.FC<BlendBarProps> = ({ archetypes, onUpdateBlend }) => {
   
   return (
     <div className="mt-8 p-6 bg-[#262626] rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Archetype Blend</h3>
+      <h3 className="text-lg font-semibold mb-4">Archetype Blend (up to 3)</h3>
       
       <div className="space-y-4">
         {archetypes.map((archetype) => (
