@@ -8,6 +8,18 @@ interface TimelineCarouselProps {
   onBegin: (id: number) => void;
 }
 
+// Define an interface for the card style to fix TypeScript errors
+interface CardStyle {
+  zIndex: number;
+  opacity: number;
+  scale: number;
+  rotateY?: string;
+  rotateX?: string;
+  translateZ?: string;
+  translateX?: string;
+  translateY?: string;
+}
+
 const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -119,12 +131,12 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   };
 
   // Refined card styles with improved diagonal, non-overlapping layout and more 3D effect
-  const getCardStyle = (index: number) => {
+  const getCardStyle = (index: number): CardStyle => {
     // Calculate relative position from active card
     const diff = index - activeIndex;
     
     // Base styles for all cards with improved fade out for distant cards
-    const baseStyles = {
+    const baseStyles: CardStyle = {
       zIndex: 50 - Math.abs(diff) * 10,
       opacity: diff === 0 ? 1 : Math.max(1 - Math.abs(diff) * 0.3, 0), // Faster fade out
       scale: diff === 0 ? 1 : Math.max(0.95 - Math.abs(diff) * 0.05, 0.8)
