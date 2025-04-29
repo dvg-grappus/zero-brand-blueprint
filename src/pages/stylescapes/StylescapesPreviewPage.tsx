@@ -120,7 +120,7 @@ const StylescapesPreviewPage: React.FC = () => {
                   
                   <div 
                     className={cn(
-                      "relative w-full h-[140px] overflow-hidden rounded-md cursor-pointer",
+                      "relative w-full h-[140px] overflow-hidden rounded-md",
                       "group border border-[#444] hover:border-[#7DF9FF]",
                       winner === row.id ? "border-[#7DF9FF] ring-1 ring-[#7DF9FF]" : ""
                     )}
