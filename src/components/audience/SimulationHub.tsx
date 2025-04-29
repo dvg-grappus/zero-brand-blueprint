@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -423,7 +422,6 @@ const SimulationHub: React.FC<SimulationHubProps> = ({ onComplete }) => {
         </div>
         <Button 
           onClick={onComplete}
-          disabled={transcripts.length === 0}
           className="bg-cyan hover:bg-cyan/90 text-background"
         >
           Review insights →
