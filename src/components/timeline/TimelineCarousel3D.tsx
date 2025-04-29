@@ -7,7 +7,10 @@ import TimelineCardList from "./TimelineCardList";
 import { useCarouselNavigation } from "@/hooks/useCarouselNavigation";
 
 const TimelineCarousel3D: React.FC<CarouselProps> = ({ steps, onBegin }) => {
-  // Use the hook at the top level, before any conditional logic
+  // Log component rendering
+  console.log("TimelineCarousel3D rendering with", steps.length, "steps");
+  
+  // Use the hook at the top level
   const {
     activeIndex,
     isAnimating,
@@ -22,6 +25,7 @@ const TimelineCarousel3D: React.FC<CarouselProps> = ({ steps, onBegin }) => {
   });
   
   const handleBeginClick = (id: number) => {
+    console.log("Begin clicked for step ID:", id);
     onBegin(id);
   };
   
