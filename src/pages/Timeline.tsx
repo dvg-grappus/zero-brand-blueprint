@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -140,10 +141,6 @@ const Timeline: React.FC = () => {
     };
   }, []);
   
-  const handleStepView = (stepId: number) => {
-    console.log(`onStepView fired for step ${stepId}`);
-  };
-  
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
     
@@ -152,26 +149,54 @@ const Timeline: React.FC = () => {
     setTimeout(() => {
       document.body.style.opacity = '1';
       
-      // Navigation logic for each step
-      if (stepId === 6) {
-        console.log('Timeline: Navigating to moodboards /step/5/attributes');
-        navigate("/step/5/attributes");
-      } else if (stepId === 1) {
-        navigate("/step/1");
-      } else if (stepId === 2) {
-        navigate("/step/2");
-      } else if (stepId === 3) {
-        navigate("/step/3");
-      } else if (stepId === 4) {
-        navigate("/step/4");
-      } else if (stepId === 5) {
-        navigate("/step/4/archetype");
-      } else if (stepId === 7) {
-        console.log('Timeline: Navigating to stylescapes /step/6/craft');
-        navigate("/step/6/craft");
-      } else {
-        // Handle other steps
-        navigate(`/step/${stepId}`);
+      // Navigation logic for each step - now handling all steps
+      switch(stepId) {
+        case 1:
+          navigate("/step/1");
+          break;
+        case 2:
+          navigate("/step/2");
+          break;
+        case 3:
+          navigate("/step/3");
+          break;
+        case 4:
+          navigate("/step/4");
+          break;
+        case 5:
+          navigate("/step/4/archetype");
+          break;
+        case 6:
+          console.log('Timeline: Navigating to moodboards /step/5/attributes');
+          navigate("/step/5/attributes");
+          break;
+        case 7:
+          console.log('Timeline: Navigating to stylescapes /step/6/craft');
+          navigate("/step/6/craft");
+          break;
+        case 8:
+          navigate("/step/8");
+          break;
+        case 9:
+          navigate("/step/9");
+          break;
+        case 10:
+          navigate("/step/10");
+          break;
+        case 11:
+          navigate("/step/11");
+          break;
+        case 12:
+          navigate("/step/12");
+          break;
+        case 13:
+          navigate("/step/13");
+          break;
+        case 14:
+          navigate("/step/14");
+          break;
+        default:
+          navigate(`/step/${stepId}`);
       }
     }, 300);
   };

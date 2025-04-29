@@ -70,6 +70,27 @@ const App = () => (
             <Route path="/step/6/craft" element={<StylescapesCraftPage />} />
             <Route path="/step/6/preview" element={<StylescapesPreviewPage />} />
             
+            {/* Logo module route */}
+            <Route path="/step/8" element={<StepPage />} />
+            
+            {/* Voice module route */}
+            <Route path="/step/9" element={<StepPage />} />
+            
+            {/* Color module route */}
+            <Route path="/step/10" element={<StepPage />} />
+            
+            {/* Typography module route */}
+            <Route path="/step/11" element={<StepPage />} />
+            
+            {/* Elements module route */}
+            <Route path="/step/12" element={<StepPage />} />
+            
+            {/* Collaterals module route */}
+            <Route path="/step/13" element={<StepPage />} />
+            
+            {/* Brand Book module route */}
+            <Route path="/step/14" element={<StepPage />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
