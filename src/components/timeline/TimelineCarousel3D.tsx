@@ -17,7 +17,8 @@ const TimelineCarousel3D: React.FC<CarouselProps> = ({ steps, onBegin }) => {
     handleTouchEnd
   } = useCarouselNavigation({
     totalItems: steps.length,
-    animationDuration: 300
+    animationDuration: 300,
+    scrollDelay: 150
   });
   
   const handleBeginClick = (id: number) => {

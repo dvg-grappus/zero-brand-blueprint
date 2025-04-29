@@ -29,6 +29,7 @@ export const useCarouselNavigation = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
+  const lastScrollTimeRef = useRef(0);
   const touchStartRef = useRef(0);
   
   // Clean up timeouts on unmount
@@ -48,7 +49,7 @@ export const useCarouselNavigation = ({
     };
   }, []);
   
-  // Handle wheel events by directly triggering navigation one card at a time
+  // Handle wheel events by simulating arrow key presses
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -56,16 +57,36 @@ export const useCarouselNavigation = ({
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      // Block wheel events during animation
+      // If animation is in progress, block event
       if (isAnimating) {
         return;
       }
       
-      // Determine direction
-      const direction = e.deltaY > 0 ? 'next' : 'prev';
+      const now = Date.now();
       
-      // Navigate one card at a time
-      handleScroll(direction);
+      // Enforce minimum delay between processing events
+      if (now - lastScrollTimeRef.current < scrollDelay) {
+        return;
+      }
+      
+      lastScrollTimeRef.current = now;
+      
+      // Determine direction and create synthetic keyboard event
+      const direction = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
+      
+      // Create and dispatch a synthetic keyboard event
+      const keyEvent = new KeyboardEvent('keydown', { 
+        key: direction,
+        bubbles: true,
+        cancelable: true 
+      });
+      
+      // Process using the keyboard handler directly
+      if (direction === 'ArrowDown' && activeIndex < totalItems - 1) {
+        handleScroll('next');
+      } else if (direction === 'ArrowUp' && activeIndex > 0) {
+        handleScroll('prev');
+      }
     };
     
     // Add non-passive wheel event listener
@@ -75,7 +96,7 @@ export const useCarouselNavigation = ({
     return () => {
       element.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [isAnimating, activeIndex, totalItems]);
+  }, [isAnimating, scrollDelay, activeIndex, totalItems]);
   
   // Handle navigation with animation lock
   const handleScroll = (direction: 'next' | 'prev') => {
