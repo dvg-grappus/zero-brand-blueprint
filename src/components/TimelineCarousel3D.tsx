@@ -26,44 +26,42 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Implement snap scrolling - move one card at a time
+  // Improved snap scrolling - always allow one card movement
   const handleScroll = (direction: 'next' | 'prev') => {
+    // Set a short debounce to prevent very rapid scrolling
     if (isScrolling) return;
-    
     setIsScrolling(true);
     
     let newIndex: number;
     if (direction === 'next') {
-      // Move to next card if not at the end
+      // Always allow moving to next card if not at the end
       newIndex = Math.min(activeIndex + 1, steps.length - 1);
     } else {
-      // Move to previous card if not at the beginning
+      // Always allow moving to previous card if not at the beginning
       newIndex = Math.max(activeIndex - 1, 0);
     }
     
-    if (newIndex !== activeIndex) {
-      console.log(`Snap scrolling to index: ${newIndex}`);
-      setActiveIndex(newIndex);
-    }
+    console.log(`Snap scrolling to index: ${newIndex} (from ${activeIndex})`);
+    setActiveIndex(newIndex);
     
-    // Reset scrolling lock after animation completes
+    // Reset scrolling lock after animation completes - shorter timeout
     if (scrollTimer.current) {
       clearTimeout(scrollTimer.current);
     }
     
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 500);
+    }, 200); // Shorter timeout for more responsive feeling
   };
   
-  // Wheel event handler with snap functionality
+  // Wheel event handler with improved snap functionality
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
     const direction = e.deltaY > 0 ? 'next' : 'prev';
     handleScroll(direction);
   };
   
-  // Set up wheel event handler
+  // Set up wheel event handler with proper cleanup
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -76,9 +74,9 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
         clearTimeout(scrollTimer.current);
       }
     };
-  }, [activeIndex, isScrolling]); // Added isScrolling as dependency to fix stale closure issues
+  }, [activeIndex, isScrolling]); // Keep these dependencies to update the handler
   
-  // Improved keyboard navigation with snap functionality
+  // Improved keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       let handled = false;
@@ -104,9 +102,9 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeIndex, steps, onBegin, isScrolling]);
+  }, [activeIndex, steps, onBegin]);
   
-  // Touch handling with snap functionality
+  // Touch handling with improved reliability
   const touchStartRef = useRef(0);
   const touchMoveRef = useRef(0);
   
@@ -116,15 +114,12 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   };
   
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (isScrolling) return;
     touchMoveRef.current = touchStartRef.current - e.touches[0].clientY;
   };
   
   const handleTouchEnd = () => {
-    if (isScrolling) return;
-    
     // Determine direction from touch movement
-    if (Math.abs(touchMoveRef.current) > 50) {
+    if (Math.abs(touchMoveRef.current) > 30) { // Lower threshold for better response
       const direction = touchMoveRef.current > 0 ? 'next' : 'prev';
       handleScroll(direction);
     }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ const Timeline: React.FC = () => {
     { id: 14, title: "Brand Book", description: "Bind everything into a polished PDF kit.", duration: "1 min" },
   ];
 
+  // This effect processes location state to set completed steps
   useEffect(() => {
     console.log("Location state:", location.state);
     
@@ -117,6 +119,7 @@ const Timeline: React.FC = () => {
     }
   }, [location, completedSteps.length]);
 
+  // Help drawer shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "?") {
@@ -202,8 +205,8 @@ const Timeline: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
-      {/* Simple background gradient to ensure content is visible */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background to-background z-0"></div>
+      {/* Simple gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/90 to-background z-0"></div>
       
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />
