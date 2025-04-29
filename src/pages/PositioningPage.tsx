@@ -57,7 +57,7 @@ const PositioningPageContent: React.FC = () => {
             <PositioningStep
               key={step.id}
               id={step.id}
-              title={step.title}
+              title={step.name}
               index={index}
               isCompleted={completedSteps.includes(step.id)}
               isActive={activeStep === step.id}
