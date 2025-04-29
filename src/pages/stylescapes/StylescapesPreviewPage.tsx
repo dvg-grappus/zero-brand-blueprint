@@ -48,11 +48,18 @@ const StylescapesPreviewPage: React.FC = () => {
   };
   
   const handleSelectWinner = () => {
+    // If we have a winner selected, use it
     if (winner) {
       onWinnerChoose(winner);
       onModuleComplete('stylescapes', winner);
-      navigate("/timeline", { state: { fromStylescapes: true } });
+    } else if (rows.length > 0) {
+      // Fallback to using the first row if no winner is explicitly selected
+      onWinnerChoose(rows[0].id);
+      onModuleComplete('stylescapes', rows[0].id);
     }
+    
+    // Always navigate back to timeline regardless of selection state
+    navigate("/timeline", { state: { fromStylescapes: true } });
   };
 
   // Creates a stitched preview of all panels in a row
@@ -99,7 +106,10 @@ const StylescapesPreviewPage: React.FC = () => {
         
         <RadioGroup 
           value={winner || ""} 
-          onValueChange={setWinner} 
+          onValueChange={(value) => {
+            console.log("Radio selection changed to:", value);
+            setWinner(value);
+          }} 
           className="space-y-12"
         >
           {rows.map(row => {
