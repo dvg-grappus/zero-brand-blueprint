@@ -38,6 +38,7 @@ export const useCarouselNavigation = ({
   // Keyboard navigation gets its own, separate lock
   const keyboardNavigationEnabledRef = useRef(true);
   const lastNavigatedIndexRef = useRef(0);
+  const lastKeyPressTimeRef = useRef(0);
   
   // Navigate to specific card with enhanced protection
   const goToCard = (index: number) => {
@@ -192,43 +193,65 @@ export const useCarouselNavigation = ({
   
   // Handle keyboard navigation with more responsive behavior
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Add enhanced logging for keyboard navigation
+    // ALWAYS log every keypress, regardless of whether we will process it
     console.log(`Key pressed: ${e.key}, Current index: ${activeIndex}, Animation status: ${isAnimating}, Keyboard nav enabled: ${keyboardNavigationEnabledRef.current}`);
     
-    // Only block keyboard navigation if actively animating
-    if (isAnimating || !keyboardNavigationEnabledRef.current) {
-      console.log(`Keyboard navigation blocked - animation: ${isAnimating}, keyboard enabled: ${keyboardNavigationEnabledRef.current}`);
-      return;
-    }
+    // Debounce key presses to avoid rapid, unintended double-presses
+    const now = Date.now();
+    const timeSinceLastKeypress = now - lastKeyPressTimeRef.current;
     
-    let targetIndex = activeIndex;
+    // Record the keypress time
+    lastKeyPressTimeRef.current = now;
     
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      targetIndex = Math.min(activeIndex + 1, totalItems - 1);
-      console.log(`Arrow DOWN/RIGHT pressed, attempting to navigate to index ${targetIndex}`);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      // Always prevent default for arrow keys to avoid page scrolling
+      e.preventDefault();
       
-      // If we can actually move (not at the end)
-      if (targetIndex !== activeIndex) {
-        // Temporarily disable keyboard navigation until animation completes
-        keyboardNavigationEnabledRef.current = false;
-        goToCard(targetIndex);
-        e.preventDefault();
-      } else {
-        console.log("Already at last card, can't navigate further down/right");
+      // Check if we need to block this navigation due to animation
+      if (isAnimating) {
+        console.log(`Arrow key navigation blocked - animation in progress`);
+        return;
       }
-    } 
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      targetIndex = Math.max(activeIndex - 1, 0);
-      console.log(`Arrow UP/LEFT pressed, attempting to navigate to index ${targetIndex}`);
       
-      // If we can actually move (not at the beginning)
-      if (targetIndex !== activeIndex) {
-        // Temporarily disable keyboard navigation until animation completes
-        keyboardNavigationEnabledRef.current = false;
-        goToCard(targetIndex);
-        e.preventDefault();
-      } else {
-        console.log("Already at first card, can't navigate further up/left");
+      // Check if keyboard navigation is enabled
+      if (!keyboardNavigationEnabledRef.current) {
+        console.log(`Arrow key navigation blocked - keyboard navigation disabled`);
+        return;
+      }
+      
+      // Throttle navigation if keypresses are too rapid (less than 100ms apart)
+      if (timeSinceLastKeypress < 100) {
+        console.log(`Arrow key navigation throttled - too rapid keypresses (${timeSinceLastKeypress}ms)`);
+        return;
+      }
+      
+      let targetIndex = activeIndex;
+      
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        targetIndex = Math.min(activeIndex + 1, totalItems - 1);
+        console.log(`Arrow DOWN/RIGHT processed, attempting to navigate to index ${targetIndex}`);
+        
+        // If we can actually move (not at the end)
+        if (targetIndex !== activeIndex) {
+          // Temporarily disable keyboard navigation until animation completes
+          keyboardNavigationEnabledRef.current = false;
+          goToCard(targetIndex);
+        } else {
+          console.log("Already at last card, can't navigate further down/right");
+        }
+      } 
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        targetIndex = Math.max(activeIndex - 1, 0);
+        console.log(`Arrow UP/LEFT processed, attempting to navigate to index ${targetIndex}`);
+        
+        // If we can actually move (not at the beginning)
+        if (targetIndex !== activeIndex) {
+          // Temporarily disable keyboard navigation until animation completes
+          keyboardNavigationEnabledRef.current = false;
+          goToCard(targetIndex);
+        } else {
+          console.log("Already at first card, can't navigate further up/left");
+        }
       }
     }
   };
