@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Step } from "@/types/timeline";
 import TimelineCard from "./TimelineCard";
@@ -28,6 +27,58 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const lastWheelTime = useRef<number>(0);
   const scrollTimerRef = useRef<number | null>(null);
   const wheelEventsCount = useRef<number>(0);
+  const isProcessingScroll = useRef<boolean>(false);
+  
+  // Set up non-passive wheel event listener
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    
+    const handleWheelEvent = (e: WheelEvent) => {
+      e.preventDefault(); // This will work now with non-passive listener
+      
+      // Count wheel events for debugging
+      wheelEventsCount.current += 1;
+      console.log(`Wheel event #${wheelEventsCount.current}, delta: ${e.deltaY}`);
+      
+      const now = Date.now();
+      
+      // Block too frequent wheel events or during animation
+      if (isProcessingScroll.current || now - lastWheelTime.current < 800) {
+        console.log(`Ignoring wheel event - ${isProcessingScroll.current ? 'processing in progress' : 'too soon after last event'}`);
+        return;
+      }
+      
+      // Set processing flag to true to block concurrent processing
+      isProcessingScroll.current = true;
+      lastWheelTime.current = now;
+      
+      // Process the scroll with a slight delay to ensure we only take one scroll action
+      setTimeout(() => {
+        const direction = e.deltaY > 0 ? 'next' : 'prev';
+        console.log(`Processing wheel event as ${direction} scroll`);
+        handleScroll(direction);
+        
+        // Reset processing flag after a delay
+        setTimeout(() => {
+          isProcessingScroll.current = false;
+        }, 50); 
+      }, 10);
+    };
+    
+    // Add non-passive event listener (the third parameter {passive: false} is critical here)
+    element.addEventListener('wheel', handleWheelEvent, { passive: false });
+    
+    // Clean up
+    return () => {
+      if (element) {
+        element.removeEventListener('wheel', handleWheelEvent);
+      }
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, []);
   
   // Enhanced strict scroll handling with proper animation lock
   const handleScroll = (direction: 'next' | 'prev') => {
@@ -63,34 +114,12 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
         setIsAnimating(false);
         console.log("Animation completed, releasing animation lock");
         scrollTimerRef.current = null;
-      }, 500); // Slightly longer than animation duration for safety
+      }, 800); // Longer lock to ensure complete animation
     } else {
       // If we're already at the first or last card
       console.log(`At ${direction === 'next' ? 'last' : 'first'} card, can't scroll ${direction}`);
       setIsAnimating(false);
     }
-  };
-  
-  // Completely rewritten wheel event handler with strict control
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    
-    // Count wheel events for debugging
-    wheelEventsCount.current += 1;
-    console.log(`Wheel event #${wheelEventsCount.current}, delta: ${e.deltaY}`);
-    
-    const now = Date.now();
-    
-    // Block too frequent wheel events - much stricter timing
-    if (now - lastWheelTime.current < 700 || isAnimating) {
-      console.log(`Ignoring wheel event - ${isAnimating ? 'animation in progress' : 'too soon after last event'}`);
-      return;
-    }
-    
-    lastWheelTime.current = now;
-    const direction = e.deltaY > 0 ? 'next' : 'prev';
-    console.log(`Processing wheel event as ${direction} scroll`);
-    handleScroll(direction);
   };
   
   // Handle card click with better logging
@@ -114,7 +143,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       setIsAnimating(false);
       console.log(`Card ${index} animation completed`);
       scrollTimerRef.current = null;
-    }, 500);
+    }, 800);
   };
   
   // Improved touch handling
@@ -126,13 +155,24 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   };
   
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isAnimating || isProcessingScroll.current) {
+      console.log("Ignoring touch end - animation or processing in progress");
+      return;
+    }
+    
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStartRef.current - touchEnd;
     
     console.log(`Touch end, diff: ${diff}px`);
     
     if (Math.abs(diff) > 20) {
+      isProcessingScroll.current = true;
       handleScroll(diff > 0 ? 'next' : 'prev');
+      
+      // Reset processing flag after a delay
+      setTimeout(() => {
+        isProcessingScroll.current = false;
+      }, 50);
     } else {
       console.log("Touch movement too small, ignoring");
     }
@@ -157,6 +197,11 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isAnimating || isProcessingScroll.current) {
+      console.log(`Key press ignored - ${isAnimating ? 'animation in progress' : 'processing in progress'}`);
+      return;
+    }
+    
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       handleScroll('next');
       e.preventDefault();
@@ -229,7 +274,6 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     <div 
       className="w-full h-[700px] relative" 
       ref={containerRef}
-      onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onKeyDown={handleKeyDown}
