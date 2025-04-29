@@ -37,22 +37,37 @@ export const useCarouselNavigation = ({
   
   // Keyboard navigation gets its own, separate lock
   const keyboardNavigationEnabledRef = useRef(true);
+  const lastNavigatedIndexRef = useRef(0);
   
   // Navigate to specific card with enhanced protection
   const goToCard = (index: number) => {
     console.log("goToCard called", { index, currentIndex: activeIndex, isAnimating });
     
-    if (isAnimating || index === activeIndex) {
-      console.log("goToCard blocked - already animating or same index");
+    // Verify index is different from current and within bounds
+    if (index < 0 || index >= totalItems) {
+      console.log(`goToCard blocked - index ${index} out of bounds [0-${totalItems-1}]`);
       return;
     }
+    
+    if (isAnimating) {
+      console.log("goToCard blocked - already animating");
+      return;
+    }
+    
+    if (index === activeIndex) {
+      console.log("goToCard blocked - same index");
+      return;
+    }
+    
+    // Store the last index we're navigating to - helps prevent repeat calls
+    lastNavigatedIndexRef.current = index;
     
     // Immediately disable wheel events
     isWheelEnabledRef.current = false;
     console.log("Wheel events disabled");
     
     setIsAnimating(true);
-    console.log("Animation started");
+    console.log("Animation started for navigation from", activeIndex, "to", index);
     setActiveIndex(index);
     
     // Clear any existing timeouts
@@ -145,6 +160,7 @@ export const useCarouselNavigation = ({
   // Handle touch events for mobile navigation
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
+    console.log("Touch start detected at position:", touchStartRef.current);
   };
   
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -156,6 +172,7 @@ export const useCarouselNavigation = ({
     
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStartRef.current - touchEnd;
+    console.log("Touch end detected, diff:", diff);
     
     // Use a threshold for better responsiveness
     if (Math.abs(diff) > 20) {
@@ -163,11 +180,13 @@ export const useCarouselNavigation = ({
       keyboardNavigationEnabledRef.current = false;
       console.log("Touch navigation detected, disabling keyboard nav temporarily");
       
-      if (diff > 0) {
-        goToCard(Math.min(activeIndex + 1, totalItems - 1));
-      } else {
-        goToCard(Math.max(activeIndex - 1, 0));
-      }
+      // Calculate target index
+      const targetIndex = diff > 0 
+        ? Math.min(activeIndex + 1, totalItems - 1)
+        : Math.max(activeIndex - 1, 0);
+      
+      console.log(`Touch navigation to index: ${targetIndex} (current: ${activeIndex})`);
+      goToCard(targetIndex);
     }
   };
   
@@ -182,21 +201,35 @@ export const useCarouselNavigation = ({
       return;
     }
     
+    let targetIndex = activeIndex;
+    
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      console.log(`Arrow DOWN/RIGHT pressed, attempting to navigate to index ${Math.min(activeIndex + 1, totalItems - 1)}`);
+      targetIndex = Math.min(activeIndex + 1, totalItems - 1);
+      console.log(`Arrow DOWN/RIGHT pressed, attempting to navigate to index ${targetIndex}`);
       
-      // Temporarily disable keyboard navigation until animation completes
-      keyboardNavigationEnabledRef.current = false;
-      goToCard(Math.min(activeIndex + 1, totalItems - 1));
-      e.preventDefault();
+      // If we can actually move (not at the end)
+      if (targetIndex !== activeIndex) {
+        // Temporarily disable keyboard navigation until animation completes
+        keyboardNavigationEnabledRef.current = false;
+        goToCard(targetIndex);
+        e.preventDefault();
+      } else {
+        console.log("Already at last card, can't navigate further down/right");
+      }
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      console.log(`Arrow UP/LEFT pressed, attempting to navigate to index ${Math.max(activeIndex - 1, 0)}`);
+      targetIndex = Math.max(activeIndex - 1, 0);
+      console.log(`Arrow UP/LEFT pressed, attempting to navigate to index ${targetIndex}`);
       
-      // Temporarily disable keyboard navigation until animation completes
-      keyboardNavigationEnabledRef.current = false;
-      goToCard(Math.max(activeIndex - 1, 0));
-      e.preventDefault();
+      // If we can actually move (not at the beginning)
+      if (targetIndex !== activeIndex) {
+        // Temporarily disable keyboard navigation until animation completes
+        keyboardNavigationEnabledRef.current = false;
+        goToCard(targetIndex);
+        e.preventDefault();
+      } else {
+        console.log("Already at first card, can't navigate further up/left");
+      }
     }
   };
 
