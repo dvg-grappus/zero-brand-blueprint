@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Step } from "@/types/timeline";
 import TimelineCard from "./TimelineCard";
@@ -24,78 +25,76 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const lastWheelTime = useRef<number>(0);
-  const scrollTimerRef = useRef<number | null>(null);
-  const wheelEventsCount = useRef<number>(0);
-  const isProcessingScroll = useRef<boolean>(false);
+  const wheelTimeoutRef = useRef<number | null>(null);
+  const animationTimeoutRef = useRef<number | null>(null);
   
-  // Set up non-passive wheel event listener
+  // Effect for cleaning up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (wheelTimeoutRef.current) clearTimeout(wheelTimeoutRef.current);
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+    };
+  }, []);
+  
+  // Completely disable page scrolling
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  // Set up wheel event handler with a clean approach
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
     
-    const handleWheelEvent = (e: WheelEvent) => {
-      e.preventDefault(); // This will work now with non-passive listener
+    const handleWheelWithoutPassive = (e: WheelEvent) => {
+      e.preventDefault();
       
-      // Count wheel events for debugging
-      wheelEventsCount.current += 1;
-      console.log(`Wheel event #${wheelEventsCount.current}, delta: ${e.deltaY}`);
-      
-      const now = Date.now();
-      
-      // Block too frequent wheel events or during animation
-      if (isProcessingScroll.current || now - lastWheelTime.current < 800) {
-        console.log(`Ignoring wheel event - ${isProcessingScroll.current ? 'processing in progress' : 'too soon after last event'}`);
+      // If animation is in progress, block all wheel events
+      if (isAnimating) {
+        console.log("Blocking wheel event - animation in progress");
         return;
       }
       
-      // Set processing flag to true to block concurrent processing
-      isProcessingScroll.current = true;
-      lastWheelTime.current = now;
+      // Clear any existing wheel timeout
+      if (wheelTimeoutRef.current) {
+        clearTimeout(wheelTimeoutRef.current);
+      }
       
-      // Process the scroll with a slight delay to ensure we only take one scroll action
-      setTimeout(() => {
+      // Process only the latest wheel event in a sequence
+      wheelTimeoutRef.current = window.setTimeout(() => {
         const direction = e.deltaY > 0 ? 'next' : 'prev';
         console.log(`Processing wheel event as ${direction} scroll`);
         handleScroll(direction);
-        
-        // Reset processing flag after a delay
-        setTimeout(() => {
-          isProcessingScroll.current = false;
-        }, 50); 
-      }, 10);
+      }, 50);
     };
     
-    // Add non-passive event listener (the third parameter {passive: false} is critical here)
-    element.addEventListener('wheel', handleWheelEvent, { passive: false });
+    // Add non-passive event listener
+    element.addEventListener('wheel', handleWheelWithoutPassive, { passive: false });
     
     // Clean up
     return () => {
       if (element) {
-        element.removeEventListener('wheel', handleWheelEvent);
-      }
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
+        element.removeEventListener('wheel', handleWheelWithoutPassive);
       }
     };
-  }, []);
+  }, [isAnimating]); // Re-establish event listeners when isAnimating changes
   
-  // Enhanced strict scroll handling with proper animation lock
+  // Move one card at a time with strict animation lock
   const handleScroll = (direction: 'next' | 'prev') => {
-    // If animation is in progress, completely block further scroll attempts
+    // Double-check animation lock
     if (isAnimating) {
-      console.log("Animation in progress, blocking scroll attempt");
+      console.log("Animation already in progress, blocking scroll");
       return;
     }
     
-    // Set animating flag to prevent multiple scroll events
+    // Set animation lock
     setIsAnimating(true);
-    console.log(`Processing scroll ${direction}, setting isAnimating to true`);
+    console.log(`Setting animation lock for ${direction} scroll`);
     
-    // Reset wheel event counter
-    wheelEventsCount.current = 0;
-    
-    // Move exactly one card at a time
+    // Calculate next index with bounds checking
     const newIndex = direction === 'next' 
       ? Math.min(activeIndex + 1, steps.length - 1)
       : Math.max(activeIndex - 1, 0);
@@ -103,26 +102,25 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     if (newIndex !== activeIndex) {
       console.log(`Moving from index ${activeIndex} to ${newIndex}`);
       setActiveIndex(newIndex);
-      
-      // Clear any existing timer
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
-      }
-      
-      // Set a strict animation lock with a fixed timeout
-      scrollTimerRef.current = window.setTimeout(() => {
-        setIsAnimating(false);
-        console.log("Animation completed, releasing animation lock");
-        scrollTimerRef.current = null;
-      }, 800); // Longer lock to ensure complete animation
     } else {
-      // If we're already at the first or last card
-      console.log(`At ${direction === 'next' ? 'last' : 'first'} card, can't scroll ${direction}`);
+      console.log(`Already at ${direction === 'next' ? 'last' : 'first'} card`);
       setIsAnimating(false);
+      return;
     }
+    
+    // Clear any existing animation timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    
+    // Release animation lock after fixed delay
+    animationTimeoutRef.current = window.setTimeout(() => {
+      setIsAnimating(false);
+      console.log("Animation complete, releasing animation lock");
+    }, 600);
   };
   
-  // Handle card click with better logging
+  // Handle card click - focus specific card
   const handleCardClick = (index: number) => {
     if (isAnimating || index === activeIndex) {
       console.log(`Card ${index} click ignored - ${isAnimating ? 'animation in progress' : 'already active'}`);
@@ -131,19 +129,17 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     
     console.log(`Card ${index} clicked, navigating from ${activeIndex}`);
     setIsAnimating(true);
-    
     setActiveIndex(index);
     
-    // Release animation lock after transition with better logging
-    if (scrollTimerRef.current) {
-      clearTimeout(scrollTimerRef.current);
+    // Release animation lock after transition
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
     }
     
-    scrollTimerRef.current = window.setTimeout(() => {
+    animationTimeoutRef.current = window.setTimeout(() => {
       setIsAnimating(false);
       console.log(`Card ${index} animation completed`);
-      scrollTimerRef.current = null;
-    }, 800);
+    }, 600);
   };
   
   // Improved touch handling
@@ -151,54 +147,25 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
-    console.log(`Touch start at ${touchStartRef.current}`);
   };
   
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isAnimating || isProcessingScroll.current) {
-      console.log("Ignoring touch end - animation or processing in progress");
+    if (isAnimating) {
       return;
     }
     
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStartRef.current - touchEnd;
     
-    console.log(`Touch end, diff: ${diff}px`);
-    
-    if (Math.abs(diff) > 20) {
-      isProcessingScroll.current = true;
+    if (Math.abs(diff) > 30) { // Increased threshold for touch
       handleScroll(diff > 0 ? 'next' : 'prev');
-      
-      // Reset processing flag after a delay
-      setTimeout(() => {
-        isProcessingScroll.current = false;
-      }, 50);
-    } else {
-      console.log("Touch movement too small, ignoring");
     }
   };
   
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
-      }
-    };
-  }, []);
-  
-  // Disable page scrolling completely
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-  
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isAnimating || isProcessingScroll.current) {
-      console.log(`Key press ignored - ${isAnimating ? 'animation in progress' : 'processing in progress'}`);
+    if (isAnimating) {
+      console.log(`Key press ignored - animation in progress`);
       return;
     }
     
@@ -216,7 +183,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     }
   };
 
-  // Get visual style for each card based on its position relative to active card
+  // Get visual style for each card
   const getCardStyle = (index: number): CardStyle => {
     const diff = index - activeIndex;
     
@@ -277,7 +244,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onKeyDown={handleKeyDown}
-      tabIndex={0} // Make div focusable for keyboard events
+      tabIndex={0}
       style={{ 
         perspective: '1500px',
         touchAction: 'none',
