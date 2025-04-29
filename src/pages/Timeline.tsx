@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -144,12 +143,11 @@ const Timeline: React.FC = () => {
     window.addEventListener("keydown", handleKeyDown);
     
     // Prevent scrolling on body to avoid conflicts with carousel
-    const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = "";
     };
   }, []);
   

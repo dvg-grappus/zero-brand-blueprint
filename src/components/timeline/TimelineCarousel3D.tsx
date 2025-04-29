@@ -24,12 +24,11 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const lastWheelEventTime = useRef<number>(0);
-  const wheelEvents = useRef<number[]>([]);
-  const wheelDirections = useRef<string[]>([]);
+  const lastWheelTime = useRef<number>(0);
   
-  // Improved scroll handling with better debouncing and direction detection
+  // Improved scroll handling with strict debounce
   const handleScroll = (direction: 'next' | 'prev') => {
+    // If animation is in progress, ignore all scroll events
     if (isAnimating) {
       console.log("Animation in progress, ignoring scroll");
       return;
@@ -39,7 +38,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     setIsAnimating(true);
     console.log(`Scrolling ${direction}, setting isAnimating to true`);
     
-    // Only move exactly one card at a time regardless of scroll speed
+    // Move exactly one card at a time
     const newIndex = direction === 'next' 
       ? Math.min(activeIndex + 1, steps.length - 1)
       : Math.max(activeIndex - 1, 0);
@@ -47,50 +46,31 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     if (newIndex !== activeIndex) {
       setActiveIndex(newIndex);
       
-      // Animation lock with a fixed timeout - enough time for the animation to complete
+      // Animation lock with a fixed timeout - enough time for animation to complete
       setTimeout(() => {
         setIsAnimating(false);
         console.log("Animation completed, setting isAnimating to false");
-        
-        // Reset wheel events tracking after animation completes
-        wheelEvents.current = [];
-        wheelDirections.current = [];
-      }, 400);
+      }, 400); // Same as card transition duration
     } else {
-      // If we're already at the first or last card, release animation lock faster
+      // If we're already at the first or last card, release animation lock
       setIsAnimating(false);
     }
   };
   
-  // Improved wheel event handler with direction throttling
+  // Improved wheel event handler with strict debouncing
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     
     const now = Date.now();
-    const timeSinceLastEvent = now - lastWheelEventTime.current;
-    lastWheelEventTime.current = now;
-    
-    // Add current event to tracking
-    wheelEvents.current.push(now);
-    wheelDirections.current.push(e.deltaY > 0 ? 'next' : 'prev');
-    
-    // Only keep events from last 300ms for direction analysis
-    const recentTimeThreshold = now - 300;
-    wheelEvents.current = wheelEvents.current.filter(time => time > recentTimeThreshold);
-    wheelDirections.current = wheelDirections.current.slice(-wheelEvents.current.length);
-    
-    // If we have events and not currently animating
-    if (wheelEvents.current.length > 0 && !isAnimating) {
-      // Determine most common direction from recent events
-      const lastDirection = wheelDirections.current[wheelDirections.current.length - 1];
-      
-      // Use the last direction for navigation
-      handleScroll(lastDirection as 'next' | 'prev');
-      
-      // Clear tracked events after processing
-      wheelEvents.current = [];
-      wheelDirections.current = [];
+    // Ensure minimum time between wheel events (even more strict than before)
+    if (now - lastWheelTime.current < 500) {
+      console.log("Ignoring wheel event - too soon after last one");
+      return;
     }
+    
+    lastWheelTime.current = now;
+    const direction = e.deltaY > 0 ? 'next' : 'prev';
+    handleScroll(direction);
   };
   
   // Handle card click - focus the clicked card
