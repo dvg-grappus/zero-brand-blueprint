@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -30,6 +31,7 @@ export const useCarouselNavigation = ({
   // useRef calls after all useState calls
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
+  const wheelTimeoutRef = useRef<number | null>(null);
   const touchStartRef = useRef(0);
   
   // Navigate to specific card
@@ -62,6 +64,9 @@ export const useCarouselNavigation = ({
       if (animationTimeoutRef.current) {
         window.clearTimeout(animationTimeoutRef.current);
       }
+      if (wheelTimeoutRef.current) {
+        window.clearTimeout(wheelTimeoutRef.current);
+      }
     };
   }, []);
   
@@ -81,19 +86,17 @@ export const useCarouselNavigation = ({
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      console.log("Wheel event triggered", { isWheelEnabled, isAnimating });
-      
-      // Only process wheel events when enabled and not animating
-      if (!isWheelEnabled || isAnimating) {
+      // Only process wheel events when not animating and wheel is enabled
+      if (isAnimating || !isWheelEnabled) {
         console.log("Wheel event blocked - wheel disabled or animation in progress");
         return;
       }
       
-      // Disable wheel
+      // Disable wheel immediately to prevent multiple triggers
       setIsWheelEnabled(false);
       console.log("Wheel events disabled");
       
-      // Determine direction and trigger the same function used by arrow keys
+      // Determine direction and trigger navigation
       if (e.deltaY > 0) {
         console.log("Scrolling DOWN/RIGHT");
         goToCard(Math.min(activeIndex + 1, totalItems - 1));
@@ -102,11 +105,16 @@ export const useCarouselNavigation = ({
         goToCard(Math.max(activeIndex - 1, 0));
       }
       
-      // Re-enable wheel events after animation completes
-      setTimeout(() => {
+      // Wait for animation PLUS additional buffer time before re-enabling
+      // This ensures we don't get multiple scroll events firing in succession
+      if (wheelTimeoutRef.current) {
+        window.clearTimeout(wheelTimeoutRef.current);
+      }
+      
+      wheelTimeoutRef.current = window.setTimeout(() => {
         console.log("Re-enabling wheel events");
         setIsWheelEnabled(true);
-      }, animationDuration + 50); // Add small buffer to ensure animation has completed
+      }, animationDuration + 150); // Longer buffer to ensure animation is complete
     };
     
     // Add non-passive wheel event listener
