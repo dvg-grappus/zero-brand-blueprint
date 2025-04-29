@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -23,12 +22,39 @@ export const useCarouselNavigation = ({
   totalItems,
   animationDuration = 200,
 }: UseCarouselNavigationProps): CarouselNavigationResult => {
+  // Keep all useState calls together in the same order every render
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isWheelEnabled, setIsWheelEnabled] = useState(true);
+  
+  // useRef calls after all useState calls
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
   const touchStartRef = useRef(0);
+  
+  // Navigate to specific card
+  const goToCard = (index: number) => {
+    console.log("goToCard called", { index, currentIndex: activeIndex, isAnimating });
+    
+    if (isAnimating || index === activeIndex) {
+      console.log("goToCard blocked - already animating or same index");
+      return;
+    }
+    
+    setIsAnimating(true);
+    console.log("Animation started");
+    setActiveIndex(index);
+    
+    // Release animation lock after transition
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    
+    animationTimeoutRef.current = window.setTimeout(() => {
+      console.log("Animation completed, releasing lock");
+      setIsAnimating(false);
+    }, animationDuration);
+  };
   
   // Clean up timeouts on unmount
   useEffect(() => {
@@ -94,30 +120,6 @@ export const useCarouselNavigation = ({
     };
   }, [activeIndex, totalItems, animationDuration, isAnimating, isWheelEnabled]);
   
-  // Navigate to specific card
-  const goToCard = (index: number) => {
-    console.log("goToCard called", { index, currentIndex: activeIndex, isAnimating });
-    
-    if (isAnimating || index === activeIndex) {
-      console.log("goToCard blocked - already animating or same index");
-      return;
-    }
-    
-    setIsAnimating(true);
-    console.log("Animation started");
-    setActiveIndex(index);
-    
-    // Release animation lock after transition
-    if (animationTimeoutRef.current) {
-      window.clearTimeout(animationTimeoutRef.current);
-    }
-    
-    animationTimeoutRef.current = window.setTimeout(() => {
-      console.log("Animation completed, releasing lock");
-      setIsAnimating(false);
-    }, animationDuration);
-  };
-  
   // Handle touch events for mobile navigation
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
@@ -167,4 +169,3 @@ export const useCarouselNavigation = ({
     handleTouchEnd
   };
 };
-

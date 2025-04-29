@@ -7,6 +7,7 @@ import TimelineCardList from "./TimelineCardList";
 import { useCarouselNavigation } from "@/hooks/useCarouselNavigation";
 
 const TimelineCarousel3D: React.FC<CarouselProps> = ({ steps, onBegin }) => {
+  // Use the hook at the top level to maintain consistent hook order
   const {
     activeIndex,
     isAnimating,
