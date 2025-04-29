@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Step } from "@/types/timeline";
 import { motion } from "framer-motion";
-import { Button } from "./ui/button";
 
 interface TimelineCarouselProps {
   steps: Step[];
@@ -15,31 +14,28 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Throttle scroll events to prevent rapid firing
+  // Improved scroll handling with better throttling
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
     
     if (isScrolling) return;
-    
     setIsScrolling(true);
     
-    // Clear any existing timeout
     if (scrollTimer.current) {
       clearTimeout(scrollTimer.current);
     }
     
-    // Set a timeout to allow scrolling again after a delay
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 600); // 600ms delay before allowing another scroll
+    }, 800); // Increased delay for smoother scrolling
     
-    // Determine scroll direction and change active index
+    // Non-circular navigation - stops at ends
     if (e.deltaY > 0) {
-      // Scroll down - go to next step
-      setActiveIndex((prev) => (prev + 1) % steps.length);
+      // Scroll down - next step
+      setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
     } else {
-      // Scroll up - go to previous step
-      setActiveIndex((prev) => (prev - 1 + steps.length) % steps.length);
+      // Scroll up - previous step
+      setActiveIndex((prev) => Math.max(prev - 1, 0));
     }
   };
   
@@ -48,10 +44,8 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     const container = containerRef.current;
     if (!container) return;
     
-    // Add event listeners
     container.addEventListener('wheel', handleWheel, { passive: false });
     
-    // Clean up
     return () => {
       container.removeEventListener('wheel', handleWheel);
       if (scrollTimer.current) {
@@ -60,14 +54,14 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     };
   }, [steps.length, isScrolling]);
   
-  // Handle keyboard events
+  // Handle keyboard events - non-circular
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isScrolling) return;
       
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         setIsScrolling(true);
-        setActiveIndex((prev) => (prev + 1) % steps.length);
+        setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
         
         if (scrollTimer.current) {
           clearTimeout(scrollTimer.current);
@@ -75,10 +69,10 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
         
         scrollTimer.current = setTimeout(() => {
           setIsScrolling(false);
-        }, 600);
+        }, 800);
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         setIsScrolling(true);
-        setActiveIndex((prev) => (prev - 1 + steps.length) % steps.length);
+        setActiveIndex((prev) => Math.max(prev - 1, 0));
         
         if (scrollTimer.current) {
           clearTimeout(scrollTimer.current);
@@ -86,7 +80,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
         
         scrollTimer.current = setTimeout(() => {
           setIsScrolling(false);
-        }, 600);
+        }, 800);
       } else if (e.key === 'Enter' || e.key === ' ') {
         onBegin(steps[activeIndex].id);
       }
@@ -102,7 +96,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     };
   }, [steps, activeIndex, onBegin, isScrolling]);
   
-  // Handle touch events for mobile
+  // Handle touch events for mobile with non-circular navigation
   const touchStartRef = useRef(0);
   
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -119,11 +113,11 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       setIsScrolling(true);
       
       if (touchDiff > 0) {
-        // Swipe up - go to next step
-        setActiveIndex((prev) => (prev + 1) % steps.length);
+        // Swipe up - go to next step (with limit)
+        setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1));
       } else {
-        // Swipe down - go to previous step
-        setActiveIndex((prev) => (prev - 1 + steps.length) % steps.length);
+        // Swipe down - go to previous step (with limit)
+        setActiveIndex((prev) => Math.max(prev - 1, 0));
       }
       
       touchStartRef.current = e.touches[0].clientY;
@@ -134,130 +128,61 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       
       scrollTimer.current = setTimeout(() => {
         setIsScrolling(false);
-      }, 600);
+      }, 800);
     }
   };
 
-  // Calculate positions for cards with a diagonal and more spaced layout
+  // Calculate positions for cards with a diagonal, non-overlapping layout
   const getCardStyle = (index: number) => {
-    // Calculate relative index position
-    const relativeIndex = (index - activeIndex + steps.length) % steps.length;
+    // Calculate relative position from active card
+    const diff = index - activeIndex;
     
-    // Calculate position based on relative index for a diagonal layout
-    switch (relativeIndex) {
-      case 0: // Active card
-        return {
-          zIndex: 50,
-          opacity: 1,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '0px',
-          translateX: '0%',
-          translateY: '0px',
-          scale: 1
-        };
-      case 1: // Next card
-        return {
-          zIndex: 40,
-          opacity: 0.9,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-120px',
-          translateX: '35%',
-          translateY: '-40px',
-          scale: 0.95
-        };
-      case 2: // Card after next
-        return {
-          zIndex: 30,
-          opacity: 0.7,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-240px',
-          translateX: '70%',
-          translateY: '-80px',
-          scale: 0.9
-        };
-      case 3: // Third card ahead
-        return {
-          zIndex: 20,
-          opacity: 0.5,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-360px',
-          translateX: '105%',
-          translateY: '-120px',
-          scale: 0.85
-        };
-      case steps.length - 1: // Previous card
-        return {
-          zIndex: 40,
-          opacity: 0.9,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-120px',
-          translateX: '-35%',
-          translateY: '40px',
-          scale: 0.95
-        };
-      case steps.length - 2: // Card before previous
-        return {
-          zIndex: 30,
-          opacity: 0.7,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-240px',
-          translateX: '-70%',
-          translateY: '80px',
-          scale: 0.9
-        };
-      case steps.length - 3: // Third card behind
-        return {
-          zIndex: 20,
-          opacity: 0.5,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-360px',
-          translateX: '-105%',
-          translateY: '120px',
-          scale: 0.85
-        };
-      default:
-        // Hidden cards
-        const isOnRightSide = relativeIndex < steps.length / 2;
-        return {
-          zIndex: 1,
-          opacity: 0,
-          rotateY: '-5deg',
-          rotateX: '5deg',
-          translateZ: '-600px',
-          translateX: isOnRightSide ? '140%' : '-140%',
-          translateY: isOnRightSide ? '-160px' : '160px',
-          scale: 0.8
-        };
+    // Base styles for all cards
+    const baseStyles = {
+      zIndex: 50 - Math.abs(diff) * 10,
+      opacity: diff === 0 ? 1 : Math.max(0.9 - Math.abs(diff) * 0.15, 0),
+      scale: diff === 0 ? 1 : Math.max(0.95 - Math.abs(diff) * 0.05, 0.8)
+    };
+    
+    // Positioning based on difference from active card
+    // Improved diagonal layout with better 3D perspective
+    if (diff === 0) {
+      // Active card
+      return {
+        ...baseStyles,
+        rotateY: '-10deg',
+        rotateX: '5deg',
+        translateZ: '0px',
+        translateX: '0%',
+        translateY: '0px',
+      };
+    } else if (diff > 0) {
+      // Cards after active
+      return {
+        ...baseStyles,
+        rotateY: '-10deg',
+        rotateX: '5deg',
+        translateZ: `-${diff * 100}px`,
+        translateX: `${diff * 40}%`,
+        translateY: `-${diff * 50}px`,
+      };
+    } else {
+      // Cards before active
+      return {
+        ...baseStyles,
+        rotateY: '-10deg',
+        rotateX: '5deg',
+        translateZ: `${diff * 100}px`,
+        translateX: `${diff * 40}%`, 
+        translateY: `${Math.abs(diff) * 50}px`,
+      };
     }
   };
   
-  // Generate a nice gradient for each card based on index
+  // Simpler, more consistent gradient for all cards (using audience card style)
   const getCardGradient = (index: number) => {
-    const gradients = [
-      "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-      "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)",
-      "linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)",
-      "linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)",
-      "linear-gradient(to top, #a8edea 0%, #fed6e3 100%)",
-      "linear-gradient(to top, #d5dee7 0%, #ffafbd 0%, #c9ffbf 100%)",
-      "linear-gradient(to top, #5ee7df 0%, #b490ca 100%)",
-      "linear-gradient(to top, #d299c2 0%, #fef9d7 100%)",
-      "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-      "linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%)",
-      "linear-gradient(to top, #fdcbf1 0%, #fdcbf1 1%, #e6dee9 100%)",
-      "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)",
-      "linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)",
-      "linear-gradient(120deg, #f093fb 0%, #f5576c 100%)",
-    ];
-    
-    return gradients[index % gradients.length];
+    // Use a consistent soft purple gradient similar to the Audience card
+    return "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)";
   };
   
   return (
@@ -269,14 +194,12 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       style={{ 
         perspective: '1200px', 
         touchAction: 'none',
-        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(125, 249, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%)',
       }}
     >
       <div className="absolute w-full h-full flex items-center justify-center">
         {steps.map((step, index) => {
           const style = getCardStyle(index);
           const isActive = activeIndex === index;
-          const gradient = getCardGradient(index);
           
           return (
             <motion.div
@@ -293,10 +216,11 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
                 translateY: style.translateY,
                 scale: style.scale,
               }}
+              whileHover={isActive ? { scale: 1.05, translateZ: "20px" } : {}}
               transition={{ 
                 type: 'spring', 
                 stiffness: 260, 
-                damping: 20
+                damping: 25
               }}
               style={{
                 width: '340px',
@@ -305,10 +229,10 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
               }}
             >
               <div 
-                className={`w-full h-full rounded-lg p-8 flex flex-col justify-between transform-gpu backdrop-blur-sm`}
+                className="w-full h-full rounded-lg p-8 flex flex-col justify-between transform-gpu backdrop-blur-sm"
                 style={{
-                  background: gradient,
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                  background: getCardGradient(step.id),
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
                   transformStyle: 'preserve-3d',
                   backfaceVisibility: 'hidden',
                   border: '1px solid rgba(255, 255, 255, 0.18)',
@@ -330,7 +254,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
                   
                   {isActive && (
                     <motion.button
-                      className="px-5 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-black/90 transition-colors shadow-md"
+                      className="px-5 py-2 bg-black text-white rounded-full text-sm font-medium shadow-md"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >

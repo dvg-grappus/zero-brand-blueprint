@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -203,9 +202,8 @@ const Timeline: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
-      {/* Ambient gradient background */}
+      {/* Simplify to a very subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-tr from-black via-background to-black/95 z-0"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(125,249,255,0.07)_0%,rgba(0,0,0,0)_65%)] z-0"></div>
       
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />
