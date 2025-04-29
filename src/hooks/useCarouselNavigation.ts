@@ -77,6 +77,7 @@ export const useCarouselNavigation = ({
       
       // For keyboard navigation, we'll re-enable it immediately after animation completes
       keyboardNavigationEnabledRef.current = true;
+      console.log("Keyboard navigation re-enabled");
     }, animationDuration + 50); // Add small buffer to ensure animation completed
   };
   
@@ -149,6 +150,7 @@ export const useCarouselNavigation = ({
   const handleTouchEnd = (e: React.TouchEvent) => {
     // For touch events, we'll also use the separate lock
     if (isAnimating || !keyboardNavigationEnabledRef.current) {
+      console.log("Touch navigation blocked - animation in progress or keyboard nav disabled");
       return;
     }
     
@@ -159,6 +161,7 @@ export const useCarouselNavigation = ({
     if (Math.abs(diff) > 20) {
       // Temporarily disable keyboard/touch navigation
       keyboardNavigationEnabledRef.current = false;
+      console.log("Touch navigation detected, disabling keyboard nav temporarily");
       
       if (diff > 0) {
         goToCard(Math.min(activeIndex + 1, totalItems - 1));
@@ -170,18 +173,26 @@ export const useCarouselNavigation = ({
   
   // Handle keyboard navigation with more responsive behavior
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Add enhanced logging for keyboard navigation
+    console.log(`Key pressed: ${e.key}, Current index: ${activeIndex}, Animation status: ${isAnimating}, Keyboard nav enabled: ${keyboardNavigationEnabledRef.current}`);
+    
     // Only block keyboard navigation if actively animating
     if (isAnimating || !keyboardNavigationEnabledRef.current) {
+      console.log(`Keyboard navigation blocked - animation: ${isAnimating}, keyboard enabled: ${keyboardNavigationEnabledRef.current}`);
       return;
     }
     
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      console.log(`Arrow DOWN/RIGHT pressed, attempting to navigate to index ${Math.min(activeIndex + 1, totalItems - 1)}`);
+      
       // Temporarily disable keyboard navigation until animation completes
       keyboardNavigationEnabledRef.current = false;
       goToCard(Math.min(activeIndex + 1, totalItems - 1));
       e.preventDefault();
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      console.log(`Arrow UP/LEFT pressed, attempting to navigate to index ${Math.max(activeIndex - 1, 0)}`);
+      
       // Temporarily disable keyboard navigation until animation completes
       keyboardNavigationEnabledRef.current = false;
       goToCard(Math.max(activeIndex - 1, 0));
