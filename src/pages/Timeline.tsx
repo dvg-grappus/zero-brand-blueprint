@@ -1,18 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
-import StepCard from "@/components/StepCard";
 import HelpDrawer from "@/components/HelpDrawer";
 import OfflineToast from "@/components/OfflineToast";
-
-interface Step {
-  id: number;
-  title: string;
-  description: string;
-  duration: string;
-}
+import TimelineCarousel3D from "@/components/TimelineCarousel3D";
+import { Step } from "@/types/timeline";
 
 const Timeline: React.FC = () => {
   const location = useLocation();
@@ -154,23 +147,30 @@ const Timeline: React.FC = () => {
   const handleStepBegin = (stepId: number) => {
     console.log(`onBeginStep fired for step ${stepId}`);
     
-    if (stepId === 6) {
-      console.log('Timeline: Navigating to moodboards /step/5/attributes');
-      navigate("/step/5/attributes");
-    } else if (stepId === 1) {
-      navigate("/step/1");
-    } else if (stepId === 2) {
-      navigate("/step/2");
-    } else if (stepId === 3) {
-      navigate("/step/3");
-    } else if (stepId === 4) {
-      navigate("/step/4");
-    } else if (stepId === 5) {
-      navigate("/step/4/archetype");
-    } else if (stepId === 7) {
-      console.log('Timeline: Navigating to stylescapes /step/6/craft');
-      navigate("/step/6/craft");
-    }
+    // Add subtle animation before navigation
+    document.body.style.opacity = '0.8';
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+      
+      // Navigation logic for each step
+      if (stepId === 6) {
+        console.log('Timeline: Navigating to moodboards /step/5/attributes');
+        navigate("/step/5/attributes");
+      } else if (stepId === 1) {
+        navigate("/step/1");
+      } else if (stepId === 2) {
+        navigate("/step/2");
+      } else if (stepId === 3) {
+        navigate("/step/3");
+      } else if (stepId === 4) {
+        navigate("/step/4");
+      } else if (stepId === 5) {
+        navigate("/step/4/archetype");
+      } else if (stepId === 7) {
+        console.log('Timeline: Navigating to stylescapes /step/6/craft');
+        navigate("/step/6/craft");
+      }
+    }, 300);
   };
 
   return (
@@ -178,35 +178,23 @@ const Timeline: React.FC = () => {
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />
       
-      <div className="pt-[136px] pb-[48px] px-[120px]">
+      <div className="pt-[100px] pb-[48px] px-4 max-w-[1200px] mx-auto">
         <motion.div
-          className="max-w-[640px]"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
           <h1 className="inter-font font-bold text-[32px] text-foreground mb-2">Your route beyond zero.</h1>
-          <p className="inter-font text-[18px] text-muted-foreground mb-10">
+          <p className="inter-font text-[18px] text-muted-foreground">
             Fourteen concise modules. Move in order or jump to what matters.
           </p>
         </motion.div>
         
-        <div className="flex justify-center">
-          <div className="relative">
-            {steps.map((step, index) => (
-              <StepCard
-                key={step.id}
-                id={step.id}
-                title={step.title}
-                description={step.description}
-                duration={step.duration}
-                index={index}
-                onView={handleStepView}
-                onBegin={handleStepBegin}
-              />
-            ))}
-          </div>
-        </div>
+        <TimelineCarousel3D 
+          steps={steps}
+          onBegin={handleStepBegin}
+        />
       </div>
       
       <motion.button
