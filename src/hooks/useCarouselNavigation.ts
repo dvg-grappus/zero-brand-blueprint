@@ -25,6 +25,7 @@ export const useCarouselNavigation = ({
 }: UseCarouselNavigationProps): CarouselNavigationResult => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isWheelEnabled, setIsWheelEnabled] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
   const touchStartRef = useRef(0);
@@ -51,48 +52,59 @@ export const useCarouselNavigation = ({
     const element = containerRef.current;
     if (!element) return;
     
-    let isWheelAnimating = false;
-    
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      // If we're already animating, ignore wheel events
-      if (isWheelAnimating) return;
+      console.log("Wheel event triggered", { isWheelEnabled, isAnimating });
       
-      // Set animating flag
-      isWheelAnimating = true;
+      // Only process wheel events when enabled and not animating
+      if (!isWheelEnabled || isAnimating) {
+        console.log("Wheel event blocked - wheel disabled or animation in progress");
+        return;
+      }
+      
+      // Disable wheel
+      setIsWheelEnabled(false);
+      console.log("Wheel events disabled");
       
       // Determine direction and trigger the same function used by arrow keys
       if (e.deltaY > 0) {
-        // Down/Right - Same as ArrowDown or ArrowRight
+        console.log("Scrolling DOWN/RIGHT");
         goToCard(Math.min(activeIndex + 1, totalItems - 1));
       } else {
-        // Up/Left - Same as ArrowUp or ArrowLeft
+        console.log("Scrolling UP/LEFT");
         goToCard(Math.max(activeIndex - 1, 0));
       }
       
-      // Release lock after animation is complete
+      // Re-enable wheel events after animation completes
       setTimeout(() => {
-        isWheelAnimating = false;
-      }, animationDuration);
+        console.log("Re-enabling wheel events");
+        setIsWheelEnabled(true);
+      }, animationDuration + 50); // Add small buffer to ensure animation has completed
     };
     
     // Add non-passive wheel event listener
     element.addEventListener('wheel', handleWheelEvent, { passive: false });
+    console.log("Wheel event listener added");
     
     // Clean up
     return () => {
       element.removeEventListener('wheel', handleWheelEvent);
+      console.log("Wheel event listener removed");
     };
-  }, [activeIndex, totalItems, animationDuration]);
+  }, [activeIndex, totalItems, animationDuration, isAnimating, isWheelEnabled]);
   
   // Navigate to specific card
   const goToCard = (index: number) => {
+    console.log("goToCard called", { index, currentIndex: activeIndex, isAnimating });
+    
     if (isAnimating || index === activeIndex) {
+      console.log("goToCard blocked - already animating or same index");
       return;
     }
     
     setIsAnimating(true);
+    console.log("Animation started");
     setActiveIndex(index);
     
     // Release animation lock after transition
@@ -101,6 +113,7 @@ export const useCarouselNavigation = ({
     }
     
     animationTimeoutRef.current = window.setTimeout(() => {
+      console.log("Animation completed, releasing lock");
       setIsAnimating(false);
     }, animationDuration);
   };
@@ -154,3 +167,4 @@ export const useCarouselNavigation = ({
     handleTouchEnd
   };
 };
+
