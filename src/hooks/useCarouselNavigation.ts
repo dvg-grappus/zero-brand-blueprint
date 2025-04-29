@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -27,14 +26,13 @@ export const useCarouselNavigation = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   
-  // useRef calls after all useState calls
+  // Keep all useRef calls together in the same order every render
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
   const wheelEventBlockerRef = useRef<number | null>(null);
   const touchStartRef = useRef(0);
-  
-  // For completely blocking wheel events
   const isWheelEnabledRef = useRef(true);
+  const lastWheelTimeRef = useRef(0);
   
   // Navigate to specific card with enhanced protection
   const goToCard = (index: number) => {
@@ -74,6 +72,8 @@ export const useCarouselNavigation = ({
       }, 750); // Significant buffer to prevent chain scrolling
     }, animationDuration + 50); // Add small buffer to ensure animation completed
   };
+  
+  // All useEffect hooks AFTER all useRefs and useState
   
   // Clean up timeouts on unmount
   useEffect(() => {
