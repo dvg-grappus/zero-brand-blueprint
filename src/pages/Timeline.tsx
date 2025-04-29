@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,7 +33,7 @@ const Timeline: React.FC = () => {
 
   // This effect processes location state to set completed steps
   useEffect(() => {
-    console.log("Location state:", location.state);
+    console.log("Timeline: Processing location state:", location.state);
     
     const fromPositioning = location.state && location.state.fromPositioning;
     const fromAudience = location.state && location.state.fromAudience;
@@ -144,7 +143,7 @@ const Timeline: React.FC = () => {
   }, []);
   
   const handleStepBegin = (stepId: number) => {
-    console.log(`onBeginStep fired for step ${stepId}`);
+    console.log(`Timeline: onBeginStep fired for step ${stepId}`);
     
     // Add subtle animation before navigation
     document.body.style.opacity = '0.8';

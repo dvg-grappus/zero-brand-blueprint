@@ -26,59 +26,61 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Improved snap scrolling - always allow one card movement
+  // Simplified scroll handling without conditions that could block scrolling
   const handleScroll = (direction: 'next' | 'prev') => {
-    // Set a short debounce to prevent very rapid scrolling
-    if (isScrolling) return;
+    console.log("Scroll attempt", direction, "activeIndex:", activeIndex, "isScrolling:", isScrolling);
+    
+    // Minimal debounce - don't return early if user really wants to scroll
     setIsScrolling(true);
     
     let newIndex: number;
     if (direction === 'next') {
-      // Always allow moving to next card if not at the end
       newIndex = Math.min(activeIndex + 1, steps.length - 1);
     } else {
-      // Always allow moving to previous card if not at the beginning
       newIndex = Math.max(activeIndex - 1, 0);
     }
     
-    console.log(`Snap scrolling to index: ${newIndex} (from ${activeIndex})`);
+    console.log(`Scrolling to index: ${newIndex} (from ${activeIndex}), steps length: ${steps.length}`);
     setActiveIndex(newIndex);
     
-    // Reset scrolling lock after animation completes - shorter timeout
+    // Very short timeout to ensure responsive scrolling
     if (scrollTimer.current) {
       clearTimeout(scrollTimer.current);
     }
     
     scrollTimer.current = setTimeout(() => {
+      console.log("Scroll lock released");
       setIsScrolling(false);
-    }, 200); // Shorter timeout for more responsive feeling
+    }, 100); // Very short timeout - just enough to prevent double-scrolls
   };
   
-  // Wheel event handler with improved snap functionality
+  // Direct wheel event handler - always enable scrolling
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
     const direction = e.deltaY > 0 ? 'next' : 'prev';
     handleScroll(direction);
   };
   
-  // Set up wheel event handler with proper cleanup
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
+    console.log("Setting up wheel event listener");
     container.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
+      console.log("Cleaning up wheel event listener");
       container.removeEventListener('wheel', handleWheel);
       if (scrollTimer.current) {
         clearTimeout(scrollTimer.current);
       }
     };
-  }, [activeIndex, isScrolling]); // Keep these dependencies to update the handler
+  }, [activeIndex]); // Only depend on activeIndex
   
-  // Improved keyboard navigation
+  // Simplified keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log("Key pressed:", e.key);
       let handled = false;
       
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -104,13 +106,13 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     };
   }, [activeIndex, steps, onBegin]);
   
-  // Touch handling with improved reliability
+  // Simplified touch handling with lower threshold
   const touchStartRef = useRef(0);
   const touchMoveRef = useRef(0);
   
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
-    touchMoveRef.current = 0; // Reset touch move tracking
+    touchMoveRef.current = 0;
   };
   
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -118,67 +120,69 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   };
   
   const handleTouchEnd = () => {
-    // Determine direction from touch movement
-    if (Math.abs(touchMoveRef.current) > 30) { // Lower threshold for better response
+    // Lower threshold and no conditions checking isScrolling
+    if (Math.abs(touchMoveRef.current) > 20) {
       const direction = touchMoveRef.current > 0 ? 'next' : 'prev';
       handleScroll(direction);
     }
   };
 
-  // Refined card styles with improved diagonal, non-overlapping layout and more 3D effect
+  // Refined card styles for 3D effect
   const getCardStyle = (index: number): CardStyle => {
-    // Calculate relative position from active card
     const diff = index - activeIndex;
     
-    // Base styles for all cards with improved fade out for distant cards
+    // Base styles for all cards
     const baseStyles: CardStyle = {
       zIndex: 50 - Math.abs(diff) * 10,
-      opacity: diff === 0 ? 1 : Math.max(1 - Math.abs(diff) * 0.3, 0), // Faster fade out
-      scale: diff === 0 ? 1 : Math.max(0.95 - Math.abs(diff) * 0.05, 0.8)
+      opacity: diff === 0 ? 1 : Math.max(1 - Math.abs(diff) * 0.3, 0),
+      scale: diff === 0 ? 1 : Math.max(0.95 - Math.abs(diff) * 0.05, 0.8),
+      rotateY: '-15deg',
+      rotateX: '8deg',
+      translateZ: '0px',
+      translateX: '0px',
+      translateY: '0px'
     };
     
-    // Only show a limited number of cards in each direction to avoid clipping
+    // Only show a limited number of cards in each direction
     if (Math.abs(diff) > 3) {
       return { ...baseStyles, opacity: 0 };
     }
     
-    // Increased spacing between cards and more pronounced 3D effect
+    // Active card
     if (diff === 0) {
-      // Active card
       return {
         ...baseStyles,
-        rotateY: '-15deg', // More tilted
-        rotateX: '8deg',  // More pronounced 3D
+        rotateY: '-15deg',
+        rotateX: '8deg',
         translateZ: '0px',
         translateX: '0%',
         translateY: '0px',
       };
     } else if (diff > 0) {
-      // Cards after active - increased spacing
+      // Cards after active
       return {
         ...baseStyles,
         rotateY: '-15deg',
         rotateX: '8deg',
-        translateZ: `-${diff * 150}px`, // Increased depth
-        translateX: `${diff * 50}%`,   // Increased horizontal offset
-        translateY: `-${diff * 80}px`, // Increased vertical offset
+        translateZ: `-${diff * 150}px`,
+        translateX: `${diff * 50}%`,
+        translateY: `-${diff * 80}px`,
       };
     } else {
-      // Cards before active - increased spacing
+      // Cards before active
       return {
         ...baseStyles,
         rotateY: '-15deg',
         rotateX: '8deg',
-        translateZ: `${Math.abs(diff) * 150}px`, // Increased depth
-        translateX: `${diff * 50}%`,           // Increased horizontal offset
-        translateY: `${Math.abs(diff) * 80}px`,  // Increased vertical offset
+        translateZ: `${Math.abs(diff) * 150}px`,
+        translateX: `${diff * 50}%`,
+        translateY: `${Math.abs(diff) * 80}px`,
       };
     }
   };
   
-  // Use consistent purple gradient for all cards (based on Audience card)
+  // Use consistent purple gradient for all cards
   const getCardGradient = () => {
-    // Soft purple gradient similar to the Audience card in the image
     return "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)";
   };
   
@@ -192,17 +196,16 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       style={{ 
         perspective: '1500px',
         touchAction: 'none',
-        overflow: 'visible', // Important: Remove overflow restriction for cards
+        overflow: 'visible',
       }}
     >
       <div className="absolute w-full h-full flex items-center justify-center">
         {steps.map((step, index) => {
           const style = getCardStyle(index);
           const isActive = activeIndex === index;
-          // Only render cards that are visible (within a certain range of active index)
-          const visible = Math.abs(index - activeIndex) <= 3; // Show max 3 cards in each direction
+          const visible = Math.abs(index - activeIndex) <= 3;
           
-          if (!visible) return null; // Skip rendering cards that are far away
+          if (!visible) return null;
           
           return (
             <motion.div
@@ -219,7 +222,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
                 translateY: style.translateY || '0px',
                 scale: style.scale,
               }}
-              whileHover={isActive ? { scale: 1.06, translateZ: "30px" } : {}} // More pronounced hover effect
+              whileHover={isActive ? { scale: 1.06, translateZ: "30px" } : {}}
               transition={{ 
                 type: 'spring', 
                 stiffness: 300, 
