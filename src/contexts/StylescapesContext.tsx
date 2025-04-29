@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 export type PanelRole = 'HEADLINE' | 'HERO PEOPLE' | 'TEXTURE & COLOUR' | 'CONTEXT SHOT' | 'EMOJI/ICON CLUSTER';
 
@@ -34,13 +33,33 @@ interface StylescapesContextType {
   onModuleComplete: (module: string, rowId: string) => void;
 }
 
-// Use fixed placeholder images that are guaranteed to work
-const placeholderImages = {
-  headline: "https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&auto=format",
-  hero: "https://images.unsplash.com/photo-1615329942881-f05294cc0bf1?w=800&auto=format",
-  texture: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format",
-  context: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&auto=format",
-  emoji: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format"
+// Use verified Unsplash images
+const unsplashImages = {
+  headline: [
+    "https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&auto=format",
+    "https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=800&auto=format",
+    "https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=800&auto=format"
+  ],
+  hero: [
+    "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=800&auto=format",
+    "https://images.unsplash.com/photo-1439886183900-e79ec0057170?w=800&auto=format",
+    "https://images.unsplash.com/photo-1498936178812-4b2e558d2937?w=800&auto=format"
+  ],
+  texture: [
+    "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format",
+    "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&auto=format",
+    "https://images.unsplash.com/photo-1473177104440-ffee2f376098?w=800&auto=format"
+  ],
+  context: [
+    "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&auto=format",
+    "https://images.unsplash.com/photo-1460574283810-2aab119d8511?w=800&auto=format", 
+    "https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=800&auto=format"
+  ],
+  emoji: [
+    "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format",
+    "https://images.unsplash.com/photo-1452960962994-acf4fd70b632?w=800&auto=format",
+    "https://images.unsplash.com/photo-1438565434616-3ef039228b15?w=800&auto=format"
+  ]
 };
 
 export const defaultStylescapeState = {
@@ -58,11 +77,11 @@ export const defaultStylescapeState = {
         "friendly emoji pack hugging thumbs-up"
       ],
       panels: [
-        { id: "row1_p1", role: "HEADLINE" as PanelRole, img: placeholderImages.headline, query: "living-room football friends laughing" },
-        { id: "row1_p2", role: "HERO PEOPLE" as PanelRole, img: placeholderImages.hero, query: "close-up console controller warm light" },
-        { id: "row1_p3", role: "TEXTURE & COLOUR" as PanelRole, img: placeholderImages.texture, query: "velvet sofa macro olive tone" },
-        { id: "row1_p4", role: "CONTEXT SHOT" as PanelRole, img: placeholderImages.context, query: "smart-tv sports on wall mockup" },
-        { id: "row1_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: placeholderImages.emoji, query: "friendly emoji pack hugging thumbs-up" },
+        { id: "row1_p1", role: "HEADLINE" as PanelRole, img: unsplashImages.headline[0], query: "living-room football friends laughing" },
+        { id: "row1_p2", role: "HERO PEOPLE" as PanelRole, img: unsplashImages.hero[0], query: "close-up console controller warm light" },
+        { id: "row1_p3", role: "TEXTURE & COLOUR" as PanelRole, img: unsplashImages.texture[0], query: "velvet sofa macro olive tone" },
+        { id: "row1_p4", role: "CONTEXT SHOT" as PanelRole, img: unsplashImages.context[0], query: "smart-tv sports on wall mockup" },
+        { id: "row1_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: unsplashImages.emoji[0], query: "friendly emoji pack hugging thumbs-up" },
       ],
       chips: ["Friendly 🤗", "Casual 🤷", "Social 👯", "Nostalgic 👶", "Relatable 🙂", "Inclusive 🤝"]
     },
@@ -79,11 +98,11 @@ export const defaultStylescapeState = {
         "angry spray-paint emoji sheet"
       ],
       panels: [
-        { id: "row2_p1", role: "HEADLINE" as PanelRole, img: placeholderImages.headline, query: "urban night alley neon football juggling" },
-        { id: "row2_p2", role: "HERO PEOPLE" as PanelRole, img: placeholderImages.hero, query: "dynamic motion blur street athlete" },
-        { id: "row2_p3", role: "TEXTURE & COLOUR" as PanelRole, img: placeholderImages.texture, query: "graffiti wall peeling paint high-contrast" },
-        { id: "row2_p4", role: "CONTEXT SHOT" as PanelRole, img: placeholderImages.context, query: "wheat-paste poster mockup grunge" },
-        { id: "row2_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: placeholderImages.emoji, query: "angry spray-paint emoji sheet" },
+        { id: "row2_p1", role: "HEADLINE" as PanelRole, img: unsplashImages.headline[1], query: "urban night alley neon football juggling" },
+        { id: "row2_p2", role: "HERO PEOPLE" as PanelRole, img: unsplashImages.hero[1], query: "dynamic motion blur street athlete" },
+        { id: "row2_p3", role: "TEXTURE & COLOUR" as PanelRole, img: unsplashImages.texture[1], query: "graffiti wall peeling paint high-contrast" },
+        { id: "row2_p4", role: "CONTEXT SHOT" as PanelRole, img: unsplashImages.context[1], query: "wheat-paste poster mockup grunge" },
+        { id: "row2_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: unsplashImages.emoji[1], query: "angry spray-paint emoji sheet" },
       ],
       chips: ["Active 🏃", "Die-hard 🤾", "Unconventional 🙃", "Raw 🤬", "Underground 🕳", "Rebellious 😤"]
     },
@@ -100,11 +119,11 @@ export const defaultStylescapeState = {
         "glitch 3D futurist icon set"
       ],
       panels: [
-        { id: "row3_p1", role: "HEADLINE" as PanelRole, img: placeholderImages.headline, query: "digital grid holographic tunnel" },
-        { id: "row3_p2", role: "HERO PEOPLE" as PanelRole, img: placeholderImages.hero, query: "LED suit runner cyberpunk" },
-        { id: "row3_p3", role: "TEXTURE & COLOUR" as PanelRole, img: placeholderImages.texture, query: "dark iridescent metal surface macro" },
-        { id: "row3_p4", role: "CONTEXT SHOT" as PanelRole, img: placeholderImages.context, query: "AR HUD screen in hand" },
-        { id: "row3_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: placeholderImages.emoji, query: "glitch 3D futurist icon set" },
+        { id: "row3_p1", role: "HEADLINE" as PanelRole, img: unsplashImages.headline[2], query: "digital grid holographic tunnel" },
+        { id: "row3_p2", role: "HERO PEOPLE" as PanelRole, img: unsplashImages.hero[2], query: "LED suit runner cyberpunk" },
+        { id: "row3_p3", role: "TEXTURE & COLOUR" as PanelRole, img: unsplashImages.texture[2], query: "dark iridescent metal surface macro" },
+        { id: "row3_p4", role: "CONTEXT SHOT" as PanelRole, img: unsplashImages.context[2], query: "AR HUD screen in hand" },
+        { id: "row3_p5", role: "EMOJI/ICON CLUSTER" as PanelRole, img: unsplashImages.emoji[2], query: "glitch 3D futurist icon set" },
       ],
       chips: ["Innovative 🚀", "Sleek 💎", "Digital 💻", "Cutting-edge 🔪", "Futuristic 🤖", "High-tech 📱"]
     }

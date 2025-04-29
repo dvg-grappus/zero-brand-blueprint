@@ -28,7 +28,7 @@ const StylescapePanel: React.FC<StylescapePanelProps> = ({
 
   return (
     <motion.div
-      className="relative flex-shrink-0 h-[1080px] w-[1920px] overflow-hidden"
+      className="relative flex-shrink-0 h-[540px] w-[960px] overflow-hidden"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
@@ -37,6 +37,10 @@ const StylescapePanel: React.FC<StylescapePanelProps> = ({
           src={panel.img} 
           alt={panel.role} 
           className="w-full h-full object-cover"
+          onError={(e) => {
+            console.error(`Failed to load image: ${panel.img}`);
+            e.currentTarget.src = "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop";
+          }}
         />
         {/* Feather blend overlay */}
         <div className="absolute inset-0 pointer-events-none" style={{

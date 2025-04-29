@@ -75,12 +75,12 @@ const StylescapesCraftPage: React.FC = () => {
           transition={{ duration: 0.4 }}
         >
           <h1 className="text-3xl font-bold mb-2">Shape the story.</h1>
-          <p className="text-lg text-[#9A9A9A] mb-10">
+          <p className="text-lg text-[#9A9A9A] mb-6">
             Drag sideways to explore; click panels or boards to refine.
           </p>
         </motion.div>
         
-        <div className="space-y-[320px]">
+        <div className="space-y-[180px]">
           {rows.map(row => (
             <StylescapeRow
               key={row.id}

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Edit, MessageCircle } from 'lucide-react';
@@ -40,7 +41,7 @@ const StylescapeRow: React.FC<StylescapeRowProps> = ({
 
   return (
     <div 
-      className="relative mb-[320px]"
+      className="relative mb-[160px]"
       onMouseEnter={() => setShowArrows(true)}
       onMouseLeave={() => setShowArrows(false)}
     >
