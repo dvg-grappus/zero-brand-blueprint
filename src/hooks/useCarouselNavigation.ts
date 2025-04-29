@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -26,13 +25,11 @@ export const useCarouselNavigation = ({
   // Keep all useState calls together in the same order every render
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isWheelEnabled, setIsWheelEnabled] = useState(true);
   
   // useRef calls after all useState calls
   const containerRef = useRef<HTMLDivElement>(null);
   const animationTimeoutRef = useRef<number | null>(null);
-  const wheelTimeoutRef = useRef<number | null>(null);
-  const lastWheelTimeRef = useRef<number>(0);
+  const wheelProcessedRef = useRef(false);
   const touchStartRef = useRef(0);
   
   // Navigate to specific card
@@ -56,6 +53,12 @@ export const useCarouselNavigation = ({
     animationTimeoutRef.current = window.setTimeout(() => {
       console.log("Animation completed, releasing lock");
       setIsAnimating(false);
+      
+      // Add a delay before allowing wheel events again to prevent chain scrolling
+      setTimeout(() => {
+        console.log("Wheel events can be processed again");
+        wheelProcessedRef.current = false;
+      }, 750); // Significant buffer after animation completes
     }, animationDuration);
   };
   
@@ -64,9 +67,6 @@ export const useCarouselNavigation = ({
     return () => {
       if (animationTimeoutRef.current) {
         window.clearTimeout(animationTimeoutRef.current);
-      }
-      if (wheelTimeoutRef.current) {
-        window.clearTimeout(wheelTimeoutRef.current);
       }
     };
   }, []);
@@ -79,7 +79,7 @@ export const useCarouselNavigation = ({
     };
   }, []);
   
-  // Handle wheel events with proper debouncing
+  // Handle wheel events with completely different approach
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -87,26 +87,15 @@ export const useCarouselNavigation = ({
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      const now = Date.now();
-      
-      // If currently animating or wheel is disabled, block the event
-      if (isAnimating || !isWheelEnabled) {
-        console.log("Wheel event blocked - animation in progress or wheel disabled");
+      // Use a simpler blocking mechanism with a ref
+      if (wheelProcessedRef.current || isAnimating) {
+        console.log("Wheel event completely blocked - waiting for previous scroll to finish");
         return;
       }
       
-      // Implement a time-based debounce
-      if (now - lastWheelTimeRef.current < 500) {
-        console.log("Wheel event blocked - debounce time not elapsed");
-        return;
-      }
-      
-      // Update the last wheel time
-      lastWheelTimeRef.current = now;
-      
-      // Disable wheel immediately to prevent multiple triggers
-      setIsWheelEnabled(false);
-      console.log("Wheel events disabled");
+      // Immediately mark wheel as processed to block subsequent events
+      wheelProcessedRef.current = true;
+      console.log("Processing wheel event, blocking others");
       
       // Determine direction and trigger navigation
       if (e.deltaY > 0) {
@@ -116,16 +105,6 @@ export const useCarouselNavigation = ({
         console.log("Scrolling UP/LEFT");
         goToCard(Math.max(activeIndex - 1, 0));
       }
-      
-      // Wait for animation PLUS additional buffer time before re-enabling
-      if (wheelTimeoutRef.current) {
-        window.clearTimeout(wheelTimeoutRef.current);
-      }
-      
-      wheelTimeoutRef.current = window.setTimeout(() => {
-        console.log("Re-enabling wheel events");
-        setIsWheelEnabled(true);
-      }, animationDuration + 400); // Use a much longer buffer to prevent multiple scrolls
     };
     
     // Add non-passive wheel event listener
@@ -137,7 +116,7 @@ export const useCarouselNavigation = ({
       console.log("Wheel event listener removed");
       element.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [activeIndex, totalItems, animationDuration, isAnimating, isWheelEnabled]);
+  }, [activeIndex, totalItems, animationDuration, isAnimating]);
   
   // Handle touch events for mobile navigation
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -145,7 +124,7 @@ export const useCarouselNavigation = ({
   };
   
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isAnimating) {
+    if (isAnimating || wheelProcessedRef.current) {
       return;
     }
     
@@ -154,6 +133,7 @@ export const useCarouselNavigation = ({
     
     // Use a small threshold for better responsiveness
     if (Math.abs(diff) > 20) {
+      wheelProcessedRef.current = true; // Block wheel events too
       if (diff > 0) {
         goToCard(Math.min(activeIndex + 1, totalItems - 1));
       } else {
@@ -164,15 +144,17 @@ export const useCarouselNavigation = ({
   
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isAnimating) {
+    if (isAnimating || wheelProcessedRef.current) {
       return;
     }
     
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      wheelProcessedRef.current = true;
       goToCard(Math.min(activeIndex + 1, totalItems - 1));
       e.preventDefault();
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      wheelProcessedRef.current = true;
       goToCard(Math.max(activeIndex - 1, 0));
       e.preventDefault();
     }
