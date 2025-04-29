@@ -203,7 +203,7 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
+    <div className="min-h-screen w-full bg-background text-foreground relative">
       {/* Simple gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/90 to-background z-0"></div>
       

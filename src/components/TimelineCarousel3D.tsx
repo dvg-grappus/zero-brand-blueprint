@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Step } from "@/types/timeline";
 import { motion } from "framer-motion";
 
@@ -23,111 +23,91 @@ interface CardStyle {
 const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimer = useRef<NodeJS.Timeout | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   
-  // Simplified scroll handling without conditions that could block scrolling
-  const handleScroll = (direction: 'next' | 'prev') => {
-    console.log("Scroll attempt", direction, "activeIndex:", activeIndex, "isScrolling:", isScrolling);
+  // Simple function to navigate to specific card
+  const goToCard = (index: number) => {
+    console.log(`Navigating to card index ${index}`);
+    // Limit index to valid range
+    const newIndex = Math.max(0, Math.min(steps.length - 1, index));
     
-    // Minimal debounce - don't return early if user really wants to scroll
-    setIsScrolling(true);
-    
-    let newIndex: number;
-    if (direction === 'next') {
-      newIndex = Math.min(activeIndex + 1, steps.length - 1);
-    } else {
-      newIndex = Math.max(activeIndex - 1, 0);
+    if (newIndex !== activeIndex) {
+      setIsAnimating(true);
+      setActiveIndex(newIndex);
+      
+      // Release animation lock after transition completes
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 300);
     }
-    
-    console.log(`Scrolling to index: ${newIndex} (from ${activeIndex}), steps length: ${steps.length}`);
-    setActiveIndex(newIndex);
-    
-    // Very short timeout to ensure responsive scrolling
-    if (scrollTimer.current) {
-      clearTimeout(scrollTimer.current);
-    }
-    
-    scrollTimer.current = setTimeout(() => {
-      console.log("Scroll lock released");
-      setIsScrolling(false);
-    }, 100); // Very short timeout - just enough to prevent double-scrolls
   };
   
-  // Direct wheel event handler - always enable scrolling
-  const handleWheel = (e: WheelEvent) => {
+  // Navigate one card at a time
+  const handleScroll = (direction: 'next' | 'prev') => {
+    console.log("Scroll attempt:", direction);
+    
+    if (isAnimating) {
+      console.log("Ignoring scroll - animation in progress");
+      return;
+    }
+    
+    const newIndex = direction === 'next' 
+      ? Math.min(activeIndex + 1, steps.length - 1)
+      : Math.max(activeIndex - 1, 0);
+    
+    goToCard(newIndex);
+  };
+  
+  // Handle mouse wheel event
+  const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
+    // Simple direction detection - no acceleration
     const direction = e.deltaY > 0 ? 'next' : 'prev';
     handleScroll(direction);
   };
   
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    console.log("Setting up wheel event listener");
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    
-    return () => {
-      console.log("Cleaning up wheel event listener");
-      container.removeEventListener('wheel', handleWheel);
-      if (scrollTimer.current) {
-        clearTimeout(scrollTimer.current);
-      }
-    };
-  }, [activeIndex]); // Only depend on activeIndex
-  
-  // Simplified keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      console.log("Key pressed:", e.key);
-      let handled = false;
-      
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        handleScroll('next');
-        handled = true;
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        handleScroll('prev');
-        handled = true;
-      } else if (e.key === 'Enter' || e.key === ' ') {
-        onBegin(steps[activeIndex].id);
-        handled = true;
-      }
-      
-      if (handled) {
-        e.preventDefault();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeIndex, steps, onBegin]);
-  
-  // Simplified touch handling with lower threshold
-  const touchStartRef = useRef(0);
-  const touchMoveRef = useRef(0);
-  
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientY;
-    touchMoveRef.current = 0;
+  // Handle card click - focus the clicked card
+  const handleCardClick = (index: number) => {
+    console.log(`Card ${index} clicked`);
+    goToCard(index);
   };
   
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchMoveRef.current = touchStartRef.current - e.touches[0].clientY;
-  };
-  
-  const handleTouchEnd = () => {
-    // Lower threshold and no conditions checking isScrolling
-    if (Math.abs(touchMoveRef.current) > 20) {
-      const direction = touchMoveRef.current > 0 ? 'next' : 'prev';
-      handleScroll(direction);
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log("Key pressed:", e.key);
+    
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      handleScroll('next');
+      e.preventDefault();
+    } 
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      handleScroll('prev');
+      e.preventDefault();
+    } 
+    else if (e.key === 'Enter' || e.key === ' ' && activeIndex >= 0) {
+      onBegin(steps[activeIndex].id);
+      e.preventDefault();
     }
   };
 
-  // Refined card styles for 3D effect
+  // Simple touch handling
+  const touchStartRef = useRef(0);
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientY;
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEnd = e.changedTouches[0].clientY;
+    const diff = touchStartRef.current - touchEnd;
+    
+    // Simple threshold-based direction detection
+    if (Math.abs(diff) > 20) {
+      handleScroll(diff > 0 ? 'next' : 'prev');
+    }
+  };
+
+  // Get visual style for each card based on its position relative to active card
   const getCardStyle = (index: number): CardStyle => {
     const diff = index - activeIndex;
     
@@ -190,13 +170,16 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     <div 
       className="w-full h-[700px] relative" 
       ref={containerRef}
+      onWheel={handleWheel}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onKeyDown={handleKeyDown}
+      tabIndex={0} // Make div focusable for keyboard events
       style={{ 
         perspective: '1500px',
         touchAction: 'none',
         overflow: 'visible',
+        outline: 'none', // Hide focus outline
       }}
     >
       <div className="absolute w-full h-full flex items-center justify-center">
@@ -231,8 +214,10 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
               style={{
                 width: '340px',
                 height: '480px',
-                transformStyle: 'preserve-3d'
+                transformStyle: 'preserve-3d',
+                cursor: 'pointer',
               }}
+              onClick={() => handleCardClick(index)}
             >
               <div 
                 className="w-full h-full rounded-lg p-8 flex flex-col justify-between transform-gpu backdrop-blur-sm"
@@ -243,7 +228,6 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
                   backfaceVisibility: 'hidden',
                   border: '1px solid rgba(255, 255, 255, 0.18)',
                 }}
-                onClick={() => isActive && onBegin(step.id)}
               >
                 {/* Card Header */}
                 <div className="text-left">
@@ -263,6 +247,10 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
                       className="px-5 py-2 bg-black text-white rounded-full text-sm font-medium shadow-md"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card click
+                        onBegin(step.id);
+                      }}
                     >
                       Begin
                     </motion.button>
