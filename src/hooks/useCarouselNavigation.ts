@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -114,17 +113,17 @@ export const useCarouselNavigation = ({
       wheelTimeoutRef.current = window.setTimeout(() => {
         console.log("Re-enabling wheel events");
         setIsWheelEnabled(true);
-      }, animationDuration + 150); // Longer buffer to ensure animation is complete
+      }, animationDuration + 250); // Even longer buffer to ensure animation is complete
     };
     
     // Add non-passive wheel event listener
-    element.addEventListener('wheel', handleWheelEvent, { passive: false });
     console.log("Wheel event listener added");
+    element.addEventListener('wheel', handleWheelEvent, { passive: false });
     
     // Clean up
     return () => {
-      element.removeEventListener('wheel', handleWheelEvent);
       console.log("Wheel event listener removed");
+      element.removeEventListener('wheel', handleWheelEvent);
     };
   }, [activeIndex, totalItems, animationDuration, isAnimating, isWheelEnabled]);
   
