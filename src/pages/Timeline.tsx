@@ -202,8 +202,8 @@ const Timeline: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-background z-0"></div>
+      {/* Simple background gradient to ensure content is visible */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background to-background z-0"></div>
       
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />

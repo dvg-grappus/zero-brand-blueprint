@@ -217,11 +217,11 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
               animate={{
                 zIndex: style.zIndex,
                 opacity: style.opacity,
-                rotateY: style.rotateY,
-                rotateX: style.rotateX,
-                translateZ: style.translateZ,
-                translateX: style.translateX,
-                translateY: style.translateY,
+                rotateY: style.rotateY || '0deg',
+                rotateX: style.rotateX || '0deg',
+                translateZ: style.translateZ || '0px',
+                translateX: style.translateX || '0px',
+                translateY: style.translateY || '0px',
                 scale: style.scale,
               }}
               whileHover={isActive ? { scale: 1.06, translateZ: "30px" } : {}} // More pronounced hover effect
