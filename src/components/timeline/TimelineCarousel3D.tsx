@@ -25,13 +25,12 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const wheelTimeoutRef = useRef<number | null>(null);
   const animationTimeoutRef = useRef<number | null>(null);
+  const lastScrollTimeRef = useRef(0);
   
   // Effect for cleaning up timeouts on unmount
   useEffect(() => {
     return () => {
-      if (wheelTimeoutRef.current) clearTimeout(wheelTimeoutRef.current);
       if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
     };
   }, []);
@@ -44,45 +43,46 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     };
   }, []);
 
-  // Set up wheel event handler with a clean approach
+  // Handle wheel events with a clean approach using a ref for options
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
     
-    const handleWheelWithoutPassive = (e: WheelEvent) => {
+    const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      // If animation is in progress, block all wheel events
+      const now = Date.now();
+      const scrollDelay = 50; // Very short delay for responsiveness
+      
+      // If animation is in progress, block event
       if (isAnimating) {
         console.log("Blocking wheel event - animation in progress");
         return;
       }
       
-      // Clear any existing wheel timeout
-      if (wheelTimeoutRef.current) {
-        clearTimeout(wheelTimeoutRef.current);
+      // Enforce a small minimum delay between processing events
+      if (now - lastScrollTimeRef.current < scrollDelay) {
+        return;
       }
       
-      // Process only the latest wheel event in a sequence
-      wheelTimeoutRef.current = window.setTimeout(() => {
-        const direction = e.deltaY > 0 ? 'next' : 'prev';
-        console.log(`Processing wheel event as ${direction} scroll`);
-        handleScroll(direction);
-      }, 50);
+      lastScrollTimeRef.current = now;
+      
+      // Determine scroll direction
+      const direction = e.deltaY > 0 ? 'next' : 'prev';
+      console.log(`Processing wheel event as ${direction} scroll`);
+      handleScroll(direction);
     };
     
-    // Add non-passive event listener
-    element.addEventListener('wheel', handleWheelWithoutPassive, { passive: false });
+    // Create event listener with the passive option set to false
+    element.addEventListener('wheel', handleWheelEvent, { passive: false });
     
-    // Clean up
+    // Cleanup
     return () => {
-      if (element) {
-        element.removeEventListener('wheel', handleWheelWithoutPassive);
-      }
+      element.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [isAnimating]); // Re-establish event listeners when isAnimating changes
+  }, [isAnimating]); // Re-run when isAnimating changes
   
-  // Move one card at a time with strict animation lock
+  // Move one card at a time with a responsive animation lock
   const handleScroll = (direction: 'next' | 'prev') => {
     // Double-check animation lock
     if (isAnimating) {
@@ -90,40 +90,39 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       return;
     }
     
-    // Set animation lock
-    setIsAnimating(true);
-    console.log(`Setting animation lock for ${direction} scroll`);
-    
     // Calculate next index with bounds checking
     const newIndex = direction === 'next' 
       ? Math.min(activeIndex + 1, steps.length - 1)
       : Math.max(activeIndex - 1, 0);
     
-    if (newIndex !== activeIndex) {
-      console.log(`Moving from index ${activeIndex} to ${newIndex}`);
-      setActiveIndex(newIndex);
-    } else {
+    if (newIndex === activeIndex) {
       console.log(`Already at ${direction === 'next' ? 'last' : 'first'} card`);
-      setIsAnimating(false);
       return;
     }
+    
+    // Set animation lock immediately
+    setIsAnimating(true);
+    console.log(`Moving from index ${activeIndex} to ${newIndex}`);
+    
+    // Update the active index immediately
+    setActiveIndex(newIndex);
     
     // Clear any existing animation timeout
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
     }
     
-    // Release animation lock after fixed delay
+    // Release animation lock after a short transition
+    // 300ms is quick enough to feel responsive but still allow the animation to complete
     animationTimeoutRef.current = window.setTimeout(() => {
       setIsAnimating(false);
       console.log("Animation complete, releasing animation lock");
-    }, 600);
+    }, 300);
   };
   
   // Handle card click - focus specific card
   const handleCardClick = (index: number) => {
     if (isAnimating || index === activeIndex) {
-      console.log(`Card ${index} click ignored - ${isAnimating ? 'animation in progress' : 'already active'}`);
       return;
     }
     
@@ -139,10 +138,10 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     animationTimeoutRef.current = window.setTimeout(() => {
       setIsAnimating(false);
       console.log(`Card ${index} animation completed`);
-    }, 600);
+    }, 300);
   };
   
-  // Improved touch handling
+  // Improved touch handling with faster response
   const touchStartRef = useRef(0);
   
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -157,7 +156,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStartRef.current - touchEnd;
     
-    if (Math.abs(diff) > 30) { // Increased threshold for touch
+    if (Math.abs(diff) > 20) { // Reduced threshold for better responsiveness
       handleScroll(diff > 0 ? 'next' : 'prev');
     }
   };
@@ -165,7 +164,6 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (isAnimating) {
-      console.log(`Key press ignored - animation in progress`);
       return;
     }
     
