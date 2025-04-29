@@ -48,7 +48,7 @@ export const useCarouselNavigation = ({
     };
   }, []);
   
-  // Handle wheel events by directly triggering the same logic as arrow keys
+  // Handle wheel events by directly triggering navigation one card at a time
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -64,7 +64,7 @@ export const useCarouselNavigation = ({
       // Determine direction
       const direction = e.deltaY > 0 ? 'next' : 'prev';
       
-      // Use the same logic as the keyboard handler
+      // Navigate one card at a time
       handleScroll(direction);
     };
     
