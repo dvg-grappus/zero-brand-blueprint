@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from 'react';
 
 export type PanelRole = 'HEADLINE' | 'HERO PEOPLE' | 'TEXTURE & COLOUR' | 'CONTEXT SHOT' | 'EMOJI/ICON CLUSTER';
@@ -36,7 +37,8 @@ interface StylescapesContextType {
 // Use verified Unsplash images
 const unsplashImages = {
   headline: [
-    "https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&auto=format",
+    // Updated the first headline image for "COUCH FEEL" that was broken
+    "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800&auto=format",
     "https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=800&auto=format",
     "https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=800&auto=format"
   ],
