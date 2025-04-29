@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Welcome from "./pages/Welcome";
-import Timeline from "./pages/Timeline"; // Keep using the same import path
+import Timeline from "./pages/Timeline"; 
 import NotFound from "./pages/NotFound";
 import StepPage from "./pages/StepPage";
 import AudiencePage from "./pages/AudiencePage";
@@ -100,4 +100,3 @@ const App = () => (
 );
 
 export default App;
-
