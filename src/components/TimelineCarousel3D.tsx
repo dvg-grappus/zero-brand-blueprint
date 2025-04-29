@@ -14,29 +14,41 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // Completely rewritten wheel handling with better debouncing
-  const handleWheel = (e: WheelEvent) => {
-    e.preventDefault();
-    
+  // Implement snap scrolling - move one card at a time
+  const handleScroll = (direction: 'next' | 'prev') => {
     if (isScrolling) return;
+    
     setIsScrolling(true);
     
+    let newIndex: number;
+    if (direction === 'next') {
+      // Move to next card if not at the end
+      newIndex = Math.min(activeIndex + 1, steps.length - 1);
+    } else {
+      // Move to previous card if not at the beginning
+      newIndex = Math.max(activeIndex - 1, 0);
+    }
+    
+    if (newIndex !== activeIndex) {
+      console.log(`Snap scrolling to index: ${newIndex}`);
+      setActiveIndex(newIndex);
+    }
+    
+    // Reset scrolling lock after animation completes
     if (scrollTimer.current) {
       clearTimeout(scrollTimer.current);
     }
     
-    const direction = e.deltaY > 0 ? 1 : -1;
-    const newIndex = activeIndex + direction;
-    
-    // Ensure index stays within bounds
-    if (newIndex >= 0 && newIndex < steps.length) {
-      setActiveIndex(newIndex);
-      console.log(`Scrolling to index: ${newIndex}`);
-    }
-    
     scrollTimer.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 500); // Reduced delay for better responsiveness
+    }, 500);
+  };
+  
+  // Wheel event handler with snap functionality
+  const handleWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    const direction = e.deltaY > 0 ? 'next' : 'prev';
+    handleScroll(direction);
   };
   
   // Set up wheel event handler
@@ -52,21 +64,18 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
         clearTimeout(scrollTimer.current);
       }
     };
-  }, [activeIndex]); // Added activeIndex as dependency to fix stale closure issues
+  }, [activeIndex, isScrolling]); // Added isScrolling as dependency to fix stale closure issues
   
-  // Improved keyboard navigation
+  // Improved keyboard navigation with snap functionality
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isScrolling) return;
-      
       let handled = false;
-      let newIndex = activeIndex;
       
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        newIndex = Math.min(activeIndex + 1, steps.length - 1);
+        handleScroll('next');
         handled = true;
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        newIndex = Math.max(activeIndex - 1, 0);
+        handleScroll('prev');
         handled = true;
       } else if (e.key === 'Enter' || e.key === ' ') {
         onBegin(steps[activeIndex].id);
@@ -75,19 +84,6 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       
       if (handled) {
         e.preventDefault();
-        if (newIndex !== activeIndex) {
-          setIsScrolling(true);
-          setActiveIndex(newIndex);
-          console.log(`Keyboard navigation to index: ${newIndex}`);
-          
-          if (scrollTimer.current) {
-            clearTimeout(scrollTimer.current);
-          }
-          
-          scrollTimer.current = setTimeout(() => {
-            setIsScrolling(false);
-          }, 500);
-        }
       }
     };
     
@@ -98,40 +94,27 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     };
   }, [activeIndex, steps, onBegin, isScrolling]);
   
-  // Improved touch handling
+  // Touch handling with snap functionality
   const touchStartRef = useRef(0);
+  const touchMoveRef = useRef(0);
   
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
+    touchMoveRef.current = 0; // Reset touch move tracking
   };
   
   const handleTouchMove = (e: React.TouchEvent) => {
     if (isScrolling) return;
-    e.preventDefault();
+    touchMoveRef.current = touchStartRef.current - e.touches[0].clientY;
+  };
+  
+  const handleTouchEnd = () => {
+    if (isScrolling) return;
     
-    const touchDiff = touchStartRef.current - e.touches[0].clientY;
-    
-    if (Math.abs(touchDiff) > 50) {
-      setIsScrolling(true);
-      
-      const direction = touchDiff > 0 ? 1 : -1;
-      const newIndex = activeIndex + direction;
-      
-      // Ensure index stays within bounds
-      if (newIndex >= 0 && newIndex < steps.length) {
-        setActiveIndex(newIndex);
-        console.log(`Touch scrolling to index: ${newIndex}`);
-      }
-      
-      touchStartRef.current = e.touches[0].clientY;
-      
-      if (scrollTimer.current) {
-        clearTimeout(scrollTimer.current);
-      }
-      
-      scrollTimer.current = setTimeout(() => {
-        setIsScrolling(false);
-      }, 500);
+    // Determine direction from touch movement
+    if (Math.abs(touchMoveRef.current) > 50) {
+      const direction = touchMoveRef.current > 0 ? 'next' : 'prev';
+      handleScroll(direction);
     }
   };
 
@@ -143,9 +126,14 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     // Base styles for all cards with improved fade out for distant cards
     const baseStyles = {
       zIndex: 50 - Math.abs(diff) * 10,
-      opacity: diff === 0 ? 1 : Math.max(1 - Math.abs(diff) * 0.25, 0), // Faster fade out
+      opacity: diff === 0 ? 1 : Math.max(1 - Math.abs(diff) * 0.3, 0), // Faster fade out
       scale: diff === 0 ? 1 : Math.max(0.95 - Math.abs(diff) * 0.05, 0.8)
     };
+    
+    // Only show a limited number of cards in each direction to avoid clipping
+    if (Math.abs(diff) > 3) {
+      return { ...baseStyles, opacity: 0 };
+    }
     
     // Increased spacing between cards and more pronounced 3D effect
     if (diff === 0) {
@@ -189,14 +177,15 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   
   return (
     <div 
-      className="w-full h-[700px] relative" // Increased height to reduce clipping
+      className="w-full h-[700px] relative" 
       ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{ 
-        perspective: '1500px', // Increased for better 3D effect
+        perspective: '1500px',
         touchAction: 'none',
-        overflow: 'visible', // Important: Remove overflow restriction
+        overflow: 'visible', // Important: Remove overflow restriction for cards
       }}
     >
       <div className="absolute w-full h-full flex items-center justify-center">
@@ -204,7 +193,7 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
           const style = getCardStyle(index);
           const isActive = activeIndex === index;
           // Only render cards that are visible (within a certain range of active index)
-          const visible = Math.abs(index - activeIndex) <= 4; // Show max 4 cards in each direction
+          const visible = Math.abs(index - activeIndex) <= 3; // Show max 3 cards in each direction
           
           if (!visible) return null; // Skip rendering cards that are far away
           
