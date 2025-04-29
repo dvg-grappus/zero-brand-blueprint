@@ -48,6 +48,30 @@ const StylescapesPreviewPage: React.FC = () => {
     }
   };
 
+  // Creates a stitched preview of all panels in a row
+  const renderStitchedPreview = (rowId: string) => {
+    const row = rows.find(r => r.id === rowId);
+    if (!row) return null;
+    
+    return (
+      <div className="flex w-full h-full">
+        {row.panels.map((panel) => (
+          <div key={panel.id} className="h-full flex-1">
+            <img 
+              src={panel.img} 
+              alt={panel.role}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                console.error(`Failed to load image: ${panel.img}`);
+                e.currentTarget.src = "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop";
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   console.log("StylescapesPreviewPage rendering with rows:", rows);
   
   return (
@@ -72,9 +96,6 @@ const StylescapesPreviewPage: React.FC = () => {
           className="space-y-12"
         >
           {rows.map(row => {
-            // Use the panel that represents this row in the preview
-            const previewPanel = row.panels[0];
-            
             return (
               <div key={row.id} className="flex items-start gap-4">
                 <RadioGroupItem 
@@ -105,11 +126,9 @@ const StylescapesPreviewPage: React.FC = () => {
                     )}
                     onClick={() => openLightbox(row.id)}
                   >
-                    <img 
-                      src={previewPanel.img} 
-                      alt={`${row.theme} stylescape`}
-                      className="w-full h-full object-cover"
-                    />
+                    {/* Render the stitched preview of all images instead of just the first one */}
+                    {renderStitchedPreview(row.id)}
+                    
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Search className="w-8 h-8 text-white" />
                     </div>
