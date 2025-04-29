@@ -2,7 +2,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const TimelineTopBar: React.FC = () => {
+interface TimelineTopBarProps {
+  currentStep?: number;
+  completedSteps?: number[];
+}
+
+const TimelineTopBar: React.FC<TimelineTopBarProps> = ({ currentStep, completedSteps }) => {
   return (
     <motion.div 
       className="fixed top-0 left-0 right-0 h-[60px] bg-background/95 backdrop-blur-md z-30 flex items-center px-[40px]"
