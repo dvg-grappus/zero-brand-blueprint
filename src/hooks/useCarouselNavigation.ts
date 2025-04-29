@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 
 interface UseCarouselNavigationProps {
@@ -33,6 +34,9 @@ export const useCarouselNavigation = ({
   const touchStartRef = useRef(0);
   const isWheelEnabledRef = useRef(true);
   const lastWheelTimeRef = useRef(0);
+  
+  // Keyboard navigation gets its own, separate lock
+  const keyboardNavigationEnabledRef = useRef(true);
   
   // Navigate to specific card with enhanced protection
   const goToCard = (index: number) => {
@@ -70,6 +74,9 @@ export const useCarouselNavigation = ({
         console.log("Wheel events can be processed again");
         isWheelEnabledRef.current = true;
       }, 750); // Significant buffer to prevent chain scrolling
+      
+      // For keyboard navigation, we'll re-enable it immediately after animation completes
+      keyboardNavigationEnabledRef.current = true;
     }, animationDuration + 50); // Add small buffer to ensure animation completed
   };
   
@@ -134,13 +141,14 @@ export const useCarouselNavigation = ({
     };
   }, [activeIndex, totalItems, animationDuration, isAnimating]);
   
-  // Handle touch events for mobile navigation - also respect the wheel blocker
+  // Handle touch events for mobile navigation
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartRef.current = e.touches[0].clientY;
   };
   
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isAnimating || !isWheelEnabledRef.current) {
+    // For touch events, we'll also use the separate lock
+    if (isAnimating || !keyboardNavigationEnabledRef.current) {
       return;
     }
     
@@ -149,8 +157,8 @@ export const useCarouselNavigation = ({
     
     // Use a threshold for better responsiveness
     if (Math.abs(diff) > 20) {
-      // Also block wheel events when touch navigation occurs
-      isWheelEnabledRef.current = false;
+      // Temporarily disable keyboard/touch navigation
+      keyboardNavigationEnabledRef.current = false;
       
       if (diff > 0) {
         goToCard(Math.min(activeIndex + 1, totalItems - 1));
@@ -160,21 +168,22 @@ export const useCarouselNavigation = ({
     }
   };
   
-  // Handle keyboard navigation - also respect the wheel blocker
+  // Handle keyboard navigation with more responsive behavior
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isAnimating || !isWheelEnabledRef.current) {
+    // Only block keyboard navigation if actively animating
+    if (isAnimating || !keyboardNavigationEnabledRef.current) {
       return;
     }
     
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      // Also block wheel events when keyboard navigation occurs
-      isWheelEnabledRef.current = false;
+      // Temporarily disable keyboard navigation until animation completes
+      keyboardNavigationEnabledRef.current = false;
       goToCard(Math.min(activeIndex + 1, totalItems - 1));
       e.preventDefault();
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      // Also block wheel events when keyboard navigation occurs
-      isWheelEnabledRef.current = false;
+      // Temporarily disable keyboard navigation until animation completes
+      keyboardNavigationEnabledRef.current = false;
       goToCard(Math.max(activeIndex - 1, 0));
       e.preventDefault();
     }
