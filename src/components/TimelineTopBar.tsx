@@ -10,7 +10,7 @@ interface TimelineTopBarProps {
 const TimelineTopBar: React.FC<TimelineTopBarProps> = ({ currentStep, completedSteps }) => {
   return (
     <motion.div 
-      className="fixed top-0 left-0 right-0 h-[50px] bg-background/95 backdrop-blur-md z-30 flex items-center px-[40px]"
+      className="fixed top-0 left-0 right-0 h-[50px] bg-background/80 backdrop-blur-sm z-30 px-[40px] flex items-center"
       initial={{ y: -60 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4 }}
