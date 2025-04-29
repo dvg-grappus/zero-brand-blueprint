@@ -74,13 +74,6 @@ export const useCarouselNavigation = ({
       // Determine direction and create synthetic keyboard event
       const direction = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
       
-      // Create and dispatch a synthetic keyboard event
-      const keyEvent = new KeyboardEvent('keydown', { 
-        key: direction,
-        bubbles: true,
-        cancelable: true 
-      });
-      
       // Process using the keyboard handler directly
       if (direction === 'ArrowDown' && activeIndex < totalItems - 1) {
         handleScroll('next');
