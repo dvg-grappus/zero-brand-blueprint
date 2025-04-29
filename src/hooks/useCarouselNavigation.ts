@@ -22,8 +22,8 @@ interface CarouselNavigationResult {
  */
 export const useCarouselNavigation = ({
   totalItems,
-  animationDuration = 300,
-  scrollDelay = 150
+  animationDuration = 200,
+  scrollDelay = 100
 }: UseCarouselNavigationProps): CarouselNavigationResult => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -49,7 +49,7 @@ export const useCarouselNavigation = ({
     };
   }, []);
   
-  // Handle wheel events with non-passive listener
+  // Handle wheel events by simulating arrow key presses
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -57,29 +57,36 @@ export const useCarouselNavigation = ({
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      const now = Date.now();
-      
       // If animation is in progress, block event
       if (isAnimating) {
-        console.log("Ignoring wheel event - animation in progress");
         return;
       }
       
-      // Enforce minimum delay between processing events to prevent rapid scrolling
+      const now = Date.now();
+      
+      // Enforce minimum delay between processing events
       if (now - lastScrollTimeRef.current < scrollDelay) {
-        console.log("Ignoring wheel event - too soon after last event");
         return;
       }
       
-      console.log(`Wheel event, delta: ${e.deltaY}`);
       lastScrollTimeRef.current = now;
       
-      // Process the scroll with animation lock
-      console.log("Processing wheel event as " + (e.deltaY > 0 ? "next" : "prev") + " scroll");
-      console.log("Processing scroll " + (e.deltaY > 0 ? "next" : "prev") + ", setting isAnimating to true");
+      // Determine direction and create synthetic keyboard event
+      const direction = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
       
-      // Determine scroll direction
-      handleScroll(e.deltaY > 0 ? 'next' : 'prev');
+      // Create and dispatch a synthetic keyboard event
+      const keyEvent = new KeyboardEvent('keydown', { 
+        key: direction,
+        bubbles: true,
+        cancelable: true 
+      });
+      
+      // Process using the keyboard handler directly
+      if (direction === 'ArrowDown' && activeIndex < totalItems - 1) {
+        handleScroll('next');
+      } else if (direction === 'ArrowUp' && activeIndex > 0) {
+        handleScroll('prev');
+      }
     };
     
     // Add non-passive wheel event listener
@@ -89,12 +96,11 @@ export const useCarouselNavigation = ({
     return () => {
       element.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [isAnimating, scrollDelay]);
+  }, [isAnimating, scrollDelay, activeIndex, totalItems]);
   
   // Handle navigation with animation lock
   const handleScroll = (direction: 'next' | 'prev') => {
     if (isAnimating) {
-      console.log("Animation already in progress, blocking scroll");
       return;
     }
     
@@ -104,13 +110,11 @@ export const useCarouselNavigation = ({
       : Math.max(activeIndex - 1, 0);
     
     if (newIndex === activeIndex) {
-      console.log(`Already at ${direction === 'next' ? 'last' : 'first'} card`);
       return;
     }
     
     // Set animation lock
     setIsAnimating(true);
-    console.log(`Moving from index ${activeIndex} to ${newIndex}`);
     
     // Update the active index
     setActiveIndex(newIndex);
@@ -123,7 +127,6 @@ export const useCarouselNavigation = ({
     // Release animation lock after transition completes
     animationTimeoutRef.current = window.setTimeout(() => {
       setIsAnimating(false);
-      console.log("Animation completed, releasing animation lock");
     }, animationDuration);
   };
   
@@ -133,7 +136,6 @@ export const useCarouselNavigation = ({
       return;
     }
     
-    console.log(`Card ${index} clicked, navigating from ${activeIndex}`);
     setIsAnimating(true);
     setActiveIndex(index);
     
@@ -144,7 +146,6 @@ export const useCarouselNavigation = ({
     
     animationTimeoutRef.current = window.setTimeout(() => {
       setIsAnimating(false);
-      console.log(`Card ${index} animation completed`);
     }, animationDuration);
   };
   
@@ -161,7 +162,7 @@ export const useCarouselNavigation = ({
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStartRef.current - touchEnd;
     
-    // Reduced threshold for better responsiveness
+    // Use a small threshold for better responsiveness
     if (Math.abs(diff) > 20) {
       handleScroll(diff > 0 ? 'next' : 'prev');
     }
