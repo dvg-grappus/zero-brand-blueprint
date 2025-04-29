@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -203,9 +202,6 @@ const CohortBoard: React.FC<CohortBoardProps> = ({ onComplete }) => {
   const selectedCount = cohorts.filter(c => c.isSelected).length;
   const actedCount = cohorts.filter(c => c.isSelected || c.isDiscarded).length;
   
-  // Check if validation passed (at least 2 selected cohorts and all cohorts are acted upon)
-  const validationPassed = selectedCount >= 2 && actedCount === cohorts.length;
-  
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -246,22 +242,19 @@ const CohortBoard: React.FC<CohortBoardProps> = ({ onComplete }) => {
       
       <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
         <div className="text-sm">
-          {!validationPassed && (
+          {actedCount < cohorts.length && (
             <span className="text-muted-foreground">
-              {actedCount < cohorts.length 
-                ? `Select or discard all cohorts (${actedCount}/${cohorts.length})` 
-                : `Select at least 2 cohorts (${selectedCount}/2)`}
+              {`Select or discard cohorts (${actedCount}/${cohorts.length})`}
             </span>
           )}
-          {validationPassed && (
+          {selectedCount > 0 && (
             <span className="flex items-center text-cyan gap-1">
-              <CircleCheck size={16} /> Ready to create personas
+              <CircleCheck size={16} /> {`Selected cohorts: ${selectedCount}`}
             </span>
           )}
         </div>
         <Button 
           onClick={onComplete}
-          disabled={!validationPassed}
           className="bg-cyan hover:bg-cyan/90 text-background"
         >
           Lock top audiences →
