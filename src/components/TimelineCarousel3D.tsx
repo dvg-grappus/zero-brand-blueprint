@@ -15,7 +15,7 @@ interface TimelineCarouselProps {
 const CarouselContainer: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const groupRef = useRef<THREE.Group>(null);
-  const { viewport, camera } = useThree();
+  const { viewport } = useThree();
   
   // Rotate carousel based on active index
   useEffect(() => {
@@ -45,6 +45,7 @@ const CarouselContainer: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) 
   // Set up wheel event listener for carousel navigation
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      e.preventDefault(); // Prevent default scrolling
       if (e.deltaY > 0) {
         // Scroll down - go to next step
         setActiveIndex((prev) => (prev + 1) % steps.length);
@@ -54,7 +55,8 @@ const CarouselContainer: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) 
       }
     };
     
-    window.addEventListener("wheel", handleWheel);
+    // Add passive: false to ensure preventDefault works
+    window.addEventListener("wheel", handleWheel, { passive: false });
     return () => window.removeEventListener("wheel", handleWheel);
   }, [steps.length]);
   
@@ -102,8 +104,8 @@ const CarouselContainer: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) 
 
 const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin }) => {
   return (
-    <div className="w-full h-[600px] relative">
-      <Canvas shadows dpr={[1, 2]} legacy={false}>
+    <div className="w-full h-[600px] relative" style={{ touchAction: 'none' }}>
+      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true }}>
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
         <CarouselContainer steps={steps} onBegin={onBegin} />
       </Canvas>

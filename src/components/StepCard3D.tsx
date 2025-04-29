@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import { Step } from "@/types/timeline";
-import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
 
 interface StepCardProps {
@@ -23,7 +22,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
   isActive,
   onBegin
 }) => {
-  const navigate = useNavigate();
   const meshRef = useRef<THREE.Mesh>(null);
   const { viewport } = useThree();
   const [hovered, setHovered] = useState(false);
@@ -90,7 +88,9 @@ const StepCard3D: React.FC<StepCardProps> = ({
   // Handle click event
   const handleClick = (e: any) => {
     e.stopPropagation();
-    onBegin(step.id);
+    if (isActive) {
+      onBegin(step.id);
+    }
   };
   
   // Calculate text position and size based on viewport
@@ -124,7 +124,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
           anchorX="center"
           anchorY="middle"
           maxWidth={1.5}
-          font="/fonts/Inter-Bold.woff"
         >
           {step.title}
         </Text>
@@ -137,7 +136,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
           anchorX="center"
           anchorY="middle"
           maxWidth={1.8}
-          font="/fonts/Inter-Regular.woff"
         >
           {step.description}
         </Text>
@@ -149,7 +147,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
           color="#000000"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/Inter-Medium.woff"
         >
           {step.duration}
         </Text>
@@ -161,7 +158,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
           color="#000000"
           anchorX="center"
           anchorY="middle"
-          font="/fonts/Inter-Bold.woff"
         >
           {step.id}
         </Text>
@@ -183,7 +179,6 @@ const StepCard3D: React.FC<StepCardProps> = ({
             color="#000000"
             anchorX="center"
             anchorY="middle"
-            font="/fonts/Inter-Medium.woff"
           >
             Begin
           </Text>
