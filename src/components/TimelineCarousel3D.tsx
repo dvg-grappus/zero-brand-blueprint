@@ -4,6 +4,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import StepCard3D from "./StepCard3D";
 import { Step } from "@/types/timeline";
+import * as THREE from "three";
 
 interface TimelineCarouselProps {
   steps: Step[];
