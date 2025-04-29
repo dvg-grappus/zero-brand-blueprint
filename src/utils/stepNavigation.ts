@@ -7,8 +7,8 @@ import { NavigateFunction } from "react-router-dom";
 export const navigateToStep = (stepId: number, navigate: NavigateFunction): void => {
   console.log(`StepNavigation: Navigating to step ${stepId}`);
   
-  // Add subtle animation before navigation
-  document.body.style.opacity = '0.8';
+  // Add subtle animation before navigation - lighter transition
+  document.body.style.opacity = '0.95';
   setTimeout(() => {
     document.body.style.opacity = '1';
     
@@ -61,5 +61,5 @@ export const navigateToStep = (stepId: number, navigate: NavigateFunction): void
       default:
         navigate(`/step/${stepId}`);
     }
-  }, 300);
+  }, 200); // Reduced transition time for more responsive feel
 };

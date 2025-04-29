@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -142,8 +143,13 @@ const Timeline: React.FC = () => {
     
     window.addEventListener("keydown", handleKeyDown);
     
+    // Prevent scrolling on body to avoid conflicts with carousel
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalOverflow;
     };
   }, []);
   
@@ -154,14 +160,14 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground relative">
+    <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
       {/* Simple gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/90 to-background z-0"></div>
       
-      <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
+      <TimelineTopBar />
       <OfflineToast />
       
-      <div className="pt-[100px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
+      <div className="pt-[80px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
         <TimelineHeader 
           title="Your route beyond zero."
           description="Fourteen concise modules. Move in order or jump to what matters."

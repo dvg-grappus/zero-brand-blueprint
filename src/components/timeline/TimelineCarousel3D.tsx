@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Step } from "@/types/timeline";
 import TimelineCard from "./TimelineCard";
@@ -25,42 +24,73 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const scrollTimeoutRef = useRef<number | null>(null);
+  const lastWheelEventTime = useRef<number>(0);
+  const wheelEvents = useRef<number[]>([]);
+  const wheelDirections = useRef<string[]>([]);
   
-  // Prevent scroll events from firing too frequently
-  const handleScrollWithThrottle = (direction: 'next' | 'prev') => {
-    // Clear any pending animation flags when a new scroll happens
-    if (scrollTimeoutRef.current) {
-      window.clearTimeout(scrollTimeoutRef.current);
-    }
-    
+  // Improved scroll handling with better debouncing and direction detection
+  const handleScroll = (direction: 'next' | 'prev') => {
     if (isAnimating) {
       console.log("Animation in progress, ignoring scroll");
       return;
     }
     
+    // Set animating flag to prevent multiple rapid scrolls
     setIsAnimating(true);
     console.log(`Scrolling ${direction}, setting isAnimating to true`);
     
-    // Always move exactly one card at a time
+    // Only move exactly one card at a time regardless of scroll speed
     const newIndex = direction === 'next' 
       ? Math.min(activeIndex + 1, steps.length - 1)
       : Math.max(activeIndex - 1, 0);
     
-    setActiveIndex(newIndex);
-    
-    // Release animation lock after transition completes
-    scrollTimeoutRef.current = window.setTimeout(() => {
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex);
+      
+      // Animation lock with a fixed timeout - enough time for the animation to complete
+      setTimeout(() => {
+        setIsAnimating(false);
+        console.log("Animation completed, setting isAnimating to false");
+        
+        // Reset wheel events tracking after animation completes
+        wheelEvents.current = [];
+        wheelDirections.current = [];
+      }, 400);
+    } else {
+      // If we're already at the first or last card, release animation lock faster
       setIsAnimating(false);
-      console.log("Animation completed, setting isAnimating to false");
-    }, 400); // Give enough time for animation to finish
+    }
   };
   
-  // Handle wheel event with improved handling
+  // Improved wheel event handler with direction throttling
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    const direction = e.deltaY > 0 ? 'next' : 'prev';
-    handleScrollWithThrottle(direction);
+    
+    const now = Date.now();
+    const timeSinceLastEvent = now - lastWheelEventTime.current;
+    lastWheelEventTime.current = now;
+    
+    // Add current event to tracking
+    wheelEvents.current.push(now);
+    wheelDirections.current.push(e.deltaY > 0 ? 'next' : 'prev');
+    
+    // Only keep events from last 300ms for direction analysis
+    const recentTimeThreshold = now - 300;
+    wheelEvents.current = wheelEvents.current.filter(time => time > recentTimeThreshold);
+    wheelDirections.current = wheelDirections.current.slice(-wheelEvents.current.length);
+    
+    // If we have events and not currently animating
+    if (wheelEvents.current.length > 0 && !isAnimating) {
+      // Determine most common direction from recent events
+      const lastDirection = wheelDirections.current[wheelDirections.current.length - 1];
+      
+      // Use the last direction for navigation
+      handleScroll(lastDirection as 'next' | 'prev');
+      
+      // Clear tracked events after processing
+      wheelEvents.current = [];
+      wheelDirections.current = [];
+    }
   };
   
   // Handle card click - focus the clicked card
@@ -90,18 +120,18 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
     const diff = touchStartRef.current - touchEnd;
     
     if (Math.abs(diff) > 20) {
-      handleScrollWithThrottle(diff > 0 ? 'next' : 'prev');
+      handleScroll(diff > 0 ? 'next' : 'prev');
     }
   };
   
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      handleScrollWithThrottle('next');
+      handleScroll('next');
       e.preventDefault();
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      handleScrollWithThrottle('prev');
+      handleScroll('prev');
       e.preventDefault();
     } 
     else if ((e.key === 'Enter' || e.key === ' ') && activeIndex >= 0) {
@@ -204,8 +234,8 @@ const TimelineCarousel3D: React.FC<TimelineCarouselProps> = ({ steps, onBegin })
       <CarouselControls 
         activeIndex={activeIndex}
         totalSteps={steps.length}
-        onPrevious={() => handleScrollWithThrottle('prev')}
-        onNext={() => handleScrollWithThrottle('next')}
+        onPrevious={() => handleScroll('prev')}
+        onNext={() => handleScroll('next')}
       />
     </div>
   );
