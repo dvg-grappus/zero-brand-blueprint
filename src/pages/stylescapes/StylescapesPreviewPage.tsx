@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, MessageCircle } from 'lucide-react';
@@ -26,6 +26,13 @@ const StylescapesPreviewPage: React.FC = () => {
   const [aiContext, setAiContext] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeLightboxRow, setActiveLightboxRow] = useState<string | null>(null);
+  
+  // Set default winner to first row on component mount
+  useEffect(() => {
+    if (rows.length > 0 && !winner) {
+      setWinner(rows[0].id);
+    }
+  }, [rows, winner, setWinner]);
   
   const handleTalkToAI = (rowId: string) => {
     const row = rows.find(r => r.id === rowId);
@@ -98,11 +105,13 @@ const StylescapesPreviewPage: React.FC = () => {
           {rows.map(row => {
             return (
               <div key={row.id} className="flex items-start gap-4">
-                <RadioGroupItem 
-                  value={row.id} 
-                  id={row.id}
-                  className="mt-16 scale-150"
-                />
+                <div className="mt-16">
+                  <RadioGroupItem 
+                    value={row.id} 
+                    id={row.id}
+                    className="scale-150"
+                  />
+                </div>
                 
                 <div className="flex-1">
                   <div className="mb-2 flex justify-between">
@@ -120,13 +129,13 @@ const StylescapesPreviewPage: React.FC = () => {
                   
                   <div 
                     className={cn(
-                      "relative w-full h-[140px] overflow-hidden rounded-md",
+                      "relative w-full h-[140px] overflow-hidden rounded-md cursor-pointer",
                       "group border border-[#444] hover:border-[#7DF9FF]",
                       winner === row.id ? "border-[#7DF9FF] ring-1 ring-[#7DF9FF]" : ""
                     )}
                     onClick={() => openLightbox(row.id)}
                   >
-                    {/* Render the stitched preview of all images instead of just the first one */}
+                    {/* Render the stitched preview of all images */}
                     {renderStitchedPreview(row.id)}
                     
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -139,12 +148,11 @@ const StylescapesPreviewPage: React.FC = () => {
           })}
         </RadioGroup>
         
-        {/* Footer navigation */}
+        {/* Footer navigation - button is always enabled */}
         <div className="flex justify-end mt-12">
           <Button
             onClick={handleSelectWinner}
-            disabled={!winner}
-            className="bg-[#7DF9FF] text-black hover:bg-[#7DF9FF]/90 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#7DF9FF] text-black hover:bg-[#7DF9FF]/90 px-6"
           >
             Select winner →
           </Button>
