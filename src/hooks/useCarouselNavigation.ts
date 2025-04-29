@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 interface UseCarouselNavigationProps {
   totalItems: number;
   animationDuration?: number;
-  scrollDelay?: number;
 }
 
 interface CarouselNavigationResult {
@@ -23,7 +22,6 @@ interface CarouselNavigationResult {
 export const useCarouselNavigation = ({
   totalItems,
   animationDuration = 200,
-  scrollDelay = 100
 }: UseCarouselNavigationProps): CarouselNavigationResult => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -53,19 +51,30 @@ export const useCarouselNavigation = ({
     const element = containerRef.current;
     if (!element) return;
     
+    let isWheelAnimating = false;
+    
     const handleWheelEvent = (e: WheelEvent) => {
       e.preventDefault();
       
-      // Block wheel events during animation
-      if (isAnimating) {
-        return;
+      // If we're already animating, ignore wheel events
+      if (isWheelAnimating) return;
+      
+      // Set animating flag
+      isWheelAnimating = true;
+      
+      // Determine direction and trigger the same function used by arrow keys
+      if (e.deltaY > 0) {
+        // Down/Right - Same as ArrowDown or ArrowRight
+        goToCard(Math.min(activeIndex + 1, totalItems - 1));
+      } else {
+        // Up/Left - Same as ArrowUp or ArrowLeft
+        goToCard(Math.max(activeIndex - 1, 0));
       }
       
-      // Determine direction
-      const direction = e.deltaY > 0 ? 'next' : 'prev';
-      
-      // Navigate one card at a time
-      handleScroll(direction);
+      // Release lock after animation is complete
+      setTimeout(() => {
+        isWheelAnimating = false;
+      }, animationDuration);
     };
     
     // Add non-passive wheel event listener
@@ -75,39 +84,7 @@ export const useCarouselNavigation = ({
     return () => {
       element.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [isAnimating, activeIndex, totalItems]);
-  
-  // Handle navigation with animation lock
-  const handleScroll = (direction: 'next' | 'prev') => {
-    if (isAnimating) {
-      return;
-    }
-    
-    // Calculate next index with bounds checking
-    const newIndex = direction === 'next' 
-      ? Math.min(activeIndex + 1, totalItems - 1)
-      : Math.max(activeIndex - 1, 0);
-    
-    if (newIndex === activeIndex) {
-      return;
-    }
-    
-    // Set animation lock
-    setIsAnimating(true);
-    
-    // Update the active index
-    setActiveIndex(newIndex);
-    
-    // Clear any existing animation timeout
-    if (animationTimeoutRef.current) {
-      window.clearTimeout(animationTimeoutRef.current);
-    }
-    
-    // Release animation lock after transition completes
-    animationTimeoutRef.current = window.setTimeout(() => {
-      setIsAnimating(false);
-    }, animationDuration);
-  };
+  }, [activeIndex, totalItems, animationDuration]);
   
   // Navigate to specific card
   const goToCard = (index: number) => {
@@ -143,7 +120,11 @@ export const useCarouselNavigation = ({
     
     // Use a small threshold for better responsiveness
     if (Math.abs(diff) > 20) {
-      handleScroll(diff > 0 ? 'next' : 'prev');
+      if (diff > 0) {
+        goToCard(Math.min(activeIndex + 1, totalItems - 1));
+      } else {
+        goToCard(Math.max(activeIndex - 1, 0));
+      }
     }
   };
   
@@ -154,11 +135,11 @@ export const useCarouselNavigation = ({
     }
     
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      handleScroll('next');
+      goToCard(Math.min(activeIndex + 1, totalItems - 1));
       e.preventDefault();
     } 
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      handleScroll('prev');
+      goToCard(Math.max(activeIndex - 1, 0));
       e.preventDefault();
     }
   };
