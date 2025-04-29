@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -178,19 +177,23 @@ const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground">
+    <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
+      {/* Ambient gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-black via-background to-black/95 z-0"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(125,249,255,0.07)_0%,rgba(0,0,0,0)_65%)] z-0"></div>
+      
       <TimelineTopBar currentStep={currentStep} completedSteps={completedSteps} />
       <OfflineToast />
       
-      <div className="pt-[100px] pb-[48px] px-4 max-w-[1200px] mx-auto">
+      <div className="pt-[100px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="inter-font font-bold text-[32px] text-foreground mb-2">Your route beyond zero.</h1>
-          <p className="inter-font text-[18px] text-muted-foreground">
+          <h1 className="inter-font font-bold text-[42px] text-foreground mb-3">Your route beyond zero.</h1>
+          <p className="inter-font text-[20px] text-muted-foreground max-w-2xl mx-auto">
             Fourteen concise modules. Move in order or jump to what matters.
           </p>
         </motion.div>
@@ -202,7 +205,7 @@ const Timeline: React.FC = () => {
       </div>
       
       <motion.button
-        className="fixed right-6 bottom-6 w-12 h-12 bg-secondary/80 text-secondary-foreground rounded-full shadow-md flex items-center justify-center text-xl font-semibold z-50 border border-border/40 backdrop-blur-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring"
+        className="fixed right-6 bottom-6 w-12 h-12 bg-black/80 text-white rounded-full shadow-lg flex items-center justify-center text-xl font-semibold z-50 border border-white/10 backdrop-blur-sm hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-cyan/40"
         onClick={() => setShowHelpDrawer(prev => !prev)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
