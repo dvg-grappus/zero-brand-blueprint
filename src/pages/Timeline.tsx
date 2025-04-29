@@ -4,8 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
 import HelpDrawer from "@/components/HelpDrawer";
 import OfflineToast from "@/components/OfflineToast";
-import TimelineCarousel3D from "@/components/TimelineCarousel3D";
 import { Step } from "@/types/timeline";
+
+// Import refactored components
+import TimelineCarousel3D from "@/components/timeline/TimelineCarousel3D";
+import TimelineHeader from "@/components/timeline/TimelineHeader";
+import HelpButton from "@/components/timeline/HelpButton";
+import { navigateToStep } from "@/utils/stepNavigation";
 
 const Timeline: React.FC = () => {
   const location = useLocation();
@@ -143,63 +148,9 @@ const Timeline: React.FC = () => {
   }, []);
   
   const handleStepBegin = (stepId: number) => {
-    console.log(`Timeline: onBeginStep fired for step ${stepId}`);
-    
-    // Add subtle animation before navigation
-    document.body.style.opacity = '0.8';
-    setTimeout(() => {
-      document.body.style.opacity = '1';
-      
-      // Navigation logic for each step - now handling all steps
-      switch(stepId) {
-        case 1:
-          navigate("/step/1");
-          break;
-        case 2:
-          navigate("/step/2");
-          break;
-        case 3:
-          navigate("/step/3");
-          break;
-        case 4:
-          navigate("/step/4");
-          break;
-        case 5:
-          navigate("/step/4/archetype");
-          break;
-        case 6:
-          console.log('Timeline: Navigating to moodboards /step/5/attributes');
-          navigate("/step/5/attributes");
-          break;
-        case 7:
-          console.log('Timeline: Navigating to stylescapes /step/6/craft');
-          navigate("/step/6/craft");
-          break;
-        case 8:
-          navigate("/step/8");
-          break;
-        case 9:
-          navigate("/step/9");
-          break;
-        case 10:
-          navigate("/step/10");
-          break;
-        case 11:
-          navigate("/step/11");
-          break;
-        case 12:
-          navigate("/step/12");
-          break;
-        case 13:
-          navigate("/step/13");
-          break;
-        case 14:
-          navigate("/step/14");
-          break;
-        default:
-          navigate(`/step/${stepId}`);
-      }
-    }, 300);
+    console.log(`Timeline: handleStepBegin fired for step ${stepId}`);
+    // Use the extracted navigation utility
+    navigateToStep(stepId, navigate);
   };
 
   return (
@@ -211,17 +162,10 @@ const Timeline: React.FC = () => {
       <OfflineToast />
       
       <div className="pt-[100px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <h1 className="inter-font font-bold text-[42px] text-foreground mb-3">Your route beyond zero.</h1>
-          <p className="inter-font text-[20px] text-muted-foreground max-w-2xl mx-auto">
-            Fourteen concise modules. Move in order or jump to what matters.
-          </p>
-        </motion.div>
+        <TimelineHeader 
+          title="Your route beyond zero."
+          description="Fourteen concise modules. Move in order or jump to what matters."
+        />
         
         <TimelineCarousel3D 
           steps={steps}
@@ -229,14 +173,7 @@ const Timeline: React.FC = () => {
         />
       </div>
       
-      <motion.button
-        className="fixed right-6 bottom-6 w-12 h-12 bg-black/80 text-white rounded-full shadow-lg flex items-center justify-center text-xl font-semibold z-50 border border-white/10 backdrop-blur-sm hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-cyan/40"
-        onClick={() => setShowHelpDrawer(prev => !prev)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        ?
-      </motion.button>
+      <HelpButton onClick={() => setShowHelpDrawer(prev => !prev)} />
       
       <AnimatePresence>
         {showHelpDrawer && (
