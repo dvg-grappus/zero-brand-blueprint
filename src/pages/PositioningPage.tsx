@@ -11,6 +11,7 @@ import Values from "@/components/positioning/Values";
 import Roadmap from "@/components/positioning/Roadmap";
 import Differentiators from "@/components/positioning/Differentiators";
 import Statements from "@/components/positioning/Statements";
+import AIAssistantPanel from "@/components/positioning/AIAssistantPanel";
 import { PositioningProvider } from "@/providers/PositioningProvider";
 import { STEP_CONFIG } from "@/config/stepConfig";
 import { usePositioning } from "@/contexts/PositioningContext";
@@ -53,40 +54,48 @@ const PositioningPageContent: React.FC = () => {
         <h1 className="text-[32px] font-bold mb-6">Positioning Module</h1>
         
         <div className="grid grid-cols-12 gap-6">
-          {STEP_CONFIG.map((step, index) => (
-            <PositioningStep
-              key={step.id}
-              id={step.id}
-              title={step.name}
-              index={index}
-              isCompleted={completedSteps.includes(step.id)}
-              isActive={activeStep === step.id}
-              isOpen={openSteps.includes(step.id)}
-              canOpen={
-                completedSteps.includes(step.id) ||
-                activeStep === step.id ||
-                index === 0
-              }
-              onToggle={() => handleToggleStep(step.id)}
-            >
-              {step.id === 'brief' && <BriefIntake onComplete={() => completeStep('brief')} />}
-              {step.id === 'golden-circle' && <GoldenCircle />}
-              {step.id === 'opportunities-challenges' && <OpportunitiesChallenges />}
-              {step.id === 'values' && <Values />}
-              {step.id === 'roadmap' && <Roadmap />}
-              {step.id === 'differentiators' && <Differentiators />}
-              {step.id === 'statements' && <Statements />}
-            </PositioningStep>
-          ))}
-        </div>
-        
-        <div className="flex justify-end mt-8">
-          <Button 
-            onClick={handleCompleteStep}
-            className="bg-cyan text-black hover:bg-cyan/90"
-          >
-            Complete and continue →
-          </Button>
+          {/* Main Content - 8 columns on larger screens */}
+          <div className="col-span-12 lg:col-span-8">
+            {STEP_CONFIG.map((step, index) => (
+              <PositioningStep
+                key={step.id}
+                id={step.id}
+                title={step.name}
+                index={index}
+                isCompleted={completedSteps.includes(step.id)}
+                isActive={activeStep === step.id}
+                isOpen={openSteps.includes(step.id)}
+                canOpen={
+                  completedSteps.includes(step.id) ||
+                  activeStep === step.id ||
+                  index === 0
+                }
+                onToggle={() => handleToggleStep(step.id)}
+              >
+                {step.id === 'brief' && <BriefIntake onComplete={() => completeStep('brief')} />}
+                {step.id === 'golden-circle' && <GoldenCircle />}
+                {step.id === 'opportunities-challenges' && <OpportunitiesChallenges />}
+                {step.id === 'values' && <Values />}
+                {step.id === 'roadmap' && <Roadmap />}
+                {step.id === 'differentiators' && <Differentiators />}
+                {step.id === 'statements' && <Statements />}
+              </PositioningStep>
+            ))}
+            
+            <div className="flex justify-end mt-8">
+              <Button 
+                onClick={handleCompleteStep}
+                className="bg-cyan text-black hover:bg-cyan/90"
+              >
+                Complete and continue →
+              </Button>
+            </div>
+          </div>
+          
+          {/* AI Assistant Panel - 4 columns on larger screens */}
+          <div className="col-span-12 lg:col-span-4 h-[calc(100vh-120px)] sticky top-[120px]">
+            <AIAssistantPanel />
+          </div>
         </div>
       </div>
     </div>
