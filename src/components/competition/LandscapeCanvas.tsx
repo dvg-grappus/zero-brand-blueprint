@@ -179,8 +179,8 @@ export const LandscapeCanvas: React.FC = () => {
           />
         </div>
         
-        {/* Y-axis label editor - moved further left */}
-        <div className="absolute top-1/2 left-[-140px] transform -translate-y-1/2 -rotate-90">
+        {/* Y-axis label editor - repositioned to be visible */}
+        <div className="absolute top-1/2 left-[-70px] transform -translate-y-1/2 -rotate-90">
           <AxisLabelEditor 
             axis="y"
             labels={axes.y}

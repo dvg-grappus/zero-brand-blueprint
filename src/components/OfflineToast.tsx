@@ -7,7 +7,7 @@ const OfflineToast: React.FC = () => {
     const handleOnlineStatus = () => {
       if (!navigator.onLine) {
         toast("Offline — changes stored locally", {
-          position: "bottom-left",
+          position: "top-center",
           duration: 5000,
         });
       }
@@ -16,7 +16,7 @@ const OfflineToast: React.FC = () => {
     // Check initial status
     if (!navigator.onLine) {
       toast("Offline — changes stored locally", {
-        position: "bottom-left",
+        position: "top-center",
         duration: 5000,
       });
     }
