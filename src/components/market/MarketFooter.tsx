@@ -21,7 +21,7 @@ export const MarketFooter: React.FC<MarketFooterProps> = ({
   
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-[320px] h-16 bg-background/90 backdrop-blur-md border-t border-border/40 px-[120px] flex items-center justify-between z-10"
+      className="fixed bottom-0 inset-x-0 h-16 bg-background/90 backdrop-blur-md border-t border-border/40 px-6 md:px-8 lg:px-[120px] flex items-center justify-between z-10"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
