@@ -7,6 +7,7 @@ import HelpDrawer from "@/components/HelpDrawer";
 import OfflineToast from "@/components/OfflineToast";
 import { Step } from "@/types/timeline";
 import { useProjects } from "@/contexts/ProjectsContext";
+import { ArrowLeft } from "lucide-react";
 
 // Import refactored components
 import TimelineCarousel3D from "@/components/timeline/TimelineCarousel3D";
@@ -191,17 +192,18 @@ const Timeline: React.FC = () => {
       <TimelineTopBar />
       <OfflineToast />
       
-      {/* Project header */}
+      {/* Project header - Redesigned */}
       {activeProject && (
-        <div className="absolute top-[80px] left-0 right-0 bg-background/50 backdrop-blur-sm z-10 border-b">
-          <div className="container max-w-[1200px] mx-auto px-4 py-4">
+        <div className="absolute top-[80px] left-0 right-0 bg-background/50 backdrop-blur-sm z-10">
+          <div className="container max-w-[1200px] mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex flex-col gap-1">
                 <button 
                   onClick={handleBackToBrandHub}
-                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1"
+                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1 cursor-pointer"
                 >
-                  ← Back to Brand Hub
+                  <ArrowLeft size={16} />
+                  <span>Back to Brand Hub</span>
                 </button>
                 <h2 className="text-2xl font-bold">{activeProject.name}</h2>
               </div>
