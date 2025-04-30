@@ -180,7 +180,11 @@ const Timeline: React.FC = () => {
   };
 
   // Function to handle going back to Brand Hub with debug logs
-  const handleBackToBrandHub = () => {
+  const handleBackToBrandHub = (e: React.MouseEvent) => {
+    // Stop propagation to prevent event bubbling to parent elements
+    e.stopPropagation();
+    e.preventDefault();
+    
     console.log("Back to Brand Hub clicked!");
     console.log("Navigating to /brand-hub");
     navigate('/brand-hub');
@@ -194,16 +198,20 @@ const Timeline: React.FC = () => {
       <TimelineTopBar />
       <OfflineToast />
       
-      {/* Project header - Redesigned */}
+      {/* Project header - Redesigned with higher z-index */}
       {activeProject && (
-        <div className="absolute top-[80px] left-0 right-0 bg-background/50 backdrop-blur-sm z-10">
+        <div className="absolute top-[80px] left-0 right-0 bg-background/50 backdrop-blur-sm z-40">
           <div className="container max-w-[1200px] mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
                 <button 
                   onClick={handleBackToBrandHub}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-foreground bg-background/60 hover:bg-background/80 rounded-md transition-all cursor-pointer"
-                  style={{ cursor: 'pointer' }} // Force cursor pointer
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-foreground bg-background/60 hover:bg-background/80 rounded-md transition-all"
+                  style={{ 
+                    cursor: 'pointer',
+                    position: 'relative',
+                    zIndex: 50 // Ensure this is above all carousel elements
+                  }}
                 >
                   <ArrowLeft size={16} />
                   <span>Back to Brand Hub</span>
