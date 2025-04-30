@@ -28,6 +28,18 @@ const CompetitionPage: React.FC = () => {
   // Default to discovery if no substep provided
   const currentSubstep = substep || "discovery";
   
+  // Define substeps at the component level
+  const subSteps = [
+    { id: "discovery", label: "Discovery" },
+    { id: "takeaways", label: "Takeaways" },
+    { id: "trends", label: "Trends" },
+    { id: "landscape", label: "Landscape" },
+    { id: "review", label: "Review" },
+  ];
+  
+  // Calculate the current step index based on the currentSubstep
+  const currentStepIndex = subSteps.findIndex(step => step.id === currentSubstep);
+  
   // Ensure we're on a valid route if accessed directly
   useEffect(() => {
     if (!substep) {
@@ -47,14 +59,6 @@ const CompetitionPage: React.FC = () => {
       }
     }, 50);
   }, [currentSubstep]);
-  
-  const subSteps = [
-    { id: "discovery", label: "Discovery" },
-    { id: "takeaways", label: "Takeaways" },
-    { id: "trends", label: "Trends" },
-    { id: "landscape", label: "Landscape" },
-    { id: "review", label: "Review" },
-  ];
 
   const renderCurrentStep = () => {
     switch (currentSubstep) {
