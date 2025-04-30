@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -240,7 +241,7 @@ const CohortBoard: React.FC<CohortBoardProps> = ({ onComplete }) => {
         </div>
       )}
       
-      <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
+      <div className="fixed bottom-8 inset-x-0 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40 mx-8">
         <div className="text-sm">
           {actedCount < cohorts.length && (
             <span className="text-muted-foreground">
