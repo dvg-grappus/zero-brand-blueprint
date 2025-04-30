@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { Project, ProjectStatus, Collaborator } from '@/types/project';
-import { toast } from "@/components/ui/sonner";
+import { toast } from '@/components/ui/sonner';
 
 // Sample data for initial projects
 const mockCollaborators: Collaborator[] = [
@@ -84,7 +84,7 @@ const initialProjects: Project[] = [
 
 interface ProjectsContextType {
   projects: Project[];
-  createProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  createProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Project;
   updateProject: (project: Project) => void;
   deleteProject: (id: string) => void;
   getProject: (id: string) => Project | undefined;
@@ -95,7 +95,7 @@ const ProjectsContext = createContext<ProjectsContextType | undefined>(undefined
 export function ProjectsProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
 
-  const createProject = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const createProject = (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Project => {
     const now = new Date();
     const newProject: Project = {
       ...project,

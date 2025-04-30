@@ -65,7 +65,9 @@ const NewProjectDialog: React.FC = () => {
       setSelectedThumbnail(thumbnailOptions[0].url);
       
       // Navigate to timeline with the new project ID
-      navigate(`/timeline?projectId=${newProject.id}`);
+      if (newProject && newProject.id) {
+        navigate(`/timeline?projectId=${newProject.id}`);
+      }
     }, 300);
   };
 
