@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePersonality } from '@/providers/PersonalityProvider';
@@ -332,17 +331,17 @@ const BrandArchetype: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-[120px] pt-8 pb-20">
+    <div className="container mx-auto px-2 pt-8 pb-20">
       <PersonalityNavigation type="top" />
       
-      <div className="grid grid-cols-12 gap-8">
+      <div className="grid grid-cols-12 gap-4">
         {/* Left side - Hero header */}
-        <div className="col-span-5">
+        <div className="col-span-12 md:col-span-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mt-20"
+            className="mt-8 md:mt-20"
           >
             <h1 className="text-4xl font-bold mb-4">Choose your narrative DNA.</h1>
             <p className="text-lg text-muted-foreground">
@@ -355,6 +354,7 @@ const BrandArchetype: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: blendedArchetypes.length > 0 ? 1 : 0 }}
             transition={{ duration: 0.3 }}
+            className="mt-6"
           >
             <BlendBar 
               archetypes={blendedArchetypes} 
@@ -364,7 +364,7 @@ const BrandArchetype: React.FC = () => {
         </div>
         
         {/* Right side - Archetype wheel */}
-        <div className="col-span-7">
+        <div className="col-span-12 md:col-span-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

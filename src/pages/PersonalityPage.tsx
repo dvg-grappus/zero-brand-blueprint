@@ -105,7 +105,7 @@ const PersonalityPage: React.FC = () => {
         <TimelineTopBar currentStep={4} completedSteps={[1, 2, 3]} />
         
         <div className="pt-[88px] min-h-[calc(100vh-88px)]">
-          <div className="w-full max-w-5xl mx-auto px-6 pb-10">
+          <div className="w-full mx-auto pb-10">
             {renderContent()}
           </div>
         </div>
