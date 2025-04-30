@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import ProjectCard from '@/components/projects/ProjectCard';
 import NewProjectDialog from '@/components/projects/NewProjectDialog';
+import ProjectTable from '@/components/projects/ProjectTable';
 
 const BrandHub: React.FC = () => {
   const { projects } = useProjects();
@@ -85,17 +86,24 @@ const BrandHub: React.FC = () => {
         </div>
       </header>
       
-      {/* Project Grid */}
+      {/* Projects Content */}
       <main className="container max-w-7xl mx-auto px-4 sm:px-6 py-8 mb-20">
         {filteredProjects.length > 0 ? (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" 
-            : "space-y-4"
-          }>
-            {filteredProjects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
-            ))}
-          </div>
+          <>
+            {/* Grid View */}
+            {viewMode === 'grid' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProjects.map((project, index) => (
+                  <ProjectCard key={project.id} project={project} index={index} />
+                ))}
+              </div>
+            )}
+            
+            {/* List View */}
+            {viewMode === 'list' && (
+              <ProjectTable projects={filteredProjects} />
+            )}
+          </>
         ) : (
           <div className="h-64 flex flex-col items-center justify-center">
             <p className="text-muted-foreground text-center">No projects found</p>

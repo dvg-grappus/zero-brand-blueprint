@@ -60,9 +60,25 @@ const statusConfig: Record<ProjectStatus, { icon: React.ReactNode, label: string
   }
 };
 
+// Collection of gradient backgrounds for project thumbnails
+const gradients = [
+  "bg-gradient-to-br from-purple-500/90 to-indigo-500/90", // Purple to indigo
+  "bg-gradient-to-br from-cyan-500/90 to-blue-500/90",     // Cyan to blue
+  "bg-gradient-to-br from-amber-500/90 to-orange-500/90",  // Amber to orange
+  "bg-gradient-to-br from-emerald-500/90 to-green-500/90", // Emerald to green
+  "bg-gradient-to-br from-rose-500/90 to-pink-500/90",     // Rose to pink
+  "bg-gradient-to-br from-purple-400/90 to-pink-600/90",   // Purple to pink
+  "bg-gradient-to-br from-blue-400/90 to-emerald-400/90",  // Blue to emerald
+  "bg-gradient-to-br from-indigo-500/90 to-purple-500/90"  // Indigo to purple
+];
+
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   const navigate = useNavigate();
   const { deleteProject } = useProjects();
+  
+  // Use hash of project ID to consistently get the same gradient for a project
+  const gradientIndex = project.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % gradients.length;
+  const gradientClass = gradients[gradientIndex];
 
   const statusConfig = getStatusConfig(project.status);
   
@@ -91,16 +107,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         onClick={handleNavigate}
         className="overflow-hidden cursor-pointer h-full transition-all hover:shadow-lg hover:shadow-cyan/10 hover:-translate-y-1"
       >
-        {/* Project thumbnail */}
-        {project.thumbnail && (
-          <div className="aspect-video overflow-hidden">
-            <img 
-              src={project.thumbnail} 
-              alt={project.name} 
-              className="w-full h-full object-cover transition-transform hover:scale-105"
-            />
-          </div>
-        )}
+        {/* Project gradient thumbnail */}
+        <div className={`aspect-video ${gradientClass} flex items-center justify-center`}>
+          <span className="text-white text-lg font-bold tracking-wider opacity-80">
+            {project.name.charAt(0).toUpperCase()}
+          </span>
+        </div>
         
         {/* Project details */}
         <CardHeader className="pb-2">

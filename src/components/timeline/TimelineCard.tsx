@@ -2,6 +2,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Step } from "@/types/timeline";
+import { useProjects } from "@/contexts/ProjectsContext";
+import { useParams, useSearchParams } from "react-router-dom";
+
+// Collection of gradient backgrounds for project thumbnails
+const gradients = [
+  "linear-gradient(135deg, rgba(147, 51, 234, 0.9) 0%, rgba(79, 70, 229, 0.9) 100%)", // Purple to indigo
+  "linear-gradient(135deg, rgba(6, 182, 212, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%)", // Cyan to blue
+  "linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(249, 115, 22, 0.9) 100%)", // Amber to orange
+  "linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(34, 197, 94, 0.9) 100%)", // Emerald to green
+  "linear-gradient(135deg, rgba(225, 29, 72, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", // Rose to pink
+  "linear-gradient(135deg, rgba(168, 85, 247, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", // Purple to pink
+  "linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(16, 185, 129, 0.9) 100%)", // Blue to emerald
+  "linear-gradient(135deg, rgba(79, 70, 229, 0.9) 0%, rgba(147, 51, 234, 0.9) 100%)"  // Indigo to purple
+];
 
 interface TimelineCardProps {
   step: Step;
@@ -27,8 +41,21 @@ const TimelineCard: React.FC<TimelineCardProps> = ({
   onClick,
   onBeginClick
 }) => {
-  // Use consistent purple gradient for all cards
-  const cardGradient = "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)";
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get("projectId");
+  const { projects } = useProjects();
+  
+  // Get the same gradient as used in the project card for consistency
+  let cardGradient = "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)"; // Default gradient
+  
+  if (projectId) {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      // Use hash of project ID to consistently get the same gradient for a project
+      const gradientIndex = project.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % gradients.length;
+      cardGradient = gradients[gradientIndex];
+    }
+  }
   
   return (
     <motion.div
