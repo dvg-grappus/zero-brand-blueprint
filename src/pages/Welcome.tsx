@@ -13,7 +13,7 @@ const Welcome = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        navigateToTimeline();
+        navigateToBrandHub();
       }
     };
 
@@ -29,8 +29,8 @@ const Welcome = () => {
     };
   }, []);
 
-  const navigateToTimeline = () => {
-    navigate("/timeline");
+  const navigateToBrandHub = () => {
+    navigate("/brand-hub");
   };
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -53,7 +53,7 @@ const Welcome = () => {
       }, 600);
     }
     
-    setTimeout(navigateToTimeline, 50);
+    setTimeout(navigateToBrandHub, 50);
   };
 
   return (
@@ -133,7 +133,7 @@ const Welcome = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <span className="inter-font text-[17px]">Map the journey →</span>
+          <span className="inter-font text-[17px]">Enter Brand Hub →</span>
         </motion.button>
       </div>
       

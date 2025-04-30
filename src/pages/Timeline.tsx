@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
 import HelpDrawer from "@/components/HelpDrawer";
 import OfflineToast from "@/components/OfflineToast";
 import { Step } from "@/types/timeline";
+import { useProjects } from "@/contexts/ProjectsContext";
 
 // Import refactored components
 import TimelineCarousel3D from "@/components/timeline/TimelineCarousel3D";
@@ -15,9 +17,26 @@ import { navigateToStep } from "@/utils/stepNavigation";
 const Timeline: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  const { getProject } = useProjects();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showHelpDrawer, setShowHelpDrawer] = useState(false);
+  
+  // Get the active project
+  const activeProject = projectId ? getProject(projectId) : undefined;
+
+  // If no project ID is provided, redirect to Brand Hub
+  useEffect(() => {
+    if (!projectId) {
+      navigate('/brand-hub');
+    } else if (projectId && !activeProject) {
+      // If project ID is invalid, redirect to Brand Hub
+      navigate('/brand-hub');
+    }
+  }, [projectId, activeProject]);
   
   const steps: Step[] = [
     { id: 1, title: "Positioning", description: "Define purpose, edge and long-range roadmap.", duration: "4 min" },
@@ -153,8 +172,10 @@ const Timeline: React.FC = () => {
   
   const handleStepBegin = (stepId: number) => {
     console.log(`Timeline: handleStepBegin fired for step ${stepId}`);
-    // Use the extracted navigation utility
-    navigateToStep(stepId, navigate);
+    // Use the extracted navigation utility and preserve the project ID
+    navigateToStep(stepId, (path: string) => {
+      navigate(`${path}?projectId=${projectId}`);
+    });
   };
 
   return (
@@ -165,7 +186,31 @@ const Timeline: React.FC = () => {
       <TimelineTopBar />
       <OfflineToast />
       
-      <div className="pt-[80px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
+      {/* Project header */}
+      {activeProject && (
+        <div className="absolute top-[80px] left-0 right-0 bg-background/50 backdrop-blur-sm z-10 border-b">
+          <div className="container max-w-[1200px] mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <button 
+                  onClick={() => navigate('/brand-hub')}
+                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1"
+                >
+                  ← Back to Brand Hub
+                </button>
+                <h2 className="text-2xl font-bold">{activeProject.name}</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-xs bg-muted text-muted-foreground px-2 py-1 rounded-full">
+                  {activeProject.progress}% complete
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="pt-[130px] pb-[48px] px-4 max-w-[1200px] mx-auto relative z-10">
         <TimelineHeader 
           title="Your route beyond zero."
           description="Fourteen concise modules. Move in order or jump to what matters."

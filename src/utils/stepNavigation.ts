@@ -2,9 +2,14 @@
 import { NavigateFunction } from "react-router-dom";
 
 /**
+ * Type definition for navigation callback to support both direct navigation and custom callbacks
+ */
+type NavigationCallback = NavigateFunction | ((path: string) => void);
+
+/**
  * Handles navigation to the appropriate route based on step ID
  */
-export const navigateToStep = (stepId: number, navigate: NavigateFunction): void => {
+export const navigateToStep = (stepId: number, navigate: NavigationCallback): void => {
   console.log(`StepNavigation: Navigating to step ${stepId}`);
   
   // Add subtle animation before navigation - lighter transition
@@ -12,54 +17,61 @@ export const navigateToStep = (stepId: number, navigate: NavigateFunction): void
   setTimeout(() => {
     document.body.style.opacity = '1';
     
+    let path = '';
+    
     // Navigation logic for each step
     switch(stepId) {
       case 1:
-        navigate("/step/1");
+        path = "/step/1";
         break;
       case 2:
-        navigate("/step/2");
+        path = "/step/2";
         break;
       case 3:
-        navigate("/step/3");
+        path = "/step/3";
         break;
       case 4:
-        navigate("/step/4");
+        path = "/step/4";
         break;
       case 5:
-        navigate("/step/4/archetype");
+        path = "/step/4/archetype";
         break;
       case 6:
         console.log('Navigating to moodboards /step/5/attributes');
-        navigate("/step/5/attributes");
+        path = "/step/5/attributes";
         break;
       case 7:
         console.log('Navigating to stylescapes /step/6/craft');
-        navigate("/step/6/craft");
+        path = "/step/6/craft";
         break;
       case 8:
-        navigate("/step/8");
+        path = "/step/8";
         break;
       case 9:
-        navigate("/step/9");
+        path = "/step/9";
         break;
       case 10:
-        navigate("/step/10");
+        path = "/step/10";
         break;
       case 11:
-        navigate("/step/11");
+        path = "/step/11";
         break;
       case 12:
-        navigate("/step/12");
+        path = "/step/12";
         break;
       case 13:
-        navigate("/step/13");
+        path = "/step/13";
         break;
       case 14:
-        navigate("/step/14");
+        path = "/step/14";
         break;
       default:
-        navigate(`/step/${stepId}`);
+        path = `/step/${stepId}`;
+    }
+    
+    // Handle both direct navigation and callback navigation
+    if (typeof navigate === 'function') {
+      navigate(path);
     }
   }, 200); // Reduced transition time for more responsive feel
 };
