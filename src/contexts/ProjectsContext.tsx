@@ -12,13 +12,23 @@ const mockCollaborators: Collaborator[] = [
   { id: '5', name: 'Morgan Freeman', initials: 'MF' },
 ];
 
+// Collection of gradient backgrounds for project thumbnails
+const gradients = [
+  "linear-gradient(135deg, rgba(147, 51, 234, 0.9) 0%, rgba(79, 70, 229, 0.9) 100%)", // Purple to indigo
+  "linear-gradient(135deg, rgba(6, 182, 212, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%)", // Cyan to blue
+  "linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(249, 115, 22, 0.9) 100%)", // Amber to orange
+  "linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(34, 197, 94, 0.9) 100%)", // Emerald to green
+  "linear-gradient(135deg, rgba(225, 29, 72, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", // Rose to pink
+  "linear-gradient(135deg, rgba(168, 85, 247, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", // Purple to pink
+];
+
 // Initialize with some dummy projects
 const initialProjects: Project[] = [
   {
     id: '1',
     name: 'Refresh Beverage Co.',
     description: 'Brand identity for organic juice line targeting urban professionals.',
-    thumbnail: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
+    thumbnail: gradients[2], // Amber to Orange gradient
     createdAt: new Date('2025-01-15'),
     updatedAt: new Date('2025-04-01'),
     progress: 85,
@@ -29,7 +39,7 @@ const initialProjects: Project[] = [
     id: '2',
     name: 'NexTech Solutions',
     description: 'Complete rebrand for a growing SaaS company focusing on AI tools.',
-    thumbnail: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
+    thumbnail: gradients[0], // Purple to Indigo gradient
     createdAt: new Date('2025-02-10'),
     updatedAt: new Date('2025-03-25'),
     progress: 60,
@@ -40,7 +50,7 @@ const initialProjects: Project[] = [
     id: '3',
     name: 'EcoSustain Products',
     description: 'Sustainable packaging brand identity for eco-conscious consumers.',
-    thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+    thumbnail: gradients[3], // Emerald to Green gradient
     createdAt: new Date('2025-03-05'),
     updatedAt: new Date('2025-04-10'),
     progress: 40,
@@ -51,7 +61,7 @@ const initialProjects: Project[] = [
     id: '4',
     name: 'Metropolitan Gallery',
     description: 'Brand refresh for a contemporary art space expanding to digital experiences.',
-    thumbnail: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
+    thumbnail: gradients[5], // Purple to Pink gradient
     createdAt: new Date('2025-02-28'),
     updatedAt: new Date('2025-03-15'),
     progress: 100,
@@ -62,7 +72,7 @@ const initialProjects: Project[] = [
     id: '5',
     name: 'Astral Coffee Shop',
     description: 'Branding for a new coffee chain with an astronomy theme.',
-    thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+    thumbnail: gradients[1], // Cyan to Blue gradient
     createdAt: new Date('2025-04-01'),
     updatedAt: new Date('2025-04-15'),
     progress: 25,
@@ -73,7 +83,7 @@ const initialProjects: Project[] = [
     id: '6',
     name: 'Solace Wellness',
     description: 'Brand system for a holistic health and meditation studio.',
-    thumbnail: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
+    thumbnail: gradients[4], // Rose to Pink gradient
     createdAt: new Date('2025-03-20'),
     updatedAt: new Date('2025-04-10'),
     progress: 15,

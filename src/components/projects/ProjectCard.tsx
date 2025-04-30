@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { formatDistance } from 'date-fns';
 import { 
@@ -80,6 +79,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   const gradientIndex = project.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % gradients.length;
   const gradientClass = gradients[gradientIndex];
 
+  // For projects with legacy thumbnail URLs, we'll assign a gradient style
+  let thumbnailStyle: React.CSSProperties = {};
+  
+  if (project.thumbnail && project.thumbnail.startsWith('linear-gradient')) {
+    thumbnailStyle = { background: project.thumbnail };
+  }
+
   const statusConfig = getStatusConfig(project.status);
   
   const handleNavigate = () => {
@@ -108,7 +114,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
         className="overflow-hidden cursor-pointer h-full transition-all hover:shadow-lg hover:shadow-cyan/10 hover:-translate-y-1"
       >
         {/* Project gradient thumbnail */}
-        <div className={`aspect-video ${gradientClass} flex items-center justify-center`}>
+        <div 
+          className={`aspect-video flex items-center justify-center ${project.thumbnail?.startsWith('linear-gradient') ? '' : gradientClass}`}
+          style={thumbnailStyle}
+        >
           <span className="text-white text-lg font-bold tracking-wider opacity-80">
             {project.name.charAt(0).toUpperCase()}
           </span>

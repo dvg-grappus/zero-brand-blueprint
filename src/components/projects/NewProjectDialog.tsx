@@ -18,13 +18,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/sonner';
 
-const thumbnailOptions = [
-  { url: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b', label: 'Tech' },
-  { url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158', label: 'Design' },
-  { url: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81', label: 'Creative' },
-  { url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085', label: 'Workspace' },
-  { url: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7', label: 'Abstract' },
-  { url: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9', label: 'Business' },
+// Collection of gradient options for project thumbnails
+const gradientOptions = [
+  { value: "linear-gradient(135deg, rgba(147, 51, 234, 0.9) 0%, rgba(79, 70, 229, 0.9) 100%)", label: "Purple to Indigo" },
+  { value: "linear-gradient(135deg, rgba(6, 182, 212, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%)", label: "Cyan to Blue" },
+  { value: "linear-gradient(135deg, rgba(245, 158, 11, 0.9) 0%, rgba(249, 115, 22, 0.9) 100%)", label: "Amber to Orange" },
+  { value: "linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(34, 197, 94, 0.9) 100%)", label: "Emerald to Green" },
+  { value: "linear-gradient(135deg, rgba(225, 29, 72, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", label: "Rose to Pink" },
+  { value: "linear-gradient(135deg, rgba(168, 85, 247, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)", label: "Purple to Pink" },
 ];
 
 const NewProjectDialog: React.FC = () => {
@@ -33,7 +34,7 @@ const NewProjectDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedThumbnail, setSelectedThumbnail] = useState(thumbnailOptions[0].url);
+  const [selectedGradient, setSelectedGradient] = useState(gradientOptions[0].value);
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = () => {
@@ -48,7 +49,7 @@ const NewProjectDialog: React.FC = () => {
     const newProject = createProject({
       name,
       description,
-      thumbnail: selectedThumbnail,
+      thumbnail: selectedGradient,
       progress: 0,
       status: 'draft',
       collaborators: []
@@ -62,7 +63,7 @@ const NewProjectDialog: React.FC = () => {
       // Reset form
       setName('');
       setDescription('');
-      setSelectedThumbnail(thumbnailOptions[0].url);
+      setSelectedGradient(gradientOptions[0].value);
       
       // Navigate to timeline with the new project ID
       if (newProject && newProject.id) {
@@ -109,22 +110,23 @@ const NewProjectDialog: React.FC = () => {
             />
           </div>
           <div className="grid gap-2">
-            <Label>Choose a thumbnail</Label>
+            <Label>Choose a gradient</Label>
             <div className="grid grid-cols-3 gap-3">
-              {thumbnailOptions.map((option) => (
+              {gradientOptions.map((option) => (
                 <div 
-                  key={option.url}
-                  onClick={() => setSelectedThumbnail(option.url)}
+                  key={option.value}
+                  onClick={() => setSelectedGradient(option.value)}
                   className={`
                     relative cursor-pointer overflow-hidden h-20 rounded-md border-2
-                    ${selectedThumbnail === option.url ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
+                    ${selectedGradient === option.value ? 'border-primary ring-2 ring-primary/20' : 'border-border'}
                   `}
                 >
-                  <img 
-                    src={option.url} 
-                    alt={option.label}
-                    className="w-full h-full object-cover"
-                  />
+                  <div 
+                    style={{ background: option.value }}
+                    className="w-full h-full flex items-center justify-center"
+                  >
+                    <span className="text-white text-xs font-medium opacity-80">{option.label}</span>
+                  </div>
                 </div>
               ))}
             </div>

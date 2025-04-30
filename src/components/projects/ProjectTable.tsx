@@ -110,6 +110,15 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
               "from-blue-400/90 to-emerald-400/90",
               "from-indigo-500/90 to-purple-500/90"
             ];
+
+            // For projects with legacy URL thumbnails, we'll use the gradient based on ID
+            let gradientStyle: React.CSSProperties = {};
+            let gradientClass = `bg-gradient-to-br ${gradientClasses[gradientIndex]}`;
+            
+            if (project.thumbnail && project.thumbnail.startsWith('linear-gradient')) {
+              gradientStyle = { background: project.thumbnail };
+              gradientClass = '';
+            }
             
             return (
               <TableRow 
@@ -119,7 +128,10 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded bg-gradient-to-br ${gradientClasses[gradientIndex]} flex items-center justify-center`}>
+                    <div 
+                      className={`w-10 h-10 rounded flex items-center justify-center ${gradientClass}`}
+                      style={gradientStyle}
+                    >
                       <span className="text-white font-semibold">{project.name.charAt(0).toUpperCase()}</span>
                     </div>
                     <div>
