@@ -5,10 +5,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import TimelineTopBar from "@/components/TimelineTopBar";
 import StepProgress from "@/components/StepProgress";
 import OfflineToast from "@/components/OfflineToast";
-import AIAssistantPanel from "@/components/audience/AIAssistantPanel";
 import InsightPoolDrawer from "@/components/audience/InsightPoolDrawer";
 import { AudienceProvider } from "@/providers/AudienceProvider";
 import { Lightbulb } from "lucide-react";
+import FloatingAIPanel, { TalkToAIButton } from "@/components/FloatingAIPanel";
 
 // Import all sub-step components
 import CohortCanvas from "@/components/audience/CohortCanvas";
@@ -18,17 +18,73 @@ import PersonaDetail from "@/components/audience/PersonaDetail";
 import SimulationHub from "@/components/audience/SimulationHub";
 import InsightReview from "@/components/audience/InsightReview";
 
+// Define audience AI context suggestions based on current step
+const ASSISTANT_CONTEXT: Record<string, {
+  context: string;
+  suggestedPrompts: string[];
+}> = {
+  "cohort-canvas": {
+    context: "Cohort Targeting",
+    suggestedPrompts: [
+      "Widen age range",
+      "Suggest psychographics",
+      "Help narrow my focus"
+    ]
+  },
+  "cohort-board": {
+    context: "Cohort Selection",
+    suggestedPrompts: [
+      "Pick fastest-growing cohort",
+      "Help identify high LTV segments",
+      "Show cohort sources"
+    ]
+  },
+  "persona-gallery": {
+    context: "Persona Creation",
+    suggestedPrompts: [
+      "Generate alternative persona",
+      "Compare two personas",
+      "Highlight key differences"
+    ]
+  },
+  "simulations": {
+    context: "Persona Simulations",
+    suggestedPrompts: [
+      "Suggest conversation topic",
+      "Add third persona",
+      "Summarize insights"
+    ]
+  },
+  "insight-review": {
+    context: "Insight Analysis",
+    suggestedPrompts: [
+      "Merge similar insights",
+      "Rank by business impact",
+      "Extract key themes"
+    ]
+  }
+};
+
 const AudienceContent = () => {
   const { substep, personaId } = useParams();
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<string>("cohort-canvas");
+  const [isAIPanelOpen, setIsAIPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("Audience Targeting");
+  const [aiSuggestedPrompts, setAiSuggestedPrompts] = useState<string[]>([]);
 
   // Update current step when route changes
   useEffect(() => {
     if (substep) {
       setCurrentStep(substep);
+      
+      // Update AI context based on step
+      if (ASSISTANT_CONTEXT[substep]) {
+        setAiContext(ASSISTANT_CONTEXT[substep].context);
+        setAiSuggestedPrompts(ASSISTANT_CONTEXT[substep].suggestedPrompts);
+      }
     }
   }, [substep]);
 
@@ -55,7 +111,6 @@ const AudienceContent = () => {
       navigate(`/step/2/${nextStep}`);
     } else {
       // Complete the audience module and go back to timeline
-      // This would trigger onModuleComplete('audience')
       navigate("/timeline", { state: { fromAudience: true } });
     }
   };
@@ -64,27 +119,84 @@ const AudienceContent = () => {
   const toggleInsightDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
+  
+  // Open AI panel with context
+  const handleOpenAIPanel = () => {
+    setIsAIPanelOpen(true);
+  };
 
   // Determine which component to render based on the substep
   const renderSubStep = () => {
     if (personaId) {
       // Always render PersonaDetail if personaId is present in URL
-      return <PersonaDetail personaId={personaId} onBack={() => navigate("/step/2/persona-gallery")} />;
+      return (
+        <div>
+          <div className="flex justify-end mb-4">
+            <TalkToAIButton context="Persona Details" onClick={handleOpenAIPanel} />
+          </div>
+          <PersonaDetail 
+            personaId={personaId} 
+            onBack={() => navigate("/step/2/persona-gallery")} 
+          />
+        </div>
+      );
     }
     
     switch (substep) {
       case "cohort-canvas":
-        return <CohortCanvas onComplete={() => { completeStep("cohort-canvas"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <CohortCanvas onComplete={() => { completeStep("cohort-canvas"); goToNextStep(); }} />
+          </div>
+        );
       case "cohort-board":
-        return <CohortBoard onComplete={() => { completeStep("cohort-board"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <CohortBoard onComplete={() => { completeStep("cohort-board"); goToNextStep(); }} />
+          </div>
+        );
       case "persona-gallery":
-        return <PersonaGallery onComplete={() => { completeStep("persona-gallery"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <PersonaGallery onComplete={() => { completeStep("persona-gallery"); goToNextStep(); }} />
+          </div>
+        );
       case "simulations":
-        return <SimulationHub onComplete={() => { completeStep("simulations"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <SimulationHub onComplete={() => { completeStep("simulations"); goToNextStep(); }} />
+          </div>
+        );
       case "insight-review":
-        return <InsightReview onComplete={() => { completeStep("insight-review"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <InsightReview onComplete={() => { completeStep("insight-review"); goToNextStep(); }} />
+          </div>
+        );
       default:
-        return <CohortCanvas onComplete={() => { completeStep("cohort-canvas"); goToNextStep(); }} />;
+        return (
+          <div>
+            <div className="flex justify-end mb-4">
+              <TalkToAIButton context={aiContext} onClick={handleOpenAIPanel} />
+            </div>
+            <CohortCanvas onComplete={() => { completeStep("cohort-canvas"); goToNextStep(); }} />
+          </div>
+        );
     }
   };
 
@@ -105,21 +217,22 @@ const AudienceContent = () => {
       </motion.button>
       
       <div className="flex px-8 pt-[96px]">
-        {/* Left side - Audience step content */}
-        <div className="w-[70%] pr-6">
-          <div className="max-w-[800px] mx-auto">
-            {renderSubStep()}
-          </div>
-        </div>
-        
-        {/* Right side - AI Assistant */}
-        <div className="w-[30%] sticky top-24 h-[calc(100vh-180px)]">
-          <AIAssistantPanel currentStep={currentStep} />
+        {/* Center the content */}
+        <div className="w-full max-w-4xl mx-auto">
+          {renderSubStep()}
         </div>
       </div>
       
       {/* Insight Pool Drawer */}
       <InsightPoolDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      
+      {/* Floating AI Assistant Panel */}
+      <FloatingAIPanel 
+        isOpen={isAIPanelOpen}
+        onClose={() => setIsAIPanelOpen(false)}
+        context={aiContext}
+        suggestedPrompts={aiSuggestedPrompts}
+      />
     </div>
   );
 };

@@ -63,7 +63,8 @@ const FloatingAIPanel: React.FC<FloatingAIPanelProps> = ({
         { 
           id: '0', 
           type: 'ai', 
-          content: `Hi! I'm your AI assistant. How can I help with ${context}?`
+          content: `Hi! I'm your AI assistant. How can I help with ${context}?`,
+          timestamp: new Date()
         }
       ]);
     }
@@ -103,7 +104,8 @@ const FloatingAIPanel: React.FC<FloatingAIPanelProps> = ({
         { 
           id: (Date.now() + 1).toString(), 
           type: 'ai', 
-          content: aiResponse 
+          content: aiResponse,
+          timestamp: new Date()
         }
       ]);
       
@@ -134,7 +136,8 @@ const FloatingAIPanel: React.FC<FloatingAIPanelProps> = ({
         { 
           id: (Date.now() + 1).toString(), 
           type: 'ai', 
-          content: aiResponse
+          content: aiResponse,
+          timestamp: new Date()
         }
       ]);
       
