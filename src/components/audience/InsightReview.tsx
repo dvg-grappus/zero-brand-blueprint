@@ -292,7 +292,7 @@ const InsightReview: React.FC<InsightReviewProps> = ({ onComplete }) => {
         </ul>
       </div>
       
-      <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
+      <div className="fixed bottom-8 inset-x-0 mx-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
         <div className="text-sm">
           {!allRated ? (
             <span className="text-muted-foreground">

@@ -408,7 +408,7 @@ const SimulationHub: React.FC<SimulationHubProps> = ({ onComplete }) => {
         </div>
       </div>
       
-      <div className="fixed bottom-8 right-[calc(30%+2rem)] left-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
+      <div className="fixed bottom-8 inset-x-0 mx-8 flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm border-t border-border/40">
         <div className="text-sm">
           {transcripts.length > 0 ? (
             <span className="flex items-center text-cyan gap-1">
