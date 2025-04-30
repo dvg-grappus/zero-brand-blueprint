@@ -93,7 +93,7 @@ export const CompetitionFooter: React.FC<CompetitionFooterProps> = ({
   
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-[320px] h-20 bg-background/80 backdrop-blur-sm border-t border-border/40 px-[120px] flex items-center justify-between"
+      className="fixed bottom-0 inset-x-0 h-20 bg-background/80 backdrop-blur-sm border-t border-border/40 px-[120px] flex items-center justify-between"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
