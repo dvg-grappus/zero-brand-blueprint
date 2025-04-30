@@ -64,22 +64,22 @@ const BrandHub: React.FC = () => {
             {/* View toggle */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground mr-2">View:</span>
-              <TabsList>
-                <TabsTrigger 
-                  value="grid"
-                  onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-primary text-primary-foreground' : ''}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="list"
-                  onClick={() => setViewMode('list')}
-                  className={viewMode === 'list' ? 'bg-primary text-primary-foreground' : ''}
-                >
-                  <LayoutList className="h-4 w-4" />
-                </TabsTrigger>
-              </TabsList>
+              <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'grid' | 'list')}>
+                <TabsList>
+                  <TabsTrigger 
+                    value="grid"
+                    className={viewMode === 'grid' ? 'bg-primary text-primary-foreground' : ''}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="list"
+                    className={viewMode === 'list' ? 'bg-primary text-primary-foreground' : ''}
+                  >
+                    <LayoutList className="h-4 w-4" />
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           </div>
         </div>
