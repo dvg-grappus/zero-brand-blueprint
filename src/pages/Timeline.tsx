@@ -179,8 +179,10 @@ const Timeline: React.FC = () => {
     });
   };
 
-  // Function to handle going back to Brand Hub
+  // Function to handle going back to Brand Hub with debug logs
   const handleBackToBrandHub = () => {
+    console.log("Back to Brand Hub clicked!");
+    console.log("Navigating to /brand-hub");
     navigate('/brand-hub');
   };
 
@@ -200,7 +202,8 @@ const Timeline: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <button 
                   onClick={handleBackToBrandHub}
-                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1 cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-foreground bg-background/60 hover:bg-background/80 rounded-md transition-all cursor-pointer"
+                  style={{ cursor: 'pointer' }} // Force cursor pointer
                 >
                   <ArrowLeft size={16} />
                   <span>Back to Brand Hub</span>
