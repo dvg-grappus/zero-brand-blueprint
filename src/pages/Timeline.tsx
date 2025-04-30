@@ -36,7 +36,7 @@ const Timeline: React.FC = () => {
       // If project ID is invalid, redirect to Brand Hub
       navigate('/brand-hub');
     }
-  }, [projectId, activeProject]);
+  }, [projectId, activeProject, navigate]);
   
   const steps: Step[] = [
     { id: 1, title: "Positioning", description: "Define purpose, edge and long-range roadmap.", duration: "4 min" },
@@ -178,6 +178,11 @@ const Timeline: React.FC = () => {
     });
   };
 
+  // Function to handle going back to Brand Hub
+  const handleBackToBrandHub = () => {
+    navigate('/brand-hub');
+  };
+
   return (
     <div className="min-h-screen w-full bg-background text-foreground relative overflow-hidden">
       {/* Simple gradient background */}
@@ -193,7 +198,7 @@ const Timeline: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <button 
-                  onClick={() => navigate('/brand-hub')}
+                  onClick={handleBackToBrandHub}
                   className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1"
                 >
                   ← Back to Brand Hub
